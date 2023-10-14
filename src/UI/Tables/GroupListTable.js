@@ -8,8 +8,7 @@ import Paper from "@mui/material/Paper";
 import { useQuery } from "react-query";
 import { queryKeys } from "../../QueryKeys";
 import useService from "../../hooks";
-import { Button } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+
 import {
   DeleteButton,
   DetailButton,
@@ -17,17 +16,17 @@ import {
 } from "../Buttons/ActionButtons";
 import { useNavigate, useParams } from "react-router-dom";
 
-export function StudentListTable() {
+export function GroupListTable() {
   const navigate = useNavigate();
-  const { studentServices } = useService();
+  const { groupServices } = useService();
 
-  const studentQuery = useQuery([queryKeys.getStudentsQuery], () =>
-    studentServices.getAllStudents()
+  const groupQuery = useQuery([queryKeys.getGroupsQuery], () =>
+    groupServices.getAllGroups()
   );
-  if (studentQuery.isLoading) {
+  if (groupQuery.isLoading) {
     return <h1 className="loading">Is Loading...</h1>;
   }
-  if (studentQuery.isError) {
+  if (groupQuery.isError) {
     return <h1 className="errorMessage">Something went wrong</h1>;
   }
   return (
@@ -36,55 +35,52 @@ export function StudentListTable() {
         <TableHead>
           <TableRow>
             <TableCell>Id</TableCell>
-
-            <TableCell>Full Name</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Education Degree</TableCell>
-            <TableCell>User name</TableCell>
-            <TableCell>Main group</TableCell>
+            <TableCell>Name</TableCell>
+            <TableCell>Student Count</TableCell>
+            <TableCell>Year</TableCell>
+            <TableCell>Faculty Name</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {studentQuery.data?.data.map((student) => (
+          {groupQuery.data?.data.map((group) => (
             <TableRow
-              key={student?.id}
+              key={group?.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell
                 onClick={() =>
-                  navigate(`${student.id}`, {
-                    state: { ...student },
+                  navigate(`${group.id}`, {
+                    state: { ...group },
                   })
                 }
               >
-                {student.id}
+                {group.id}
               </TableCell>
               <TableCell
                 className="cover"
                 component="th"
                 scope="row"
                 onClick={() =>
-                  navigate(`${student.id}`, {
-                    state: { ...student },
+                  navigate(`${group.id}`, {
+                    state: { ...group },
                   })
                 }
               >
-                {student.fullName}
+                {group.name}
               </TableCell>
-              <TableCell>{student.email}</TableCell>
-              <TableCell>{student.educationDegree}</TableCell>
-              <TableCell>{student.appUser?.userName ?? "No user"}</TableCell>
-              <TableCell>{student.mainGroup?.name ?? "No group"}</TableCell>
+              <TableCell>{group.studentCount}</TableCell>
+              <TableCell>{group.year}</TableCell>
+              <TableCell>{group.facultyName}</TableCell>
 
               <TableCell>
                 <DetailButton
-                  onClick={() => navigate(`${student.id}`, { state: student })}
+                  onClick={() => navigate(`${group.id}`, { state: group })}
                 />
                 <UpdateButton
                   onClick={() =>
-                    navigate(`UpdateStudent/${student.id}`, {
-                      state: student,
+                    navigate(`UpdateGroup/${group.id}`, {
+                      state: group,
                     })
                   }
                 >
@@ -92,8 +88,8 @@ export function StudentListTable() {
                 </UpdateButton>
                 <DeleteButton
                   onClick={() =>
-                    navigate(`DeleteStudent/${student.id}`, {
-                      state: student,
+                    navigate(`DeleteGroup/${group.id}`, {
+                      state: group,
                     })
                   }
                 >

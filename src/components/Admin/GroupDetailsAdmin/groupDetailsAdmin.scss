@@ -1,6 +1,6 @@
 @import "../../../UI/ScssUtils/mixins.scss";
 @import "../../../UI/ScssUtils/variables.scss";
-.student-details {
+.group-details {
   background-color: $adminBackground;
   width: 100%;
   padding: 30px 40px;
@@ -10,6 +10,8 @@
       background: white;
 
       & .details {
+        display: flex;
+        gap: 40px;
         padding: 40px;
         & .personal-details {
           & .card {

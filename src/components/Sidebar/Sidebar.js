@@ -12,10 +12,18 @@ const Sidebar = () => {
         <div className="sidebar-menu">
           <ul className="menu">
             <li className="submenu">
-              <button onClick={() => navigate("/")}>Dashboard</button>
+              <button onClick={() => navigate("/AdminDashboard")}>
+                Dashboard
+              </button>
             </li>
             <li className="submenu">
               <button onClick={() => navigate("/Students")}>Students</button>
+            </li>
+            <li className="submenu">
+              <button onClick={() => navigate("/Teachers")}>Teachers</button>
+            </li>
+            <li className="submenu">
+              <button onClick={() => navigate("/Groups")}>Groups</button>
             </li>
           </ul>
         </div>

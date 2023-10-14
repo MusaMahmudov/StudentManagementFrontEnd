@@ -15,19 +15,19 @@ import {
   DetailButton,
   UpdateButton,
 } from "../Buttons/ActionButtons";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export function StudentListTable() {
+export function TeacherListTable() {
   const navigate = useNavigate();
-  const { studentServices } = useService();
+  const { teacherServices } = useService();
 
-  const studentQuery = useQuery([queryKeys.getStudentsQuery], () =>
-    studentServices.getAllStudents()
+  const teachertQuery = useQuery([queryKeys.getTeachers], () =>
+    teacherServices.getAllTeachers()
   );
-  if (studentQuery.isLoading) {
+  if (teachertQuery.isLoading) {
     return <h1 className="loading">Is Loading...</h1>;
   }
-  if (studentQuery.isError) {
+  if (teachertQuery.isError) {
     return <h1 className="errorMessage">Something went wrong</h1>;
   }
   return (
@@ -36,55 +36,51 @@ export function StudentListTable() {
         <TableHead>
           <TableRow>
             <TableCell>Id</TableCell>
-
             <TableCell>Full Name</TableCell>
             <TableCell>Email</TableCell>
-            <TableCell>Education Degree</TableCell>
             <TableCell>User name</TableCell>
-            <TableCell>Main group</TableCell>
+            <TableCell>Mobile Number</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {studentQuery.data?.data.map((student) => (
+          {teachertQuery.data?.data.map((teacher) => (
             <TableRow
-              key={student?.id}
+              key={teacher?.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell
                 onClick={() =>
-                  navigate(`${student.id}`, {
-                    state: { ...student },
+                  navigate(`${teacher.id}`, {
+                    state: { ...teacher },
                   })
                 }
               >
-                {student.id}
+                {teacher.id}
               </TableCell>
               <TableCell
                 className="cover"
                 component="th"
                 scope="row"
                 onClick={() =>
-                  navigate(`${student.id}`, {
-                    state: { ...student },
+                  navigate(`${teacher.id}`, {
+                    state: { ...teacher },
                   })
                 }
               >
-                {student.fullName}
+                {teacher.fullName}
               </TableCell>
-              <TableCell>{student.email}</TableCell>
-              <TableCell>{student.educationDegree}</TableCell>
-              <TableCell>{student.appUser?.userName ?? "No user"}</TableCell>
-              <TableCell>{student.mainGroup?.name ?? "No group"}</TableCell>
-
+              <TableCell>{teacher.eMail}</TableCell>
+              <TableCell>{teacher.appUser?.userName ?? "No user"}</TableCell>
+              <TableCell>{teacher.mobileNumber}</TableCell>
               <TableCell>
                 <DetailButton
-                  onClick={() => navigate(`${student.id}`, { state: student })}
+                  onClick={() => navigate(`${teacher.id}`, { state: teacher })}
                 />
                 <UpdateButton
                   onClick={() =>
-                    navigate(`UpdateStudent/${student.id}`, {
-                      state: student,
+                    navigate(`/Teachers/UpdateTeacher/${teacher.id}`, {
+                      state: { ...teacher },
                     })
                   }
                 >
@@ -92,8 +88,8 @@ export function StudentListTable() {
                 </UpdateButton>
                 <DeleteButton
                   onClick={() =>
-                    navigate(`DeleteStudent/${student.id}`, {
-                      state: student,
+                    navigate(`/Teachers/DeleteTeacher/${teacher.id}`, {
+                      state: teacher,
                     })
                   }
                 >

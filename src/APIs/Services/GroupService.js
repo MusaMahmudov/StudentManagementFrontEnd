@@ -9,5 +9,8 @@ class groupService extends HTTPClient {
   async getAllGroups() {
     return await this.getAll("Groups");
   }
+  async getGroupById(id) {
+    return await this.getById("Groups", id);
+  }
 }
 export default groupService;

@@ -10,16 +10,16 @@ import { queryKeys } from "../../QueryKeys";
 import useService from "../../hooks";
 import { Button } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-
-export const DeleteButton = () => {
+export const DeleteButton = ({ children, ...props }) => {
   return (
     <Button
+      {...props}
       variant="contained"
       size="small"
       startIcon={<DeleteIcon />}
       color="error"
     >
-      Delete
+      {children}
     </Button>
   );
 };
@@ -36,9 +36,9 @@ export const UpdateButton = ({ children, ...props }) => {
     </Button>
   );
 };
-export const DetailButton = () => {
+export const DetailButton = ({ ...props }) => {
   return (
-    <Button variant="contained" size="small" color="info">
+    <Button {...props} variant="contained" size="small" color="info">
       Detail
     </Button>
   );

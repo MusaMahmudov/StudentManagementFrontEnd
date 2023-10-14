@@ -7,28 +7,40 @@ import {
   TextField,
 } from "@mui/material";
 import "./studentUpdateAdmin.scss";
-import { useLocation, useParams } from "react-router-dom";
-import { useReducer, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useReducer, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../hooks";
 import { queryKeys } from "../../../QueryKeys";
 import { updateStudentReducer } from "../../../Reducers/UpdateStudentReducer";
-
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 const UpdateStudentAdmin = () => {
   const { groupServices, studentServices } = useService();
   const groupQuery = useQuery([queryKeys.getGroupsQuery], () =>
     groupServices.getAllGroups()
   );
-  const { state } = useLocation();
-  const [inputState, dispatch] = useReducer(updateStudentReducer, { ...state });
+  const navigate = useNavigate();
 
-  console.log(inputState);
+  const { state: studentData } = useLocation();
+  const [newBirthday, setNewBirthday] = useState(studentData.date0fBirth);
+  const [inputState, dispatch] = useReducer(updateStudentReducer, studentData);
   const mutate = useMutation(() =>
     studentServices.updateStudent(inputState.id, inputState)
   );
   const handleStudentUpdate = () => {
     mutate.mutate();
+    navigate("/Students");
   };
+  const handleBirthday = (date) => {
+    dispatch({
+      type: "dateOfBirth",
+      payload: `${date.$Y}-${date.$M}-${date.$D}T18:47:20.116`,
+    });
+  };
+
+  console.log(inputState);
   return (
     <div className="update-student">
       <div className="container">
@@ -58,7 +70,7 @@ const UpdateStudentAdmin = () => {
                 id="outlined-basic"
                 label="Full Name"
                 variant="outlined"
-                defaultValue={inputState.fullName}
+                defaultValue={studentData.fullName}
                 onChange={(e) =>
                   dispatch({
                     type: "fullName",
@@ -71,7 +83,7 @@ const UpdateStudentAdmin = () => {
                 id="outlined-basic"
                 label="Year Of Graduation"
                 variant="outlined"
-                defaultValue={state.yearOfGraduation}
+                defaultValue={studentData.yearOfGraduation}
                 onChange={(e) =>
                   dispatch({
                     type: "yearOfGraduation",
@@ -85,7 +97,7 @@ const UpdateStudentAdmin = () => {
                 id="outlined-basic"
                 label="Education Degree"
                 variant="outlined"
-                defaultValue={inputState.educationDegree}
+                defaultValue={studentData.educationDegree}
                 onChange={(e) =>
                   dispatch({
                     type: "educationDegree",
@@ -94,10 +106,10 @@ const UpdateStudentAdmin = () => {
                 }
               />
 
-              <Select
+              {/* <Select
                 labelId="demo-select-small-label"
                 id="demo-select-small"
-                value={state.gender}
+                value={studentData?.data.gender}
                 label="Age"
                 onChange={(e) =>
                   dispatch({
@@ -106,7 +118,7 @@ const UpdateStudentAdmin = () => {
                   })
                 }
               >
-                <MenuItem value={inputState.gender}>
+                <MenuItem value={studentData?.data.gender}>
                   {inputState.gender}
                 </MenuItem>
                 <MenuItem
@@ -114,14 +126,14 @@ const UpdateStudentAdmin = () => {
                 >
                   {inputState.gender == "Male" ? "Female" : "Male"}
                 </MenuItem>
-              </Select>
+              </Select> */}
 
               <TextField
                 size="small"
                 id="outlined-basic"
                 label="Form Of Education"
                 variant="outlined"
-                defaultValue={state.formOfEducation}
+                defaultValue={studentData.formOfEducation}
                 onChange={(e) =>
                   dispatch({
                     type: "formOfEducation",
@@ -134,7 +146,7 @@ const UpdateStudentAdmin = () => {
                 id="outlined-basic"
                 label="Type Of Payment"
                 variant="outlined"
-                defaultValue={state.typeOfPayment}
+                defaultValue={studentData.typeOfPayment}
                 onChange={(e) =>
                   dispatch({
                     type: "typeOfPayment",
@@ -147,7 +159,7 @@ const UpdateStudentAdmin = () => {
                 id="outlined-basic"
                 label="Home Phone Number"
                 variant="outlined"
-                defaultValue={state.homePhoneNumber}
+                defaultValue={studentData.homePhoneNumber}
                 onChange={(e) =>
                   dispatch({
                     type: "homePhoneNumber",
@@ -160,7 +172,7 @@ const UpdateStudentAdmin = () => {
                 id="outlined-basic"
                 label="Phone Number"
                 variant="outlined"
-                defaultValue={state.phoneNumber}
+                defaultValue={studentData.phoneNumber}
                 onChange={(e) =>
                   dispatch({
                     type: "phoneNumber",
@@ -173,7 +185,7 @@ const UpdateStudentAdmin = () => {
                 id="outlined-basic"
                 label="Email"
                 variant="outlined"
-                defaultValue={state.email}
+                defaultValue={studentData.email}
                 onChange={(e) =>
                   dispatch({
                     type: "email",
@@ -186,7 +198,7 @@ const UpdateStudentAdmin = () => {
                 id="outlined-basic"
                 label="AppUserId"
                 variant="outlined"
-                defaultValue={state.appUser?.id}
+                defaultValue={studentData.appUser?.id}
                 onChange={(e) =>
                   dispatch({
                     type: "appUser",
@@ -194,24 +206,18 @@ const UpdateStudentAdmin = () => {
                   })
                 }
               />
-              <TextField
-                size="small"
-                id="outlined-basic"
-                label="Date Of Birth"
-                variant="outlined"
-                defaultValue={state.dateOfBirth}
-                onChange={(e) =>
-                  dispatch({
-                    type: "dateOfBirth",
-                    payload: e.target.value,
-                  })
-                }
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  value={newBirthday}
+                  defaultValue={dayjs(newBirthday)}
+                  onChange={handleBirthday}
+                />
+              </LocalizationProvider>
 
               <Select
                 multiple
                 native
-                defaultValue={state.groups}
+                defaultValue={studentData.groups}
                 label="Groups"
                 inputProps={{
                   id: "select-multiple-native",
@@ -229,7 +235,11 @@ const UpdateStudentAdmin = () => {
                   </option>
                 ))}
               </Select>
-              <Button onClick={() => handleStudentUpdate()} variant="contained">
+              <Button
+                type="submit"
+                onClick={() => handleStudentUpdate()}
+                variant="contained"
+              >
                 Update student
               </Button>
             </Box>

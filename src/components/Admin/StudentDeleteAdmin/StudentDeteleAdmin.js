@@ -1,26 +1,20 @@
-import { useLocation, useParams } from "react-router-dom";
-import "./studentDetailsAdmin.scss";
-import { AdminStudentTitle } from "../../../UI/Common/AdminStudentTitle";
+import React from "react";
+import "./studentDeleteAdmin.scss";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import { Icon } from "@mui/material";
-import { useContext } from "react";
-import { StudentListContext } from "../../../Contexts/student-list-context";
+import { useLocation, useNavigate } from "react-router-dom";
+import { AdminStudentTitle } from "../../../UI/Common/AdminStudentTitle";
+import { Button } from "@mui/material";
+import { DeleteButton } from "../../../UI/Buttons/ActionButtons";
 import useService from "../../../hooks";
-import { useQuery } from "react-query";
-import { queryKeys } from "../../../QueryKeys";
-const StudentDetailsAdmin = () => {
-  const { Id } = useParams();
-  const { studentServices } = useService();
-  const studendQuery = useQuery([queryKeys.getStudentByIdQuery], () =>
-    studentServices.getStudentById(Id)
-  );
-  if (studendQuery.isLoading) {
-    return <h1>Is Loading...</h1>;
-  }
-  if (studendQuery.isError) {
-    return <h1>{studendQuery.error.response.data.message}</h1>;
-  }
+import { useMutation } from "react-query";
 
+const DeleteStudentAdmin = () => {
+  const { state } = useLocation();
+  const navigate = useNavigate();
+  const { studentServices } = useService();
+  const mutate = useMutation((id) => studentServices.deleteStudent(id), {
+    onSuccess: () => navigate(-1),
+  });
   return (
     <div className="student-details">
       <div className="container">
@@ -28,18 +22,18 @@ const StudentDetailsAdmin = () => {
           child1={"Student details"}
           child2={" Student / Student Details"}
         />
-        <section className="profile">
+        <section className="profile-actions">
           <div className="details">
             <div className="personal-details">
               <div className="card">
-                <h1>Personal Details:</h1>
+                <h1 className="card-title">Personal Details:</h1>
                 <div className="info">
                   <section className="info-left">
                     <PersonOutlineIcon fontSize="small" />
                   </section>
                   <section className="info-right">
                     <h1>Id</h1>
-                    <p>{studendQuery.data?.data.id}</p>
+                    <p>{state.id}</p>
                   </section>
                 </div>
                 <div className="info">
@@ -48,7 +42,7 @@ const StudentDetailsAdmin = () => {
                   </section>
                   <section className="info-right">
                     <h1>Full Name</h1>
-                    <p>{studendQuery.data?.data.fullName}</p>
+                    <p>{state.fullName}</p>
                   </section>
                 </div>
                 <div className="info">
@@ -57,7 +51,7 @@ const StudentDetailsAdmin = () => {
                   </section>
                   <section className="info-right">
                     <h1>Email</h1>
-                    <p>{studendQuery.data?.data.email}</p>
+                    <p>{state.email}</p>
                   </section>
                 </div>
                 <div className="info">
@@ -66,7 +60,7 @@ const StudentDetailsAdmin = () => {
                   </section>
                   <section className="info-right">
                     <h1>Main group</h1>
-                    <p>{studendQuery.data?.data.name ?? "No main group"}</p>
+                    <p>{state.mainGroup?.name ?? "no main group"}</p>
                   </section>
                 </div>
                 <div className="info">
@@ -75,7 +69,7 @@ const StudentDetailsAdmin = () => {
                   </section>
                   <section className="info-right">
                     <h1>Year of Graduation</h1>
-                    <p>{studendQuery.data?.data.yearOfGraduation}</p>
+                    <p>{state.yearOfGraduation}</p>
                   </section>
                 </div>
                 <div className="info">
@@ -84,9 +78,7 @@ const StudentDetailsAdmin = () => {
                   </section>
                   <section className="info-right">
                     <h1>Faculty</h1>
-                    <p>
-                      {studendQuery.data?.data.facultyName ?? "No faculty yet"}
-                    </p>
+                    <p>{state.mainGroup?.facultyName ?? "no faculty yet"}</p>
                   </section>
                 </div>
                 <div className="info">
@@ -95,7 +87,7 @@ const StudentDetailsAdmin = () => {
                   </section>
                   <section className="info-right">
                     <h1>Phone Number</h1>
-                    <p>{studendQuery.data?.data.phoneNumber}</p>
+                    <p>{state.phoneNumber}</p>
                   </section>
                 </div>
                 <div className="info">
@@ -104,7 +96,7 @@ const StudentDetailsAdmin = () => {
                   </section>
                   <section className="info-right">
                     <h1>Home Phone Number</h1>
-                    <p>{studendQuery.data?.data.homePhoneNumber}</p>
+                    <p>{state.homePhoneNumber}</p>
                   </section>
                 </div>
                 <div className="info">
@@ -113,15 +105,20 @@ const StudentDetailsAdmin = () => {
                   </section>
                   <section className="info-right">
                     <h1>User</h1>
-                    <p>{studendQuery.data?.data.AppUser ?? "No user"}</p>
+                    <p>{state.AppUser ?? "No user"}</p>
                   </section>
                 </div>
               </div>
             </div>
+          </div>
+          <div className="action">
+            <DeleteButton onClick={() => mutate.mutate(state.id)}>
+              Delete Student
+            </DeleteButton>
           </div>
         </section>
       </div>
     </div>
   );
 };
-export default StudentDetailsAdmin;
+export default DeleteStudentAdmin;

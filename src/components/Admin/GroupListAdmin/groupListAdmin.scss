@@ -1,5 +1,5 @@
 @import "../../../UI/ScssUtils/variables.scss";
-.student-list-admin {
+.group-list-admin {
   width: 100%;
   padding: 30px 40px;
   background-color: #edf4ff;
@@ -8,7 +8,7 @@
     & .search-part {
       margin-bottom: 20px;
     }
-    & .students {
+    & .groups {
       background: white;
       padding: 30px;
       &-list {
