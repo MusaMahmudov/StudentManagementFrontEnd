@@ -14,13 +14,22 @@ const ErrorPage = () => {
             Oops! Page not found!
           </h5>
           <h4>The page you requested was not found.</h4>
-          <Button
-            sx={{ borderRadius: 10 }}
-            variant="contained"
-            onClick={() => navigate("/AdminDashboard")}
-          >
-            Go To Main Page
-          </Button>
+          <div className="buttons">
+            <Button
+              sx={{ borderRadius: 10 }}
+              variant="contained"
+              onClick={() => navigate("/AdminDashboard")}
+            >
+              Go To Main Page
+            </Button>
+            <Button
+              sx={{ borderRadius: 10 }}
+              variant="contained"
+              onClick={() => navigate(-1)}
+            >
+              Back
+            </Button>
+          </div>
         </div>
       </div>
     </div>

@@ -104,15 +104,15 @@ const CreateTeacherAdmin = () => {
       <div className="container">
         <section className="title">
           <div className="title-left">
-            <h1>Update Student</h1>
+            <h1>Create Teacher</h1>
           </div>
           <div className="title-right">
-            <h1>Student/Update Student</h1>
+            <h1>Teacher / Create Teacher</h1>
           </div>
         </section>
         <section className="form">
           <div className="form-title">
-            <h1>Student Information</h1>
+            <h1>Teacher Information</h1>
           </div>
           <div className="inputs">
             <Box

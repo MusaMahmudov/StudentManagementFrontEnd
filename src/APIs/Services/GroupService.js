@@ -12,5 +12,14 @@ class groupService extends HTTPClient {
   async getGroupById(id) {
     return await this.getById("Groups", id);
   }
+  async createGroup(body) {
+    return await this.post("Groups", body);
+  }
+  async deleteGroup(id) {
+    return await this.delete("Groups", id);
+  }
+  async updateGroup(id, body) {
+    return await this.put("Groups", id, body);
+  }
 }
 export default groupService;

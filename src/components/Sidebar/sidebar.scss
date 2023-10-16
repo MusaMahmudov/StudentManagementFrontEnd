@@ -1,6 +1,7 @@
 .main-container {
   & #sidebar {
-    width: 300px;
+    max-width: 240px;
+    width: 200px;
     height: 100%;
     & .container {
       padding: 20px 30px;
@@ -10,18 +11,34 @@
           list-style: none;
           padding: 0px;
           & .submenu {
+            width: 120px;
+            position: relative;
+            margin: 0px 25px 10px 15px;
             color: black;
             display: flex;
             align-items: center;
+            cursor: pointer;
 
-            & i {
-              font-size: 14px;
+            &:hover {
+              & svg,
+              i {
+                transform: translateX(15px);
+                color: #1976d2;
+              }
+            }
+
+            & i,
+            svg {
+              position: absolute;
+              font-size: 15px;
+              color: #6f6f6f;
+              transition: 0.3s;
+              right: -15px;
             }
             & button {
               border: none;
-              margin: 0px 25px 10px 15px;
               color: #6f6f6f;
-              font-size: 18px;
+              font-size: 16px;
             }
           }
         }

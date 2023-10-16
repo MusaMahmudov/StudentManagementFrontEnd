@@ -124,7 +124,7 @@ const GroupDetailsAdmin = () => {
             </section>
             <section className="group-students">
               <div>
-                <h1>Students</h1>
+                <h1>Students:</h1>
               </div>
               <TableContainer component={Paper}>
                 <Table

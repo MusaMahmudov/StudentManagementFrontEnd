@@ -1,0 +1,19 @@
+.group-details {
+  & .container {
+    & .profile-actions {
+      background: white;
+      display: flex;
+      justify-content: space-between;
+      padding: 40px;
+      & .details {
+        & .personal-details {
+          & .card {
+            & .card-title {
+              margin: 0px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

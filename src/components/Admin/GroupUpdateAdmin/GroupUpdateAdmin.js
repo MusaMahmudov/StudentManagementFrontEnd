@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   InputLabel,
@@ -6,6 +7,7 @@ import {
   Select,
   TextField,
 } from "@mui/material";
+import "./groupUpdateAdmin.scss";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useReducer, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
@@ -16,50 +18,62 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { updateTeacherReduce } from "../../../Reducers/UpdateTeacherReducer";
-const UpdateTeacherAdmin = () => {
-  const { teacherServices } = useService();
+import { AdminGroupTitle } from "../../../UI/Common/AdminGroupTitle";
+import { updateGroupReducer } from "../../../Reducers/UpdateGroupReducer";
+import { type } from "@testing-library/user-event/dist/type";
+const UpdateGroupAdmin = () => {
+  const { groupServices, facultyServices } = useService();
+  const { data: facultyData, isError } = useQuery(
+    [queryKeys.getFaculties],
+    () => facultyServices.getAllFaculties()
+  );
+  const [facultyError, setFacultyError] = useState();
+  if (isError) {
+    setFacultyError("Something get wrong");
+  }
 
   const navigate = useNavigate();
-
-  const { state: teacherData } = useLocation();
-  console.log(teacherData);
-  const [newBirthday, setNewBirthday] = useState();
-  const [inputState, dispatch] = useReducer(updateTeacherReduce, teacherData);
-  const mutate = useMutation(() =>
-    teacherServices.updateTeacher(inputState.id, inputState)
+  console.log(facultyData);
+  const { state: groupData } = useLocation();
+  const [facultyInputValue, setFacultyInputValue] = useState(
+    groupData?.facultyName
   );
-  const handleTeacherUpdate = () => {
+  console.log(groupData);
+  const currectFacultyId = facultyData?.data.find(
+    (faculty) => faculty.name === groupData.facultyName
+  ).id;
+
+  const [inputState, dispatch] = useReducer(updateGroupReducer, {
+    name: groupData?.name,
+    year: groupData?.year,
+    studentsId: [],
+    facultyId: currectFacultyId,
+  });
+  const mutate = useMutation(
+    () => groupServices.updateGroup(groupData.id, inputState)
+    // { onSuccess: () => navigate("/Groups") }
+  );
+  const handleGroupUpdate = () => {
     mutate.mutate();
-    navigate("/Teachers");
+    navigate("/Groups");
   };
-  const handleBirthday = (date) => {
-    console.log(date);
-    dispatch({
-      type: "dateOfBirth",
-      payload: `${date.$y}-${date.$M}-${date.$D}T18:47:20.116`,
-    });
-  };
-  console.log(inputState);
+  console.log("inputState", inputState);
   return (
-    <div className="update-student">
+    <div className="update-group">
       <div className="container">
-        <section className="title">
-          <div className="title-left">
-            <h1>Update Student</h1>
-          </div>
-          <div className="title-right">
-            <h1>Student/Update Student</h1>
-          </div>
-        </section>
+        <AdminGroupTitle
+          child1={"Update Group"}
+          child2={"Group / Updaete Group"}
+        />
         <section className="form">
           <div className="form-title">
-            <h1>Student Information</h1>
+            <h1>Group Information</h1>
           </div>
           <div className="inputs">
             <Box
               component="form"
               sx={{
-                "& > :not(style)": { m: 1, width: "43ch" },
+                "& > :not(style)": { m: 1, width: "65ch" },
               }}
               noValidate
               autoComplete="off"
@@ -67,12 +81,12 @@ const UpdateTeacherAdmin = () => {
               <TextField
                 size="small"
                 id="outlined-basic"
-                label="Full Name"
+                label="Name"
                 variant="outlined"
-                defaultValue={teacherData.fullName}
+                defaultValue={groupData.name}
                 onChange={(e) =>
                   dispatch({
-                    type: "fullName",
+                    type: "name",
                     payload: e.target.value,
                   })
                 }
@@ -80,78 +94,60 @@ const UpdateTeacherAdmin = () => {
               <TextField
                 size="small"
                 id="outlined-basic"
-                label="eMail"
+                label="Year"
                 variant="outlined"
-                defaultValue={teacherData.eMail}
+                defaultValue={groupData.year}
                 onChange={(e) =>
                   dispatch({
-                    type: "eMail",
+                    type: "year",
                     payload: e.target.value,
                   })
                 }
               />
 
-              <TextField
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                size="small"
+                options={facultyData?.data ?? []}
+                getOptionLabel={(option) => option.name}
+                inputValue={facultyInputValue}
+                onInputChange={(e, newValue) => {
+                  setFacultyInputValue(newValue);
+                }}
+                value={
+                  facultyData?.data.find(
+                    (item) => item.id === groupData.facultyId
+                  ) || null
+                }
+                sx={{ width: 300 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Faculty" />
+                )}
+                onChange={(e, newValue) =>
+                  dispatch({
+                    type: "facultyId",
+                    payload: newValue ? newValue.id : null,
+                  })
+                }
+              />
+              {/* <TextField
                 size="small"
                 id="outlined-basic"
                 label="User Id"
                 variant="outlined"
-                defaultValue={teacherData.appUser?.id}
+                defaultValue={groupData.appUser?.id}
                 onChange={(e) =>
                   dispatch({
                     type: "appUserId",
                     payload: e.target.value.trim(),
                   })
                 }
-              />
-
-              {/* <Select
-                    labelId="demo-select-small-label"
-                    id="demo-select-small"
-                    value={studentData?.data.gender}
-                    label="Age"
-                    onChange={(e) =>
-                      dispatch({
-                        type: "gender",
-                        payload: e.target.value,
-                      })
-                    }
-                  >
-                    <MenuItem value={studentData?.data.gender}>
-                      {inputState.gender}
-                    </MenuItem>
-                    <MenuItem
-                      value={inputState.gender == "Male" ? "Female" : "Male"}
-                    >
-                      {inputState.gender == "Male" ? "Female" : "Male"}
-                    </MenuItem>
-                  </Select> */}
-
-              <TextField
-                size="small"
-                id="outlined-basic"
-                label="Home Phone Number"
-                variant="outlined"
-                defaultValue={teacherData.address}
-                onChange={(e) =>
-                  dispatch({
-                    type: "address",
-                    payload: e.target.value,
-                  })
-                }
-              />
-
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  value={dayjs(inputState.dateOfBirth)}
-                  defaultValue={dayjs(teacherData.dateOfBirth)}
-                  onChange={handleBirthday}
-                />
-              </LocalizationProvider>
+              /> */}
 
               <Button
                 type="submit"
-                onClick={() => handleTeacherUpdate()}
+                onClick={() => handleGroupUpdate()}
                 variant="contained"
               >
                 Update student
@@ -163,4 +159,4 @@ const UpdateTeacherAdmin = () => {
     </div>
   );
 };
-export default UpdateTeacherAdmin;
+export default UpdateGroupAdmin;
