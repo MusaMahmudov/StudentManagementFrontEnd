@@ -6,12 +6,6 @@ import { StudentListTable } from "../../../UI/Tables/StudentListTable";
 import { Button, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { Route, Routes, useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { StudentListContext } from "../../../Contexts/student-list-context";
-import StudentDetailsAdmin from "../StudentDetailsAdmin/StudentDetailsAdmin";
-import UpdateStudentAdmin from "../StudentUpdateAdmin/StudentUpdateAdmin";
-import DeleteStudentAdmin from "../StudentDeleteAdmin/StudentDeteleAdmin";
-import CreateStudentAdmin from "../StudentCreateAdmin/StudentCreateAdmin";
 
 const StudentAdminPage = () => {
   const navigate = useNavigate();

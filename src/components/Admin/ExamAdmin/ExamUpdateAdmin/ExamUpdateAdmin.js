@@ -27,56 +27,98 @@ const UpdateExamAdmin = () => {
     [queryKeys.getGroupSubjects],
     () => groupSubjectServices.getAllGroupSubjects()
   );
+  const { Id } = useParams();
+  const examQuery = useQuery([queryKeys.getExamById], () =>
+    examServices.getExamByIdForUpdate(Id)
+  );
 
   const [examTypeError, setExamTypeError] = useState();
   if (isError) {
     setExamTypeError("Something get wrong");
   }
-
+  const [enteredValueisValid, setEnteredValueIsValid] = useState({
+    nameIsValid: true,
+    maxScoreIsValid: true,
+    dateIsValid: true,
+  });
   const navigate = useNavigate();
-  console.log(examTypeData);
-  const { state: examData } = useLocation();
-  const [groupSubjectInputValue, setGroupSubjectInputValue] = useState(
-    examData?.groupSubject.id
-  );
-  const [examTypeInputValue, setExamTypeInputValue] = useState(
-    examData?.examType
-  );
+  const [groupSubjectInputValue, setGroupSubjectInputValue] = useState();
+  const [examTypeInputValue, setExamTypeInputValue] = useState();
+  console.log("examtype", examTypeInputValue);
   const handleDate = (date) => {
     console.log(date);
     dispatch({
       type: "date",
-      payload: `${date.$y}-${date.$M}-${date.$D}T18:47:20.116`,
+      payload: `${date.$y}-${date.$M < 10 ? `0${date.$M}` : `${date.$M}`}-${
+        date.$D < 10 ? `0${date.$D}` : `${date.$D}`
+      }T18:47:20.116`,
     });
   };
-  console.log(examData);
+  console.log("exam Data", examQuery.data?.data);
 
-  const [currentExamTypeId, setCurrentExamTypeId] = useState(
-    examTypeData?.data.find((ExamType) => ExamType.name === examData.examType)
-      .id
-  );
-  const [currentGroupSubjectId, setCurrentGroupSubjectId] = useState(
-    groupSubjectsData?.data.find(
-      (groupSubject) => groupSubject.id === examData.groupSubject.id
-    ).id
-  );
-
-  console.log("currentExamType", currentExamTypeId);
-
-  const [inputState, dispatch] = useReducer(updateExamReducer, {
-    name: examData?.name,
-    date: examData?.date,
-    examTypeId: currentExamTypeId,
-    groupSubjectId: currentGroupSubjectId,
-    maxScore: examData.maxScore,
+  const [inputState, dispatch] = useReducer(updateExamReducer, {});
+  // name: examQuery.data?.data?.name,
+  //   date: examQuery.data?.data?.date,
+  //   examTypeId: examQuery.data?.data.examType?.id,
+  //   groupSubjectId: examQuery.data?.data.groupSubject?.id,
+  //   maxScore: examQuery.data?.data.maxScore,
+  const mutate = useMutation(() => examServices.updateExam(Id, inputState), {
+    onSuccess: () => navigate("/Exams"),
   });
-  const mutate = useMutation(() =>
-    examServices.updateExam(examData.id, inputState)
-  );
-  const handleExamUpdate = () => {
+  const handleExamUpdate = (e) => {
+    e.preventDefault();
+    if (
+      inputState.name === "" ||
+      inputState.groupId === null ||
+      inputState.name.trim().length < 3
+    ) {
+      setEnteredValueIsValid((prev) => ({ ...prev, nameIsValid: false }));
+    } else {
+      setEnteredValueIsValid((prev) => ({ ...prev, nameIsValid: true }));
+    }
+    if (
+      inputState.maxScore === "" ||
+      inputState.subjectId === null ||
+      inputState.maxScore < 0
+    ) {
+      setEnteredValueIsValid((prev) => ({ ...prev, maxScoreIsValid: false }));
+    } else {
+      setEnteredValueIsValid((prev) => ({ ...prev, maxScoreIsValid: true }));
+    }
+
+    if (inputState.date === "" || inputState.credits === null) {
+      setEnteredValueIsValid((prev) => ({ ...prev, dateIsValid: false }));
+    } else {
+      setEnteredValueIsValid((prev) => ({ ...prev, dateIsValid: true }));
+    }
+
     mutate.mutate();
-    navigate("/Exams");
   };
+  useEffect(() => {
+    console.log("succsse");
+    if (examQuery.isSuccess) {
+      setGroupSubjectInputValue(() => {
+        return groupSubjectsData?.data.find(
+          (item) => item.id === examQuery.data?.data.groupSubjectId
+        );
+      });
+      setExamTypeInputValue(() => {
+        return examTypeData?.data.find(
+          (item) => item.id === examQuery.data?.data.examTypeId
+        );
+      });
+      dispatch({
+        type: "init",
+        payload: examQuery.data?.data,
+      });
+    }
+  }, [examQuery.isSuccess]);
+  if (examQuery.isLoading) {
+    return <h1>...Is Loading</h1>;
+  }
+  if (examQuery.isError) {
+    return <h1>Something went wrong</h1>;
+  }
   console.log("inputState", inputState);
   return (
     <div className="update-group">
@@ -91,6 +133,8 @@ const UpdateExamAdmin = () => {
           </div>
           <div className="inputs">
             <Box
+              display={"flex"}
+              flexDirection={"column"}
               component="form"
               sx={{
                 "& > :not(style)": { m: 1, width: "65ch" },
@@ -103,12 +147,17 @@ const UpdateExamAdmin = () => {
                 id="outlined-basic"
                 label="Name"
                 variant="outlined"
-                defaultValue={examData.name}
+                defaultValue={examQuery.data?.data.name}
                 onChange={(e) =>
                   dispatch({
                     type: "name",
                     payload: e.target.value,
                   })
+                }
+                error={enteredValueisValid.nameIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.nameIsValid &&
+                  "Name must be minimum 3 length"
                 }
               />
               <TextField
@@ -116,47 +165,95 @@ const UpdateExamAdmin = () => {
                 id="outlined-basic"
                 label="Max Score"
                 variant="outlined"
-                defaultValue={examData.maxScore}
+                defaultValue={examQuery.data?.data.maxScore}
                 onChange={(e) =>
                   dispatch({
                     type: "maxScore",
                     payload: e.target.value,
                   })
                 }
+                error={enteredValueisValid.maxScoreIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.maxScoreIsValid &&
+                  "Max score must be more than zero"
+                }
               />
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   value={dayjs(inputState.date)}
-                  defaultValue={dayjs(examData.date)}
+                  defaultValue={dayjs(examQuery.data?.data.date)}
                   onChange={handleDate}
                 />
               </LocalizationProvider>
-
+              <h1 className="errorMessage">
+                {enteredValueisValid.dateIsValid ? "" : "Date is required"}
+              </h1>
               <Autocomplete
                 disablePortal
-                id="combo-box-demo"
+                id="combo-box-mainGroup"
                 size="small"
                 options={examTypeData?.data ?? []}
                 getOptionLabel={(option) => option.name}
+                onChange={(e, newValue) => {
+                  dispatch({
+                    type: "examTypeId",
+                    payload: newValue?.id,
+                  });
+                }}
                 inputValue={examTypeInputValue}
                 onInputChange={(e, newValue) => {
                   setExamTypeInputValue(newValue);
                 }}
-                value={
-                  examTypeData?.data.find(
-                    (item) => item.id === examData.examType
-                  ) || null
-                }
+                value={examTypeInputValue}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
                   <TextField {...params} label="Exam Type" />
                 )}
-                onChange={(e, newValue) =>
-                  dispatch({
-                    type: "examTypeId",
-                    payload: newValue ? newValue.id : null,
-                  })
+              />
+              <Autocomplete
+                disablePortal
+                id="combo-box-mainGroup"
+                size="small"
+                defaultValue={groupSubjectInputValue}
+                options={groupSubjectsData?.data ?? []}
+                getOptionLabel={(option) =>
+                  `${option.subject.name} - ${option.group.name}`
                 }
+                onChange={(e, newValue) => {
+                  dispatch({
+                    type: "groupSubjectId",
+                    payload: newValue?.id,
+                  });
+                }}
+                inputValue={groupSubjectInputValue}
+                onInputChange={(e, newValue) => {
+                  setGroupSubjectInputValue(newValue);
+                }}
+                sx={{ width: 300 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Group Subject" />
+                )}
+              />
+              {/* <Autocomplete
+                disablePortal
+                id="combo-box-subject"
+                size="small"
+                defaultValue={examTypeData}
+                onInputChange={(e, newValue) => {
+                  setGroupSubjectInputValue(newValue.id);
+                }}
+                options={groupSubjectsData?.data ?? []}
+                getOptionLabel={(option) => option.subject.name}
+                onChange={(e, newValue) => {
+                  dispatch({
+                    type: "subjectId",
+                    payload: newValue?.id,
+                  });
+                }}
+                sx={{ width: 300 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Exam's type" />
+                )}
               />
 
               <Autocomplete
@@ -175,7 +272,8 @@ const UpdateExamAdmin = () => {
                   groupSubjectsData?.data.find(
                     (item) =>
                       item.id ===
-                      (examData.groupSubject && examData.groupSubject.id)
+                      (examQuery.data?.data.groupSubject &&
+                        examQuery.data?.data.groupSubject.id)
                   ) || null
                 }
                 sx={{ width: 300 }}
@@ -194,24 +292,11 @@ const UpdateExamAdmin = () => {
                     payload: newValue ? newValue.id : null,
                   })
                 }
-              />
-              {/* <TextField
-                  size="small"
-                  id="outlined-basic"
-                  label="User Id"
-                  variant="outlined"
-                  defaultValue={groupData.appUser?.id}
-                  onChange={(e) =>
-                    dispatch({
-                      type: "appUserId",
-                      payload: e.target.value.trim(),
-                    })
-                  }
-                /> */}
+              /> */}
 
               <Button
                 type="submit"
-                onClick={() => handleExamUpdate()}
+                onClick={handleExamUpdate}
                 variant="contained"
               >
                 Update Exam

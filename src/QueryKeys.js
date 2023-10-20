@@ -25,4 +25,9 @@ export const queryKeys = {
 
   getGroupSubjects: "getGroupSubjects",
   getTeacherRoleById: "getTeacherRoleById",
+
+  getUsers: "getUsers",
+  getUser: "getUser",
+
+  GetRoles: "getRoles",
 };

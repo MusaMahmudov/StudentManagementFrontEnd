@@ -1,5 +1,7 @@
 export const updateStudentReducer = (state, action) => {
   switch (action.type) {
+    case "init":
+      return { ...state, ...action.payload };
     case "fullName":
       return { ...state, fullName: action.payload };
 
@@ -24,13 +26,15 @@ export const updateStudentReducer = (state, action) => {
     case "phoneNumber":
       return { ...state, phoneNumber: action.payload };
 
-    case "appUser":
-      return { ...state, appUser: { id: action.payload } };
+    case "appUserId":
+      return { ...state, appUserId: action.payload };
 
     case "dateOfBirth":
       return { ...state, dateOfBirth: action.payload };
 
     case "groups":
-      return { ...state, groups: action.payload };
+      return { ...state, groupId: action.payload };
+    case "mainGroup":
+      return { ...state, mainGroup: action.payload };
   }
 };

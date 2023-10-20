@@ -12,7 +12,16 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useLocation } from "react-router-dom";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useNavigation,
+} from "react-router-dom";
+import { useMutation } from "react-query";
+import useService from "../../hooks";
+import { useState } from "react";
+import axios from "axios";
 
 function Copyright(props) {
   return (
@@ -30,18 +39,31 @@ function Copyright(props) {
 }
 
 const defaultTheme = createTheme();
-
 export default function SignIn() {
+  const navigate = useNavigate();
+  const { authServices } = useService();
+  const [error, setError] = useState();
+  const [token, setToken] = useState();
+  const [user, setUser] = useState({
+    userName: "",
+    password: "",
+  });
+
+  var mutate = useMutation(() => authServices.Auth(user), {
+    onError: () => setError("Username or password wrong"),
+    onSuccess: (res) => setToken(res.data?.token),
+  });
+  if (mutate.isSuccess) {
+    localStorage.setItem("token", token);
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    console.log(token);
+  }
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    if (user.password && user.userName) {
+      mutate.mutate();
+    }
   };
-
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
@@ -70,11 +92,19 @@ export default function SignIn() {
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              id="userName"
+              label="User Name"
+              name="userName"
+              autoComplete="userName"
               autoFocus
+              onChange={(e) => {
+                setUser((prev) => ({
+                  ...prev,
+                  userName: e.target.value,
+                }));
+              }}
+              error={user.userName ? "" : "error"}
+              helperText={user.userName && "User name is required"}
             />
             <TextField
               margin="normal"
@@ -85,11 +115,23 @@ export default function SignIn() {
               type="password"
               id="password"
               autoComplete="current-password"
+              onChange={(e) => {
+                setUser((prev) => ({
+                  ...prev,
+                  password: e.target.value,
+                }));
+              }}
+              error={user.password ? "" : "error"}
+              helperText={user.password && "Password  is required"}
             />
+            <div className="errorMessage">
+              <h1>{error}</h1>
+            </div>
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
+
             <Button
               type="submit"
               fullWidth

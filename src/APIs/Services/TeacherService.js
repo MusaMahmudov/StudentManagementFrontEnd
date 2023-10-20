@@ -12,6 +12,9 @@ class teacherService extends HTTPClient {
   async getTeacherById(id) {
     return await this.getById("Teachers", id);
   }
+  async getTeacherByIdForUpdate(id) {
+    return await this.getById("Teachers/update", id);
+  }
   async createTeacher(body) {
     return await this.post("Teachers", body);
   }

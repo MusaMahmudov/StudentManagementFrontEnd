@@ -29,7 +29,11 @@ const CreateFaculty = () => {
 
   const handleNewFaculty = (e) => {
     e.preventDefault();
-    if (newFaculty.name?.trim() === "" || newFaculty.name === null) {
+    if (
+      newFaculty.name?.trim() === "" ||
+      newFaculty.name === null ||
+      newFaculty.name?.trim().length < 3
+    ) {
       setEnteredValueIsValid((prev) => ({ ...prev, nameIsValid: false }));
       formValid = false;
     } else {
@@ -70,7 +74,10 @@ const CreateFaculty = () => {
                 name="name"
                 onChange={handleFaculty}
                 error={enteredValueisValid.nameIsValid ? "" : "error"}
-                helperText={!enteredValueisValid.nameIsValid && "Name required"}
+                helperText={
+                  !enteredValueisValid.nameIsValid &&
+                  "Name must be minimum 3 length"
+                }
               />
 
               <Button

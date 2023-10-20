@@ -1,24 +1,38 @@
 import "./createTeacherAdmin.scss";
 
-import { Box, Button, Select, TextField } from "@mui/material";
-import { useState } from "react";
-import { useMutation } from "react-query";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
+import { useEffect, useState } from "react";
+import { useMutation, useQueries, useQuery } from "react-query";
 import useService from "../../../hooks";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useNavigate } from "react-router-dom";
+import { queryKeys } from "../../../QueryKeys";
 const CreateTeacherAdmin = () => {
+  const { teacherServices, userServices } = useService();
+
   const [newTeacher, setNewTeacher] = useState({
-    dateOfBirth: new Date("2003-05-16T00:00:00"),
+    dateOfBirth: null,
     appUserId: null,
     fullName: "",
     mobileNumber: "",
     eMail: "",
-    gender: "Male",
+    gender: "",
     address: "",
   });
+  const { data: userData } = useQuery([queryKeys.getUsers], () =>
+    userServices.getAllUser()
+  );
+  const [userInputValue, setUserInputValue] = useState();
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
-    dateOfBirth: new Date("2003-05-16T00:00:00"),
+    dateOfBirthIsValid: true,
     fullNameIsValid: true,
     mobileNumberIsValid: true,
     eMailIsValid: true,
@@ -29,7 +43,6 @@ const CreateTeacherAdmin = () => {
 
   const [birthday, setBirthday] = useState();
   const navigate = useNavigate();
-  const { teacherServices } = useService();
   const handleTeacher = ({
     target: { value: inputValue, name: inputName },
   }) => {
@@ -40,14 +53,38 @@ const CreateTeacherAdmin = () => {
     onSuccess: () => navigate(-1),
   });
 
-  const handleBirthday = ({ date }) => {
-    setNewTeacher((prev) =>
-      setNewTeacher({
-        ...prev,
-        dateOfBirthday: `${date.$Y}-${date.$M}-${date.$D}T18:47:20.116`,
-      })
-    );
+  const handleBirthday = (date) => {
+    console.log(date);
+    setNewTeacher((prev) => ({
+      ...prev,
+      dateOfBirth: `${date.$y}-${
+        date.$M < 9 ? `0${date.$M + 1}` : `${date.$M + 1}`
+      }-${date.$D < 9 ? `0${date.$D}` : `${date.$D}`}T18:47:20.116`,
+    }));
   };
+  console.log(mutate);
+  const [error, setError] = useState();
+  useEffect(() => {
+    if (
+      mutate.isError &&
+      mutate.error.response.data.message &&
+      mutate.error.response.status != "500"
+    ) {
+      setError(mutate.error.response.data.message);
+    } else if (mutate.isError && mutate.error.response.data.errors) {
+      if (mutate.error.response.data.errors.DateOfBirth) {
+        setError(mutate.error.response.data.errors.DateOfBirth[0]);
+      }
+    }
+  }, [mutate]);
+  useEffect(() => {
+    if (
+      newTeacher.dateOfBirth === "" ||
+      (newTeacher.dateOfBirth === null && mutate.isError)
+    ) {
+      setError("Date of birth required");
+    }
+  }, [mutate.isError]);
   const handleNewTeacher = (e) => {
     e.preventDefault();
     if (newTeacher.fullName.trim() === "") {
@@ -81,6 +118,7 @@ const CreateTeacherAdmin = () => {
       formValid = true;
       setEnteredValueIsValid((prev) => ({ ...prev, addressIsValid: true }));
     }
+
     if (newTeacher.mobileNumber.trim() === "") {
       setEnteredValueIsValid((prev) => ({
         ...prev,
@@ -161,28 +199,23 @@ const CreateTeacherAdmin = () => {
                   "Mobile Number required"
                 }
               />
-
-              {/* <Select
-                  labelId="demo-select-small-label"
-                  id="demo-select-small"
-                  value={studentData?.data.gender}
-                  label="Age"
-                  onChange={(e) =>
-                    dispatch({
-                      type: "gender",
-                      payload: e.target.value,
-                    })
-                  }
-                >
-                  <MenuItem value={studentData?.data.gender}>
-                    {inputState.gender}
-                  </MenuItem>
-                  <MenuItem
-                    value={inputState.gender == "Male" ? "Female" : "Male"}
-                  >
-                    {inputState.gender == "Male" ? "Female" : "Male"}
-                  </MenuItem>
-                </Select> */}
+              <Select
+                size="small"
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                name="gender"
+                value={newTeacher?.gender}
+                label="Gender"
+                displayEmpty
+                onChange={handleTeacher}
+                inputProps={{ "aria-label": "Without label" }}
+              >
+                <MenuItem value={""}>
+                  <em>None</em>
+                </MenuItem>
+                <MenuItem value={"Male"}>Male</MenuItem>
+                <MenuItem value={"Female"}>Female</MenuItem>
+              </Select>
 
               <TextField
                 size="small"
@@ -196,11 +229,31 @@ const CreateTeacherAdmin = () => {
                   !enteredValueisValid.addressIsValid && "Address  required"
                 }
               />
-
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                size="small"
+                options={userData?.data ?? []}
+                getOptionLabel={(option) => option.userName}
+                inputValue={userInputValue}
+                onInputChange={(e, newValue) => {
+                  setUserInputValue(newValue);
+                }}
+                name="appUserId"
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="User" />}
+                onChange={(e, newValue) => {
+                  setNewTeacher((prev) => ({
+                    ...prev,
+                    appUserId: newValue.id,
+                  }));
+                }}
+              />
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker value={birthday} onChange={handleBirthday} />
               </LocalizationProvider>
 
+              <div className="errorMessage">{error}</div>
               <Button
                 type="submit"
                 onClick={handleNewTeacher}

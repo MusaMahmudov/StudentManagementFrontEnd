@@ -1,5 +1,7 @@
 export const updateExamReducer = (state, action) => {
   switch (action.type) {
+    case "init":
+      return { ...state, ...action.payload };
     case "name":
       return { ...state, name: action.payload };
 

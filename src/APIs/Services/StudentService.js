@@ -10,6 +10,9 @@ export class studentService extends HTTPClient {
   async getStudentById(id) {
     return await this.getById("Students", id);
   }
+  async getStudentByIdForUpdate(id) {
+    return await this.getById("Students/update", id);
+  }
   async createStudent(body) {
     return await this.post("Students", body);
   }

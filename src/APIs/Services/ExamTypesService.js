@@ -11,6 +11,9 @@ class examTypeService extends HTTPClient {
   async getExamTypeById(id) {
     return await this.getById("ExamTypes", id);
   }
+  async getExamTypeByIdForUpdate(id) {
+    return await this.getById("ExamTypes/update", id);
+  }
   async createExamType(body) {
     return await this.post("ExamTypes", body);
   }

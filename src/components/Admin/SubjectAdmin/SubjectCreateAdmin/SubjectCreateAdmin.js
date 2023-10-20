@@ -28,7 +28,11 @@ const CreateSubjectAdmin = () => {
 
   const handleNewSubject = (e) => {
     e.preventDefault();
-    if (newSubject.name?.trim() === "" || newSubject.name === null) {
+    if (
+      newSubject.name?.trim() === "" ||
+      newSubject.name === null ||
+      newSubject.name.length < 3
+    ) {
       setEnteredValueIsValid((prev) => ({ ...prev, nameIsValid: false }));
       formValid = false;
     } else {

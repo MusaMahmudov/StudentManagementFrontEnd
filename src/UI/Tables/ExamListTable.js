@@ -15,13 +15,15 @@ import {
   UpdateButton,
 } from "../Buttons/ActionButtons";
 import { useNavigate, useParams } from "react-router-dom";
+import { getToken } from "../../utils/GetToken";
 
 export function ExamListTable() {
+  const token = getToken();
+  console.log("token:", token);
   const navigate = useNavigate();
   const { examServices } = useService();
-
   const examQuery = useQuery([queryKeys.getExams], () =>
-    examServices.getAllExams()
+    examServices.getAllExams(token)
   );
   if (examQuery.isLoading) {
     return <h1 className="loading">Is Loading...</h1>;

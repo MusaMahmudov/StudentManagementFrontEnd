@@ -56,6 +56,18 @@ import CreateExam from "./components/Admin/ExamAdmin/ExamCreateAdmin/ExamCreateA
 import ExamDetailsAdmin from "./components/Admin/ExamAdmin/ExamDetailsAdmin/ExamDetailsAdmin";
 import ExamDeleteAdmin from "./components/Admin/ExamAdmin/ExamDeleteAdmin/ExamDeleteAdmin";
 import UpdateExamAdmin from "./components/Admin/ExamAdmin/ExamUpdateAdmin/ExamUpdateAdmin";
+import { RotateLeft } from "@mui/icons-material";
+import GroupSubjectListAdmin from "./components/Admin/GroupSubjectAdmin/GroupSubjectListAdmin/GroupSubjectListAdmin";
+import DeleteGroupSubjectAdmin from "./components/Admin/GroupSubjectAdmin/GroupSubjectDeleteAdmin/GroupSubjectDeleteAdmin";
+import CreateGroupSubjectAdmin from "./components/Admin/GroupSubjectAdmin/GroupSubjectCreateAdmin/GroupSubjectCreateAdmin";
+import UpdateGroupSubjectAdmin from "./components/Admin/GroupSubjectAdmin/GroupSubjectUpdateAdmin/GroupSubjectUpdateAdmin";
+import GroupSubjectDetailsAdmin from "./components/Admin/GroupSubjectAdmin/GroupSubjectDetailsAdmin/GroupSubjectDetailsAdmin";
+import { TokenContext } from "./Contexts/Token-context";
+import UserListAdmin from "./components/Admin/UserAdmin/UserListAdmin/UserListAdmin";
+import CreateUserAdmin from "./components/Admin/UserAdmin/UserCreateAdmin/UserCreateAdmin";
+import UserDetailsAdmin from "./components/Admin/UserAdmin/UserDetailsAdmin/UserDetailsAdmin";
+import UpdateUserAdmin from "./components/Admin/UserAdmin/UserUpdateAdmin/UserUpdateAdmin";
+import DeleteUserAdmin from "./components/Admin/UserAdmin/UserDeleteAdmin/UserDeleteAdmin";
 
 function App() {
   const queryClient = new QueryClient();
@@ -214,10 +226,46 @@ function App() {
               path="Exams/DeleteExam/:Id"
               element={<ExamDeleteAdmin />}
             ></Route>
+
+            <Route
+              path="GroupSubjects"
+              element={<GroupSubjectListAdmin />}
+            ></Route>
+            <Route
+              path="GroupSubjects/UpdateGroupSubject/:Id"
+              element={<UpdateGroupSubjectAdmin />}
+            ></Route>
+            <Route
+              path="GroupSubjects/:Id"
+              element={<GroupSubjectDetailsAdmin />}
+            ></Route>
+
+            <Route
+              path="GroupSubjects/CreateGroupSubject"
+              element={<CreateGroupSubjectAdmin />}
+            ></Route>
+
+            <Route
+              path="GroupSubjects/DeleteGroupSubject/:Id"
+              element={<DeleteGroupSubjectAdmin />}
+            ></Route>
+            <Route path="Users" element={<UserListAdmin />}></Route>
+            <Route path="Users/:Id" element={<UserDetailsAdmin />}></Route>
+            <Route
+              path="Users/UpdateUser/:Id"
+              element={<UpdateUserAdmin />}
+            ></Route>
+
+            <Route
+              path="Users/CreateUser"
+              element={<CreateUserAdmin />}
+            ></Route>
+            <Route
+              path="Users/DeleteUser/:Id"
+              element={<DeleteUserAdmin />}
+            ></Route>
           </Route>
-
           <Route path="*" element={<ErrorPage />} />
-
           <Route path="/SignIn" element={<SignIn />}></Route>
         </Routes>
       </QueryClientProvider>

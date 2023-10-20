@@ -7,24 +7,45 @@ import {
   TextField,
 } from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
-
 import { AdminExamTypeTitle } from "../../../../UI/Common/AdminExamTypeTitle";
+import { queryKeys } from "../../../../QueryKeys";
+import { Tune } from "@mui/icons-material";
 const UpdateSubjectAdmin = () => {
   const { subjectServices } = useService();
-
   const navigate = useNavigate();
-
-  const { state: subjectData } = useLocation();
-  const [inputState, setInputState] = useState(subjectData);
-  const mutate = useMutation(() =>
-    subjectServices.updateSubject(inputState.id, inputState)
+  const { Id } = useParams();
+  const [inputState, setInputState] = useState({});
+  const subjectQuery = useQuery([queryKeys.getSubjects], () =>
+    subjectServices.getSubjectById(Id)
   );
-  const handleFacultyUpdate = () => {
+  const [enteredValueisValid, setEnteredValueIsValid] = useState({
+    nameIsValid: true,
+  });
+  useEffect(() => {
+    if (subjectQuery.isSuccess) {
+      setInputState(subjectQuery.data?.data);
+    }
+  }, [subjectQuery.data, subjectQuery.isSuccess]);
+  const mutate = useMutation(
+    () => subjectServices.updateSubject(inputState.id, inputState),
+    { onSuccess: () => navigate("/Subjects") }
+  );
+  if (subjectQuery.isLoading) {
+    return <h1>...Loading</h1>;
+  }
+
+  const handleFacultyUpdate = (e) => {
+    e.preventDefault();
+    if (inputState.name === null || inputState.name.length < 3) {
+      setEnteredValueIsValid((prev) => ({ ...prev, nameIsValid: false }));
+    } else {
+      setEnteredValueIsValid((prev) => ({ ...prev, nameIsValid: true }));
+    }
+
     mutate.mutate();
-    navigate("/Subjects");
   };
 
   console.log("input State", inputState);
@@ -53,15 +74,20 @@ const UpdateSubjectAdmin = () => {
                 id="outlined-basic"
                 label="Name"
                 variant="outlined"
-                defaultValue={subjectData.name}
+                defaultValue={subjectQuery.data?.data.name}
                 onChange={(e) =>
                   setInputState((prev) => ({ ...prev, name: e.target.value }))
+                }
+                error={enteredValueisValid.nameIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.nameIsValid &&
+                  "Name must be minimum 3 length"
                 }
               />
 
               <Button
                 type="submit"
-                onClick={() => handleFacultyUpdate()}
+                onClick={(e) => handleFacultyUpdate(e)}
                 variant="contained"
               >
                 Update Subject

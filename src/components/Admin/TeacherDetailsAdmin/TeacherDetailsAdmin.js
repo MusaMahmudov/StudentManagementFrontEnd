@@ -3,7 +3,6 @@ import { AdminStudentTitle } from "../../../UI/Common/AdminStudentTitle";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import { Icon } from "@mui/material";
 import { useContext } from "react";
-import { StudentListContext } from "../../../Contexts/student-list-context";
 import useService from "../../../hooks";
 import { useQuery } from "react-query";
 import { queryKeys } from "../../../QueryKeys";

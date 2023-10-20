@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { AdminFacultyTitle } from "../../../../UI/Common/AdminFacultyTitle";
 import { FacultyListTable } from "../../../../UI/Tables/FacultyListTable";
 import { ExamListTable } from "../../../../UI/Tables/ExamListTable";
+import { getToken } from "../../../../utils/GetToken";
+import ErrorPage from "../../../ErrorPage/ErrorPage";
 const ExamListAdmin = () => {
   const navigate = useNavigate();
 

@@ -8,8 +8,20 @@
       & .details {
         & .personal-details {
           & .card {
+            & .info {
+              margin-bottom: 20px;
+              display: flex;
+              align-items: start;
+              &-right {
+                & h1,
+                p {
+                  margin: 0px;
+                }
+              }
+            }
             & .card-title {
               margin: 0px;
+              margin-bottom: 20px;
             }
           }
         }

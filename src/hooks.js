@@ -1,12 +1,15 @@
+import { authService } from "./APIs/Services/AuthService";
 import { examService } from "./APIs/Services/ExamService";
 import examTypeService from "./APIs/Services/ExamTypesService";
 import facultyService from "./APIs/Services/FacultyService";
 import groupService from "./APIs/Services/GroupService";
 import { groupSubjectService } from "./APIs/Services/GroupSubjectService";
+import { roleService } from "./APIs/Services/RoleService";
 import { studentService } from "./APIs/Services/StudentService";
 import { SubjectService } from "./APIs/Services/SubjectService";
 import { TeacherRoleService } from "./APIs/Services/TeacherRoleService";
 import teacherService from "./APIs/Services/TeacherService";
+import { userService } from "./APIs/Services/UserService";
 const useService = () => {
   const studentServices = new studentService();
   const groupServices = new groupService();
@@ -17,6 +20,9 @@ const useService = () => {
   const teacherRoleServices = new TeacherRoleService();
   const examServices = new examService();
   const groupSubjectServices = new groupSubjectService();
+  const userServices = new userService();
+  const authServices = new authService();
+  const roleServices = new roleService();
   return {
     studentServices,
     groupServices,
@@ -27,6 +33,9 @@ const useService = () => {
     teacherRoleServices,
     examServices,
     groupSubjectServices,
+    userServices,
+    authServices,
+    roleServices,
   };
 };
 export default useService;

@@ -5,19 +5,16 @@ import useService from "../../../hooks";
 import { useNavigate } from "react-router-dom";
 import { AdminGroupTitle } from "../../../UI/Common/AdminGroupTitle";
 import { queryKeys } from "../../../QueryKeys";
+import { ConstructionOutlined } from "@mui/icons-material";
 const CreateGroupAdmin = () => {
   const { studentServices, groupServices, facultyServices } = useService();
-  const studentQuery = useQuery([queryKeys.getStudentsQuery], () =>
+  const { data: studentData } = useQuery([queryKeys.getStudentsQuery], () =>
     studentServices.getAllStudents()
   );
-  const [students, setStudents] = useState([]);
-  console.log("students", students);
-  const [newGroup, setNewGroup] = useState({
-    name: null,
-    year: null,
-    facultyId: null,
-    studentsId: [],
-  });
+  console.log("students", studentData);
+  const [newGroup, setNewGroup] = useState({});
+
+  console.log("NewGroup", newGroup);
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     nameIsValid: true,
     yearIsValid: true,
@@ -37,12 +34,6 @@ const CreateGroupAdmin = () => {
   const mutate = useMutation(() => groupServices.createGroup(newGroup), {
     onSuccess: () => navigate("/Groups"),
   });
-
-  useEffect(() => {
-    let Ids = students.map((student) => student.id);
-    console.log(Ids);
-    setNewGroup((prev) => ({ ...prev, studentsId: Ids }));
-  }, [students]);
 
   console.log(enteredValueisValid);
   const handleNewGroup = (e) => {
@@ -76,7 +67,6 @@ const CreateGroupAdmin = () => {
     }
   };
   console.log(newGroup);
-  console.log(studentQuery);
 
   return (
     <div className="update-student">
@@ -84,7 +74,7 @@ const CreateGroupAdmin = () => {
         <AdminGroupTitle child1={"Group"} child2={"Group / Create Group"} />
         <section className="form">
           <div className="form-title">
-            <h1>Student Information</h1>
+            <h1>Group Information</h1>
           </div>
           <div className="inputs">
             <Box
@@ -136,24 +126,36 @@ const CreateGroupAdmin = () => {
                   <TextField {...params} label="Faculty" />
                 )}
               />
-              <Autocomplete
-                size="small"
-                multiple
-                id="tags-outlined"
-                options={studentQuery.data?.data ?? []}
-                getOptionLabel={(option) => option.fullName}
-                filterSelectedOptions
-                onChange={(e, newValue) => {
-                  setStudents((prev) => [...prev, newValue]);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Students"
-                    placeholder="Favorites"
-                  />
-                )}
-              />
+              {studentData && (
+                <Autocomplete
+                  multiple
+                  id="tags-outlined"
+                  options={studentData?.data ?? null}
+                  getOptionLabel={(option) => option.fullName}
+                  name="studentsId"
+                  onChange={(e, newValue) => {
+                    if (newValue) {
+                      setNewGroup((prev) => ({
+                        ...prev,
+                        studentsId: newValue.map((group) => group.id),
+                      }));
+                    } else {
+                      setNewGroup((prev) => ({
+                        ...prev,
+                        studentsId: [],
+                      }));
+                    }
+                  }}
+                  filterSelectedOptions
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Students"
+                      placeholder="Students"
+                    />
+                  )}
+                />
+              )}
 
               <Button
                 type="submit"

@@ -10,6 +10,9 @@
           & .card {
             & .card-title {
               margin: 0px;
+              & .info {
+                display: flex;
+              }
             }
           }
         }

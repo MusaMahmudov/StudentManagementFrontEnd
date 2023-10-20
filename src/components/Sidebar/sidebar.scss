@@ -10,23 +10,36 @@
         & .menu {
           list-style: none;
           padding: 0px;
+
           & .submenu {
             width: 120px;
             position: relative;
-            margin: 0px 25px 10px 15px;
+            margin: 0px 25px 20px 15px;
             color: black;
             display: flex;
             align-items: center;
             cursor: pointer;
 
             &:hover {
-              & svg,
+              & button {
+                color: #1976d2;
+              }
+              & .left-icon {
+                color: #1976d2;
+              }
+              & .right-icon,
               i {
                 transform: translateX(15px);
                 color: #1976d2;
               }
             }
-
+            & .left-icon {
+              position: absolute;
+              font-size: 18px;
+              color: #6f6f6f;
+              transition: 0.3s;
+              left: -17px;
+            }
             & i,
             svg {
               position: absolute;
@@ -36,6 +49,9 @@
               right: -15px;
             }
             & button {
+              cursor: pointer;
+              transition: 0.3s;
+
               border: none;
               color: #6f6f6f;
               font-size: 16px;

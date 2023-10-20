@@ -15,20 +15,50 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { AdminExamTypeTitle } from "../../../../UI/Common/AdminExamTypeTitle";
+import { TRUE } from "sass";
 const UpdateExamTypeAdmin = () => {
   const { examTypeServices } = useService();
-
   const navigate = useNavigate();
-
-  const { state: examTypeData } = useLocation();
-  const [inputState, setInputState] = useState(examTypeData);
-  const mutate = useMutation(() =>
-    examTypeServices.updateExamType(inputState.id, inputState)
+  const { Id } = useParams();
+  const {
+    data: examTypeData,
+    isLoading,
+    isError,
+  } = useQuery([queryKeys.getExamTypes], () =>
+    examTypeServices.getExamTypeByIdForUpdate(Id)
   );
-  const handleExamTypeUpdate = () => {
-    mutate.mutate();
-    navigate("/ExamTypes");
+  const [enteredValueisValid, setEnteredValueIsValid] = useState({
+    nameIsValid: true,
+  });
+  let formValid = true;
+  const [inputState, setInputState] = useState(examTypeData?.data);
+  const mutate = useMutation(
+    () => examTypeServices.updateExamType(Id, inputState),
+    { onSuccess: () => navigate("/ExamTypes") }
+  );
+  const handleExamTypeUpdate = (e) => {
+    e.preventDefault();
+    if (
+      inputState.name?.trim() === "" ||
+      inputState.name === null ||
+      inputState.name?.trim().length < 3
+    ) {
+      setEnteredValueIsValid((prev) => ({ ...prev, nameIsValid: false }));
+      formValid = false;
+    } else {
+      formValid = true;
+      setEnteredValueIsValid((prev) => ({ ...prev, nameIsValid: true }));
+    }
+    if (formValid) {
+      mutate.mutate();
+    }
   };
+  if (isLoading) {
+    return <h1>...Is Loading</h1>;
+  }
+  if (isError) {
+    return <h1 className="errorMessage">Exam's type not found</h1>;
+  }
 
   console.log("input State", inputState);
   return (
@@ -40,7 +70,7 @@ const UpdateExamTypeAdmin = () => {
         />
         <section className="form">
           <div className="form-title">
-            <h1>Student Information</h1>
+            <h1>Information</h1>
           </div>
           <div className="inputs">
             <Box
@@ -54,17 +84,25 @@ const UpdateExamTypeAdmin = () => {
               <TextField
                 size="small"
                 id="outlined-basic"
-                label="Full Name"
+                label="Name"
                 variant="outlined"
-                defaultValue={examTypeData.name}
+                defaultValue={examTypeData?.data.name}
                 onChange={(e) =>
-                  setInputState((prev) => ({ ...prev, name: e.target.value }))
+                  setInputState((prev) => ({
+                    ...prev,
+                    name: e.target.value.trim(),
+                  }))
+                }
+                error={enteredValueisValid.nameIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.nameIsValid &&
+                  "Name must be minimum 3 length"
                 }
               />
 
               <Button
                 type="submit"
-                onClick={() => handleExamTypeUpdate()}
+                onClick={handleExamTypeUpdate}
                 variant="contained"
               >
                 Update Exam Type

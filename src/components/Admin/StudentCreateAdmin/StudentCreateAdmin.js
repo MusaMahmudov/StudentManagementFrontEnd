@@ -1,19 +1,29 @@
 import "./createStudentAdmin.scss";
-import { Box, Button, Select, TextField } from "@mui/material";
-import { useState } from "react";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
+import { useEffect, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../hooks";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { MuseumRounded } from "@mui/icons-material";
+import { Group, MuseumRounded } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { faL } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import { queryKeys } from "../../../QueryKeys";
 const CreateStudentAdmin = () => {
+  const { studentServices, groupServices, userServices } = useService();
+
   const [newStudent, setNewStudent] = useState({
-    dateOfBirth: new Date("2003-05-16T00:00:00"),
+    dateOfBirth: null,
     mainGroup: null,
-    groups: [],
+    groupId: [],
     appUserId: null,
     fullName: "",
     yearOfGraduation: "",
@@ -23,7 +33,7 @@ const CreateStudentAdmin = () => {
     homePhoneNumber: "",
     phoneNumber: "",
     email: "",
-    gender: "Male",
+    gender: "",
   });
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     fullNameIsValid: true,
@@ -39,7 +49,15 @@ const CreateStudentAdmin = () => {
 
   const [birthday, setBirthday] = useState();
   const navigate = useNavigate();
-  const { studentServices } = useService();
+  const { data: userData } = useQuery([queryKeys.getUsers], () =>
+    userServices.getAllUser()
+  );
+  const [userInputValue, setUserInputValue] = useState();
+  const { data: groupData } = useQuery([queryKeys.getGroupsQuery], () =>
+    groupServices.getAllGroups()
+  );
+  const [mainGroup, setMainGroup] = useState();
+  const [mainGroupInputValue, setMainGroupInputValue] = useState();
   const handleStudent = ({
     target: { value: inputValue, name: inputName },
   }) => {
@@ -49,18 +67,37 @@ const CreateStudentAdmin = () => {
   const mutate = useMutation(() => studentServices.createStudent(newStudent), {
     onSuccess: () => navigate(-1),
   });
+  console.log("Student", newStudent);
 
-  const handleBirthday = ({ date }) => {
-    setNewStudent((prev) =>
-      setNewStudent({
-        ...prev,
-        dateOfBirthday: `${date.$Y}-${date.$M}-${date.$D}T18:47:20.116`,
-      })
-    );
+  const [error, setError] = useState();
+  useEffect(() => {
+    if (
+      mutate.isError &&
+      mutate.error.response.data.message &&
+      mutate.error.response.status != "500"
+    ) {
+      setError(mutate.error.response.data.message);
+    } else if (mutate.isError && mutate.error.response.data.errors) {
+      if (mutate.error.response.data.errors.DateOfBirth) {
+        setError(mutate.error.response.data.errors.DateOfBirth[0]);
+      }
+    }
+  }, [mutate]);
+  const handleBirthday = (date) => {
+    setNewStudent((prev) => ({
+      ...prev,
+      dateOfBirth: `${date.$y}-${
+        date.$M < 9 ? `0${date.$M + 1}` : `${date.$M + 1}`
+      }-${date.$D < 9 ? `0${date.$D}` : `${date.$D}`}T18:47:20.116`,
+    }));
   };
   const handleNewStudent = (e) => {
     e.preventDefault();
-    if (newStudent.fullName.trim() === "") {
+    if (
+      newStudent.fullName.trim() === "" ||
+      newStudent.fullName === null ||
+      newStudent.fullName.trim().length < 3
+    ) {
       setEnteredValueIsValid((prev) => ({ ...prev, fullNameIsValid: false }));
       formValid = false;
     } else {
@@ -68,7 +105,11 @@ const CreateStudentAdmin = () => {
       setEnteredValueIsValid((prev) => ({ ...prev, fullNameIsValid: true }));
     }
 
-    if (newStudent.yearOfGraduation.trim() === "") {
+    if (
+      newStudent.yearOfGraduation.trim() === "" ||
+      newStudent.yearOfGraduation < 1900 ||
+      newStudent.yearOfGraduation > new Date().getFullYear
+    ) {
       setEnteredValueIsValid((prev) => ({ ...prev, yearOfGraduation: false }));
       formValid = false;
     } else {
@@ -123,6 +164,7 @@ const CreateStudentAdmin = () => {
 
     mutate.mutate(newStudent);
   };
+  console.log(mutate);
 
   return (
     <div className="update-student">
@@ -157,10 +199,12 @@ const CreateStudentAdmin = () => {
                 onChange={handleStudent}
                 error={enteredValueisValid.fullNameIsValid ? "" : "error"}
                 helperText={
-                  !enteredValueisValid.fullNameIsValid && "Full name required"
+                  !enteredValueisValid.fullNameIsValid &&
+                  "Full name must be minimum 3 length"
                 }
               />
               <TextField
+                type="number"
                 size="small"
                 id="outlined-basic"
                 label="Year Of Graduation"
@@ -170,7 +214,7 @@ const CreateStudentAdmin = () => {
                 error={enteredValueisValid.yearOfGraduation ? "" : "error"}
                 helperText={
                   !enteredValueisValid.yearOfGraduation &&
-                  "Year of graduation required"
+                  `Year of graduation must be between 1900 and ${new Date().getFullYear()}`
                 }
               />
 
@@ -187,28 +231,6 @@ const CreateStudentAdmin = () => {
                   "Education degree required"
                 }
               />
-
-              {/* <Select
-                  labelId="demo-select-small-label"
-                  id="demo-select-small"
-                  value={studentData?.data.gender}
-                  label="Age"
-                  onChange={(e) =>
-                    dispatch({
-                      type: "gender",
-                      payload: e.target.value,
-                    })
-                  }
-                >
-                  <MenuItem value={studentData?.data.gender}>
-                    {inputState.gender}
-                  </MenuItem>
-                  <MenuItem
-                    value={inputState.gender == "Male" ? "Female" : "Male"}
-                  >
-                    {inputState.gender == "Male" ? "Female" : "Male"}
-                  </MenuItem>
-                </Select> */}
 
               <TextField
                 size="small"
@@ -274,26 +296,99 @@ const CreateStudentAdmin = () => {
                   !enteredValueisValid.email && "Type Of Payment required"
                 }
               />
-              <TextField
+              <Select
                 size="small"
-                id="outlined-basic"
-                label="AppUserId"
-                variant="outlined"
-                name="appUserId"
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                name="gender"
+                value={newStudent?.gender}
+                label="Gender"
+                displayEmpty
                 onChange={handleStudent}
+                inputProps={{ "aria-label": "Without label" }}
+              >
+                <MenuItem value={""}>
+                  <em>None</em>
+                </MenuItem>
+                <MenuItem value={"Male"}>Male</MenuItem>
+                <MenuItem value={"Female"}>Female</MenuItem>
+              </Select>
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                size="small"
+                options={userData?.data ?? []}
+                getOptionLabel={(option) => option.userName}
+                inputValue={userInputValue}
+                onInputChange={(e, newValue) => {
+                  setUserInputValue(newValue);
+                }}
+                name="appUserId"
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="User" />}
+                onChange={(e, newValue) => {
+                  setNewStudent((prev) => ({
+                    ...prev,
+                    appUserId: newValue.id,
+                  }));
+                }}
               />
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker value={birthday} onChange={handleBirthday} />
               </LocalizationProvider>
 
-              <Select
-                multiple
-                native
-                label="Groups"
-                inputProps={{
-                  id: "select-multiple-native",
+              <Autocomplete
+                disablePortal
+                id="combo-box-mainGroup"
+                size="small"
+                options={groupData?.data ?? []}
+                getOptionLabel={(option) => option.name}
+                onChange={(e, newValue) => {
+                  setNewStudent((prev) => ({
+                    ...prev,
+                    mainGroup: newValue?.id,
+                  }));
                 }}
-              ></Select>
+                inputValue={mainGroupInputValue}
+                onInputChange={(e, newValue) => {
+                  setMainGroupInputValue(newValue);
+                }}
+                sx={{ width: 300 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Main Group" />
+                )}
+              />
+              {groupData && (
+                <Autocomplete
+                  multiple
+                  id="tags-outlined"
+                  options={groupData?.data ?? null}
+                  getOptionLabel={(option) => option.name}
+                  onChange={(e, newValue) => {
+                    if (newValue) {
+                      setNewStudent((prev) => ({
+                        ...prev,
+                        groupId: newValue.map((group) => group.id),
+                      }));
+                    } else {
+                      setNewStudent((prev) => ({
+                        ...prev,
+                        groups: [],
+                      }));
+                    }
+                  }}
+                  filterSelectedOptions
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Groups"
+                      placeholder="Groups"
+                    />
+                  )}
+                />
+              )}
+
+              <div className="errorMessage">{error}</div>
               <Button
                 type="submit"
                 onClick={handleNewStudent}

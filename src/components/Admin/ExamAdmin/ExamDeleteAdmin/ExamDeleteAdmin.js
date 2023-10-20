@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { DeleteButton } from "../../../../UI/Buttons/ActionButtons";
+import { getToken } from "../../../../utils/GetToken";
 const ExamDeleteAdmin = () => {
   const navigate = useNavigate();
   const { Id } = useParams();
@@ -24,6 +25,8 @@ const ExamDeleteAdmin = () => {
   const examQuery = useQuery([queryKeys.getExamById], () =>
     examServices.getExamById(Id)
   );
+  let token = getToken();
+  console.log(token);
   const mutate = useMutation(() => examServices.deleteExam(Id), {
     onSuccess: () => navigate(-1),
   });

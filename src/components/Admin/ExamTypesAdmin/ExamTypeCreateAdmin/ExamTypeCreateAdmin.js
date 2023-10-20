@@ -32,7 +32,11 @@ const CreateExamType = () => {
 
   const handleNewExamType = (e) => {
     e.preventDefault();
-    if (newExamType.name?.trim() === "" || newExamType.name === null) {
+    if (
+      newExamType.name?.trim() === "" ||
+      newExamType.name === null ||
+      newExamType.name?.trim().length < 3
+    ) {
       setEnteredValueIsValid((prev) => ({ ...prev, nameIsValid: false }));
       formValid = false;
     } else {
@@ -73,7 +77,10 @@ const CreateExamType = () => {
                 name="name"
                 onChange={handleExamType}
                 error={enteredValueisValid.nameIsValid ? "" : "error"}
-                helperText={!enteredValueisValid.nameIsValid && "Name required"}
+                helperText={
+                  !enteredValueisValid.nameIsValid &&
+                  "Name must be minimum 3 length"
+                }
               />
 
               <Button

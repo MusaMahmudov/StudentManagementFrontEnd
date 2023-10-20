@@ -11,6 +11,9 @@ class facultyService extends HTTPClient {
   async getFacultyById(id) {
     return await this.getById("Faculties", id);
   }
+  async getFacultyByIdForUpdate(id) {
+    return await this.getById("Faculties/update", id);
+  }
   async createFaculty(body) {
     return await this.post("Faculties", body);
   }

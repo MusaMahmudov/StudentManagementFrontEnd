@@ -4,10 +4,10 @@ import { AdminStudentTitle } from "../../../UI/Common/AdminStudentTitle";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import { Icon } from "@mui/material";
 import { useContext } from "react";
-import { StudentListContext } from "../../../Contexts/student-list-context";
 import useService from "../../../hooks";
 import { useQuery } from "react-query";
 import { queryKeys } from "../../../QueryKeys";
+import { ConstructionOutlined } from "@mui/icons-material";
 const StudentDetailsAdmin = () => {
   const { Id } = useParams();
   const { studentServices } = useService();
@@ -20,6 +20,7 @@ const StudentDetailsAdmin = () => {
   if (studendQuery.isError) {
     return <h1>{studendQuery.error.response.data.message}</h1>;
   }
+  console.log(studendQuery);
 
   return (
     <div className="student-details">
@@ -113,7 +114,9 @@ const StudentDetailsAdmin = () => {
                   </section>
                   <section className="info-right">
                     <h1>User</h1>
-                    <p>{studendQuery.data?.data.AppUser ?? "No user"}</p>
+                    <p>
+                      {studendQuery.data?.data.appUser?.userName ?? "No user"}
+                    </p>
                   </section>
                 </div>
               </div>

@@ -5,7 +5,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { AdminGroupTitle } from "../../../UI/Common/AdminGroupTitle";
 import { GroupListTable } from "../../../UI/Tables/GroupListTable";
-const StudentAdminPage = () => {
+const GroupListAdmin = () => {
   const navigate = useNavigate();
 
   const searchByFullName = (event) => {};
@@ -46,4 +46,4 @@ const StudentAdminPage = () => {
     </div>
   );
 };
-export default StudentAdminPage;
+export default GroupListAdmin;

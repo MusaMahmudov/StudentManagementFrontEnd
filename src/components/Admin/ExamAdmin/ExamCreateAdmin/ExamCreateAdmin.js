@@ -164,7 +164,9 @@ const CreateExam = () => {
                 id="combo-box-demo"
                 size="small"
                 options={groupSubjectData?.data ?? []}
-                getOptionLabel={(option) => option.subject.name}
+                getOptionLabel={(option) =>
+                  `${option.subject.name} - ${option.group.name}`
+                }
                 onChange={(e, newValue) => {
                   setNewExam((prev) => ({
                     ...prev,

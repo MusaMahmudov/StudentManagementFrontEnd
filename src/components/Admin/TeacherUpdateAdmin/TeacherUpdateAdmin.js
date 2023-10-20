@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   InputLabel,
@@ -17,43 +18,138 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { updateTeacherReduce } from "../../../Reducers/UpdateTeacherReducer";
 const UpdateTeacherAdmin = () => {
-  const { teacherServices } = useService();
-
-  const navigate = useNavigate();
-
-  const { state: teacherData } = useLocation();
-  console.log(teacherData);
-  const [newBirthday, setNewBirthday] = useState();
-  const [inputState, dispatch] = useReducer(updateTeacherReduce, teacherData);
-  const mutate = useMutation(() =>
-    teacherServices.updateTeacher(inputState.id, inputState)
+  const { teacherServices, userServices } = useService();
+  const { data: userData } = useQuery([queryKeys.getUsers], () =>
+    userServices.getAllUser()
   );
-  const handleTeacherUpdate = () => {
+  const navigate = useNavigate();
+  const { Id } = useParams();
+  const teacherQuery = useQuery([queryKeys.getTeacherById], () =>
+    teacherServices.getTeacherByIdForUpdate(Id)
+  );
+  const [enteredValueisValid, setEnteredValueIsValid] = useState({
+    dateOfBirthIsValid: true,
+    fullNameIsValid: true,
+    mobileNumberIsValid: true,
+    eMailIsValid: true,
+    genderIsValid: true,
+    addressIsValid: true,
+  });
+  const [userInputValue, setUserInputValue] = useState();
+
+  console.log("teacherData", teacherQuery.data?.data);
+  const [error, setError] = useState();
+  const mutate = useMutation(
+    () => teacherServices.updateTeacher(Id, inputState),
+    {
+      onSuccess: () => navigate("/Teachers"),
+    }
+  );
+  useEffect(() => {
+    if (
+      mutate.isError &&
+      mutate.error.response.data.message &&
+      mutate.error.response.status != "500"
+    ) {
+      setError(mutate.error.response.data.message);
+    } else if (
+      mutate.isError &&
+      mutate.error.response.data.errors?.DateOfBirth
+    ) {
+      setError(mutate.error.response?.data.errors.DateOfBirth[0]);
+    }
+  }, [mutate]);
+
+  console.log(error);
+  const handleTeacherUpdate = (e) => {
+    e.preventDefault();
+    if (
+      inputState.fullName.trim() === "" ||
+      inputState.fullName === null ||
+      inputState.fullName.trim().length < 3
+    ) {
+      setEnteredValueIsValid((prev) => ({ ...prev, fullNameIsValid: false }));
+    } else {
+      setEnteredValueIsValid((prev) => ({ ...prev, fullNameIsValid: true }));
+    }
+
+    if (inputState.email.trim() === "" || inputState.email === null) {
+      setEnteredValueIsValid((prev) => ({ ...prev, eMailIsValid: false }));
+    } else {
+      setEnteredValueIsValid((prev) => ({ ...prev, eMailIsValid: true }));
+    }
+
+    if (inputState.gender.trim() === "" || inputState.gender === null) {
+      setEnteredValueIsValid((prev) => ({ ...prev, genderIsValid: false }));
+    } else {
+      setEnteredValueIsValid((prev) => ({ ...prev, genderIsValid: true }));
+    }
+
+    if (inputState.address.trim() === "" || inputState.address === null) {
+      setEnteredValueIsValid((prev) => ({ ...prev, addressIsValid: false }));
+    } else {
+      setEnteredValueIsValid((prev) => ({ ...prev, addressIsValid: true }));
+    }
+
+    if (
+      inputState.mobileNumber.trim() === "" ||
+      inputState.mobileNumber === null
+    ) {
+      setEnteredValueIsValid((prev) => ({
+        ...prev,
+        mobileNumberIsValid: false,
+      }));
+    } else {
+      setEnteredValueIsValid((prev) => ({
+        ...prev,
+        mobileNumberIsValid: true,
+      }));
+    }
     mutate.mutate();
-    navigate("/Teachers");
   };
+
+  let [inputState, dispatch] = useReducer(updateTeacherReduce, {});
   const handleBirthday = (date) => {
     console.log(date);
     dispatch({
       type: "dateOfBirth",
-      payload: `${date.$y}-${date.$M}-${date.$D}T18:47:20.116`,
+      payload: `${date.$y ?? null}-${
+        date.$M ?? null < 10 ? `0${date.$M ?? null}` : `${date.$M ?? null}`
+      }-${
+        date.$D ?? null < 10 ? `0${date.$D ?? null}` : `${date.$D ?? null}`
+      }T18:47:20.116`,
     });
   };
-  console.log(inputState);
+  console.log("UserInput", userInputValue);
+  useEffect(() => {
+    if (teacherQuery.isSuccess) {
+      setUserInputValue(teacherQuery.data?.data.appUserId ?? null);
+
+      dispatch({
+        type: "init",
+        payload: teacherQuery.data?.data,
+      });
+    }
+  }, [teacherQuery.isSuccess]);
+  console.log("inputState", inputState);
+  if (teacherQuery.isLoading) {
+    return <h1>...isLoading</h1>;
+  }
+
   return (
     <div className="update-student">
       <div className="container">
         <section className="title">
           <div className="title-left">
-            <h1>Update Student</h1>
+            <h1>Update Teacher</h1>
           </div>
           <div className="title-right">
-            <h1>Student/Update Student</h1>
+            <h1>Teacher/Update Teacher</h1>
           </div>
         </section>
         <section className="form">
           <div className="form-title">
-            <h1>Student Information</h1>
+            <h1>Teacher Information</h1>
           </div>
           <div className="inputs">
             <Box
@@ -69,92 +165,126 @@ const UpdateTeacherAdmin = () => {
                 id="outlined-basic"
                 label="Full Name"
                 variant="outlined"
-                defaultValue={teacherData.fullName}
+                defaultValue={teacherQuery.data?.data.fullName}
                 onChange={(e) =>
                   dispatch({
                     type: "fullName",
                     payload: e.target.value,
                   })
                 }
+                error={enteredValueisValid.fullNameIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.fullNameIsValid &&
+                  "Full name must be minimum 3 length "
+                }
               />
               <TextField
                 size="small"
                 id="outlined-basic"
-                label="eMail"
+                label="Email"
                 variant="outlined"
-                defaultValue={teacherData.eMail}
+                defaultValue={teacherQuery.data?.data.email}
                 onChange={(e) =>
                   dispatch({
-                    type: "eMail",
+                    type: "email",
                     payload: e.target.value,
                   })
                 }
+                error={enteredValueisValid.eMailIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.eMailIsValid && "Email required"
+                }
               />
-
               <TextField
                 size="small"
                 id="outlined-basic"
-                label="User Id"
+                label="Mobile Number"
                 variant="outlined"
-                defaultValue={teacherData.appUser?.id}
+                defaultValue={teacherQuery.data?.data.mobileNumber}
                 onChange={(e) =>
                   dispatch({
-                    type: "appUserId",
-                    payload: e.target.value.trim(),
+                    type: "mobileNumber",
+                    payload: e.target.value,
                   })
                 }
+                error={enteredValueisValid.mobileNumberIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.mobileNumberIsValid && "Email required"
+                }
               />
-
-              {/* <Select
-                  labelId="demo-select-small-label"
-                  id="demo-select-small"
-                  value={studentData?.data.gender}
-                  label="Age"
-                  onChange={(e) =>
-                    dispatch({
-                      type: "gender",
-                      payload: e.target.value,
-                    })
-                  }
-                >
-                  <MenuItem value={studentData?.data.gender}>
-                    {inputState.gender}
-                  </MenuItem>
-                  <MenuItem
-                    value={inputState.gender == "Male" ? "Female" : "Male"}
-                  >
-                    {inputState.gender == "Male" ? "Female" : "Male"}
-                  </MenuItem>
-                </Select> */}
+              <Select
+                size="small"
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={inputState?.gender}
+                label="Gender"
+                defaultValue={teacherQuery.data?.data.gender}
+                onChange={(e) => {
+                  dispatch({
+                    type: "gender",
+                    payload: e.target.value,
+                  });
+                }}
+                error={enteredValueisValid.genderIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.genderIsValid && "Email required"
+                }
+              >
+                <MenuItem value={"Male"}>Male</MenuItem>
+                <MenuItem value={"Female"}>Female</MenuItem>
+              </Select>
+              <Autocomplete
+                disablePortal
+                id="combo-box-mainGroup"
+                size="small"
+                options={userData?.data ?? []}
+                getOptionLabel={(option) => option.userName}
+                onChange={(e, newValue) => {
+                  dispatch({
+                    type: "appUserId",
+                    payload: newValue?.id,
+                  });
+                }}
+                inputValue={userInputValue}
+                onInputChange={(e, newValue) => {
+                  setUserInputValue(newValue.id);
+                }}
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="User" />}
+              />
 
               <TextField
                 size="small"
                 id="outlined-basic"
                 label="Home Phone Number"
                 variant="outlined"
-                defaultValue={teacherData.address}
+                defaultValue={teacherQuery.data?.data.address}
                 onChange={(e) =>
                   dispatch({
                     type: "address",
                     payload: e.target.value,
                   })
                 }
+                error={enteredValueisValid.addressIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.addressIsValid && "Email required"
+                }
               />
 
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
-                  value={dayjs(inputState.dateOfBirth)}
-                  defaultValue={dayjs(teacherData.dateOfBirth)}
+                  value={dayjs(inputState?.dateOfBirth)}
+                  defaultValue={dayjs(teacherQuery.data?.data.dateOfBirth)}
                   onChange={handleBirthday}
                 />
               </LocalizationProvider>
-
+              <div className="errorMessage">{error}</div>
               <Button
                 type="submit"
-                onClick={() => handleTeacherUpdate()}
+                onClick={handleTeacherUpdate}
                 variant="contained"
               >
-                Update student
+                Update Teacher
               </Button>
             </Box>
           </div>
