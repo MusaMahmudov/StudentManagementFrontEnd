@@ -7,19 +7,22 @@ import {
   TextField,
 } from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
 
 import { AdminExamTypeTitle } from "../../../../UI/Common/AdminExamTypeTitle";
 import { queryAllByAltText } from "@testing-library/react";
 import { queryKeys } from "../../../../QueryKeys";
+import { TokenContext } from "../../../../Contexts/Token-context";
 const UpdateFacultyAdmin = () => {
+  const { token } = useContext(TokenContext);
+
   const { facultyServices } = useService();
   const { Id } = useParams();
   const navigate = useNavigate();
   const facultyQuery = useQuery([queryKeys.getFacultyById], () =>
-    facultyServices.getFacultyByIdForUpdate(Id)
+    facultyServices.getFacultyByIdForUpdate(Id, token)
   );
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     nameIsValid: true,
@@ -28,7 +31,7 @@ const UpdateFacultyAdmin = () => {
   const [inputState, setInputState] = useState(facultyQuery.data?.data);
   const [error, setError] = useState();
   const mutate = useMutation(
-    () => facultyServices.updateFaculty(Id, inputState),
+    () => facultyServices.updateFaculty(Id, inputState, token),
     {
       onSuccess: () => navigate("/Faculties"),
       onError: () => setError("Something went wrong"),

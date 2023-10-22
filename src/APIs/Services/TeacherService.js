@@ -6,24 +6,24 @@ class teacherService extends HTTPClient {
     super(BaseURL);
   }
 
-  async getAllTeachers() {
-    return await this.getAll("Teachers");
+  async getAllTeachers(token) {
+    return await this.getAll("Teachers", token);
   }
-  async getTeacherById(id) {
-    return await this.getById("Teachers", id);
+  async getTeacherById(id, token) {
+    return await this.getById("Teachers", id, token);
   }
-  async getTeacherByIdForUpdate(id) {
-    return await this.getById("Teachers/update", id);
+  async getTeacherByIdForUpdate(id, token) {
+    return await this.getById("Teachers/update", id, token);
   }
-  async createTeacher(body) {
-    return await this.post("Teachers", body);
+  async createTeacher(body, token) {
+    return await this.post("Teachers", body, token);
   }
 
-  async deleteTeacher(id) {
-    return await this.delete("Teachers", id);
+  async deleteTeacher(id, token) {
+    return await this.delete("Teachers", id, token);
   }
-  async updateTeacher(id, body) {
-    return await this.put("Teachers", id, body);
+  async updateTeacher(id, body, token) {
+    return await this.put("Teachers", id, body, token);
   }
 }
 export default teacherService;

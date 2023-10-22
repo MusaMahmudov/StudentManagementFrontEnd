@@ -6,9 +6,14 @@ import { Button, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { UserListTable } from "../../../../UI/Tables/UserListTable";
+import { useContext, useEffect } from "react";
+import { TokenContext } from "../../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 
 const UserListAdmin = () => {
   const navigate = useNavigate();
+  const { token } = useContext(TokenContext);
 
   const searchByFullName = (event) => {};
   return (

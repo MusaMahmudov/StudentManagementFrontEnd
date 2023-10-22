@@ -7,19 +7,22 @@ import {
   TextField,
 } from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
 import { AdminExamTypeTitle } from "../../../../UI/Common/AdminExamTypeTitle";
 import { queryKeys } from "../../../../QueryKeys";
 import { Tune } from "@mui/icons-material";
+import { TokenContext } from "../../../../Contexts/Token-context";
 const UpdateSubjectAdmin = () => {
   const { subjectServices } = useService();
   const navigate = useNavigate();
+  const { token } = useContext(TokenContext);
+
   const { Id } = useParams();
   const [inputState, setInputState] = useState({});
   const subjectQuery = useQuery([queryKeys.getSubjects], () =>
-    subjectServices.getSubjectById(Id)
+    subjectServices.getSubjectById(Id, token)
   );
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     nameIsValid: true,
@@ -30,7 +33,7 @@ const UpdateSubjectAdmin = () => {
     }
   }, [subjectQuery.data, subjectQuery.isSuccess]);
   const mutate = useMutation(
-    () => subjectServices.updateSubject(inputState.id, inputState),
+    () => subjectServices.updateSubject(inputState.id, inputState, token),
     { onSuccess: () => navigate("/Subjects") }
   );
   if (subjectQuery.isLoading) {

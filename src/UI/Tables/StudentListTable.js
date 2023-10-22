@@ -16,13 +16,16 @@ import {
   UpdateButton,
 } from "../Buttons/ActionButtons";
 import { useNavigate, useParams } from "react-router-dom";
+import { useContext } from "react";
+import { TokenContext } from "../../Contexts/Token-context";
 
 export function StudentListTable() {
   const navigate = useNavigate();
   const { studentServices } = useService();
+  const { token } = useContext(TokenContext);
 
   const studentQuery = useQuery([queryKeys.getStudentsQuery], () =>
-    studentServices.getAllStudents()
+    studentServices.getAllStudents(token)
   );
   if (studentQuery.isLoading) {
     return <h1 className="loading">Is Loading...</h1>;

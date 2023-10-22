@@ -18,16 +18,27 @@ import {
 import { styled } from "@mui/material/styles";
 import { DeleteButton } from "../../../../UI/Buttons/ActionButtons";
 import { getToken } from "../../../../utils/GetToken";
+import { useContext, useEffect } from "react";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
+import jwtDecode from "jwt-decode";
+import { TokenContext } from "../../../../Contexts/Token-context";
 const ExamDeleteAdmin = () => {
   const navigate = useNavigate();
+  const { token } = useContext(TokenContext);
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken[tokenRoleProperty] !== "Admin") {
+        navigate("Error");
+      }
+    }
+  });
   const { Id } = useParams();
   const { examServices } = useService();
   const examQuery = useQuery([queryKeys.getExamById], () =>
-    examServices.getExamById(Id)
+    examServices.getExamById(Id, token)
   );
-  let token = getToken();
-  console.log(token);
-  const mutate = useMutation(() => examServices.deleteExam(Id), {
+  const mutate = useMutation(() => examServices.deleteExam(Id, token), {
     onSuccess: () => navigate(-1),
   });
 

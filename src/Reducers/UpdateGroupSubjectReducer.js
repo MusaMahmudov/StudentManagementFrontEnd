@@ -15,5 +15,9 @@ export const updateGroupSubjectReducer = (state, action) => {
       return { ...state, hours: action.payload };
     case "teacherRole":
       return { ...state, teacherRole: action.payload };
+    case "semester":
+      return { ...state, semester: action.payload };
+    case "year":
+      return { ...state, year: action.payload };
   }
 };

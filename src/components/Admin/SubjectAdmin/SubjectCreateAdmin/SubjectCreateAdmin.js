@@ -1,11 +1,24 @@
 import { Autocomplete, Box, Button, Select, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
 import { useNavigate } from "react-router-dom";
 import { AdminGroupTitle } from "../../../../UI/Common/AdminGroupTitle";
+import { TokenContext } from "../../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const CreateSubjectAdmin = () => {
   const { subjectServices } = useService();
+  const navigate = useNavigate();
+  const { token } = useContext(TokenContext);
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken[tokenRoleProperty] !== "Admin") {
+        navigate("Error");
+      }
+    }
+  });
 
   const [newSubject, setNewSubject] = useState({
     name: null,
@@ -15,16 +28,17 @@ const CreateSubjectAdmin = () => {
   });
   let formValid = true;
 
-  const navigate = useNavigate();
-
   const handleSubject = ({
     target: { value: inputValue, name: inputName },
   }) => {
     setNewSubject((prev) => ({ ...prev, [inputName]: inputValue.trim() }));
   };
-  const mutate = useMutation(() => subjectServices.createSubject(newSubject), {
-    onSuccess: () => navigate("/Subjects"),
-  });
+  const mutate = useMutation(
+    () => subjectServices.createSubject(newSubject, token),
+    {
+      onSuccess: () => navigate("/Subjects"),
+    }
+  );
 
   const handleNewSubject = (e) => {
     e.preventDefault();

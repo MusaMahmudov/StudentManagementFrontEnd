@@ -5,23 +5,23 @@ class examTypeService extends HTTPClient {
   constructor() {
     super(BaseURL);
   }
-  async getAllExamTypes() {
-    return await this.getAll("ExamTypes");
+  async getAllExamTypes(token) {
+    return await this.getAll("ExamTypes", token);
   }
-  async getExamTypeById(id) {
-    return await this.getById("ExamTypes", id);
+  async getExamTypeById(id, token) {
+    return await this.getById("ExamTypes", id, token);
   }
-  async getExamTypeByIdForUpdate(id) {
-    return await this.getById("ExamTypes/update", id);
+  async getExamTypeByIdForUpdate(id, token) {
+    return await this.getById("ExamTypes/update", id, token);
   }
-  async createExamType(body) {
-    return await this.post("ExamTypes", body);
+  async createExamType(body, token) {
+    return await this.post("ExamTypes", body, token);
   }
-  async deleteExamType(id) {
-    return await this.delete("ExamTypes", id);
+  async deleteExamType(id, token) {
+    return await this.delete("ExamTypes", id, token);
   }
-  async updateExamType(id, body) {
-    return await this.put("ExamTypes", id, body);
+  async updateExamType(id, body, token) {
+    return await this.put("ExamTypes", id, body, token);
   }
 }
 export default examTypeService;

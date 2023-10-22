@@ -16,10 +16,12 @@ import {
 } from "../Buttons/ActionButtons";
 import { useNavigate, useParams } from "react-router-dom";
 import { getToken } from "../../utils/GetToken";
+import { useContext } from "react";
+import { TokenContext } from "../../Contexts/Token-context";
 
 export function ExamListTable() {
-  const token = getToken();
-  console.log("token:", token);
+  const { token } = useContext(TokenContext);
+
   const navigate = useNavigate();
   const { examServices } = useService();
   const examQuery = useQuery([queryKeys.getExams], () =>

@@ -5,23 +5,23 @@ class facultyService extends HTTPClient {
   constructor() {
     super(BaseURL);
   }
-  async getAllFaculties() {
-    return await this.getAll("Faculties");
+  async getAllFaculties(token) {
+    return await this.getAll("Faculties", token);
   }
-  async getFacultyById(id) {
-    return await this.getById("Faculties", id);
+  async getFacultyById(id, token) {
+    return await this.getById("Faculties", id, token);
   }
-  async getFacultyByIdForUpdate(id) {
-    return await this.getById("Faculties/update", id);
+  async getFacultyByIdForUpdate(id, token) {
+    return await this.getById("Faculties/update", id, token);
   }
-  async createFaculty(body) {
-    return await this.post("Faculties", body);
+  async createFaculty(body, token) {
+    return await this.post("Faculties", body, token);
   }
-  async deleteFaculty(id) {
-    return await this.delete("Faculties", id);
+  async deleteFaculty(id, token) {
+    return await this.delete("Faculties", id, token);
   }
-  async updateFaculty(id, body) {
-    return await this.put("Faculties", id, body);
+  async updateFaculty(id, body, token) {
+    return await this.put("Faculties", id, body, token);
   }
 }
 export default facultyService;

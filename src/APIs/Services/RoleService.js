@@ -6,19 +6,19 @@ export class roleService extends HTTPClient {
     super(BaseURL);
   }
 
-  async getAllRoles() {
-    return await this.getAll("Roles");
+  async getAllRoles(token) {
+    return await this.getAll("Roles", token);
   }
-  async getRoleById(id) {
-    return await this.getById("Roles", id);
+  async getRoleById(id, token) {
+    return await this.getById("Roles", id, token);
   }
-  async createRole(body) {
-    return await this.post("Roles", body);
+  async createRole(body, token) {
+    return await this.post("Roles", body, token);
   }
-  async updateRole(id, body) {
-    return await this.put("Roles", id, body);
+  async updateRole(id, body, token) {
+    return await this.put("Roles", id, body, token);
   }
-  async deleteRole(id) {
-    return await this.delete("Roles", id);
+  async deleteRole(id, token) {
+    return await this.delete("Roles", id, token);
   }
 }

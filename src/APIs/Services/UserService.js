@@ -6,22 +6,22 @@ export class userService extends HTTPClient {
     super(BaseURL);
   }
 
-  async getAllUser() {
-    return await this.getAll("Accounts");
+  async getAllUser(token) {
+    return await this.getAll("Accounts", token);
   }
-  async getUserById(id) {
-    return await this.getById("Accounts", id);
+  async getUserById(id, token) {
+    return await this.getById("Accounts", id, token);
   }
-  async getUserByIdForUpdate(id) {
-    return await this.getById("Accounts/update", id);
+  async getUserByIdForUpdate(id, token) {
+    return await this.getById("Accounts/update", id, token);
   }
-  async createUser(body) {
-    return await this.post("Accounts", body);
+  async createUser(body, token) {
+    return await this.post("Accounts", body, token);
   }
-  async updateUser(id, body) {
-    return await this.put("Accounts", id, body);
+  async updateUser(id, body, token) {
+    return await this.put("Accounts", id, body, token);
   }
-  async deleteUser(id) {
-    return await this.delete("Accounts", id);
+  async deleteUser(id, token) {
+    return await this.delete("Accounts", id, token);
   }
 }

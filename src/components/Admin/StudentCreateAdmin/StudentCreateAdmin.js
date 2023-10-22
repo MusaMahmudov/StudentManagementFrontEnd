@@ -7,7 +7,7 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../hooks";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -17,7 +17,19 @@ import dayjs from "dayjs";
 import { faL } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { queryKeys } from "../../../QueryKeys";
+import jwtDecode from "jwt-decode";
+import { TokenContext } from "../../../Contexts/Token-context";
+import { tokenRoleProperty } from "../../../utils/TokenProperties";
 const CreateStudentAdmin = () => {
+  const navigate = useNavigate();
+
+  const { token } = useContext(TokenContext);
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    if (decodedToken[tokenRoleProperty] !== "Admin") {
+      navigate("Error");
+    }
+  }
   const { studentServices, groupServices, userServices } = useService();
 
   const [newStudent, setNewStudent] = useState({
@@ -48,9 +60,8 @@ const CreateStudentAdmin = () => {
   let formValid = true;
 
   const [birthday, setBirthday] = useState();
-  const navigate = useNavigate();
   const { data: userData } = useQuery([queryKeys.getUsers], () =>
-    userServices.getAllUser()
+    userServices.getAllUser(token)
   );
   const [userInputValue, setUserInputValue] = useState();
   const { data: groupData } = useQuery([queryKeys.getGroupsQuery], () =>
@@ -64,9 +75,12 @@ const CreateStudentAdmin = () => {
     setNewStudent((prev) => ({ ...prev, [inputName]: inputValue.trim() }));
     console.log(newStudent);
   };
-  const mutate = useMutation(() => studentServices.createStudent(newStudent), {
-    onSuccess: () => navigate(-1),
-  });
+  const mutate = useMutation(
+    () => studentServices.createStudent(newStudent, token),
+    {
+      onSuccess: () => navigate(-1),
+    }
+  );
   console.log("Student", newStudent);
 
   const [error, setError] = useState();

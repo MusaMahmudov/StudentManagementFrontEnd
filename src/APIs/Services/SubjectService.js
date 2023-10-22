@@ -5,19 +5,19 @@ export class SubjectService extends HTTPClient {
   constructor() {
     super(BaseURL);
   }
-  async getAllSubjects() {
-    return await this.getAll("Subjects");
+  async getAllSubjects(token) {
+    return await this.getAll("Subjects", token);
   }
-  async getSubjectById(id) {
-    return await this.getById("Subjects", id);
+  async getSubjectById(id, token) {
+    return await this.getById("Subjects", id, token);
   }
-  async createSubject(body) {
-    return await this.post("Subjects", body);
+  async createSubject(body, token) {
+    return await this.post("Subjects", body, token);
   }
-  async updateSubject(id, body) {
-    return await this.put("Subjects", id, body);
+  async updateSubject(id, body, token) {
+    return await this.put("Subjects", id, body, token);
   }
-  async deleteSubject(id) {
-    return await this.delete("Subjects", id);
+  async deleteSubject(id, token) {
+    return await this.delete("Subjects", id, token);
   }
 }

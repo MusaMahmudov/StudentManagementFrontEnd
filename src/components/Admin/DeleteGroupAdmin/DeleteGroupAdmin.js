@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import "./deleteGroupAdmin.scss";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -7,12 +7,26 @@ import { Button } from "@mui/material";
 import { DeleteButton } from "../../../UI/Buttons/ActionButtons";
 import useService from "../../../hooks";
 import { useMutation } from "react-query";
+import { TokenContext } from "../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../utils/TokenProperties";
 
 const DeleteGroupAdmin = () => {
-  const { state } = useLocation();
   const navigate = useNavigate();
+
+  const { token } = useContext(TokenContext);
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken[tokenRoleProperty] !== "Admin") {
+        navigate("Error");
+      }
+    }
+  }, []);
+
+  const { state } = useLocation();
   const { groupServices } = useService();
-  const mutate = useMutation((id) => groupServices.deleteGroup(id), {
+  const mutate = useMutation((id) => groupServices.deleteGroup(id, token), {
     onSuccess: () => navigate(-1),
   });
   return (

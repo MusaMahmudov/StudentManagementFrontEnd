@@ -15,12 +15,16 @@ import {
   tableCellClasses,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useContext } from "react";
+import { TokenContext } from "../../../../Contexts/Token-context";
 const ExamDetailsAdmin = () => {
   const navigate = useNavigate();
   const { Id } = useParams();
+  const { token } = useContext(TokenContext);
+
   const { examServices } = useService();
   const examQuery = useQuery([queryKeys.getExamById], () =>
-    examServices.getExamById(Id)
+    examServices.getExamById(Id, token)
   );
   if (examQuery.isLoading) {
     return <h1>Is Loading...</h1>;

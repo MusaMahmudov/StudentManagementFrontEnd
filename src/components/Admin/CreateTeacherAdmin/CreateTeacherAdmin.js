@@ -8,16 +8,25 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useMutation, useQueries, useQuery } from "react-query";
 import useService from "../../../hooks";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useNavigate } from "react-router-dom";
 import { queryKeys } from "../../../QueryKeys";
+import { TokenContext } from "../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../utils/TokenProperties";
 const CreateTeacherAdmin = () => {
   const { teacherServices, userServices } = useService();
-
+  const { token } = useContext(TokenContext);
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    if (decodedToken[tokenRoleProperty] !== "Admin") {
+      navigate("Error");
+    }
+  }
   const [newTeacher, setNewTeacher] = useState({
     dateOfBirth: null,
     appUserId: null,
@@ -49,9 +58,12 @@ const CreateTeacherAdmin = () => {
     setNewTeacher((prev) => ({ ...prev, [inputName]: inputValue.trim() }));
     console.log(newTeacher);
   };
-  const mutate = useMutation(() => teacherServices.createTeacher(newTeacher), {
-    onSuccess: () => navigate(-1),
-  });
+  const mutate = useMutation(
+    () => teacherServices.createTeacher(newTeacher, token),
+    {
+      onSuccess: () => navigate(-1),
+    }
+  );
 
   const handleBirthday = (date) => {
     console.log(date);

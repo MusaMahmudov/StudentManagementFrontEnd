@@ -15,13 +15,16 @@ import {
   UpdateButton,
 } from "../Buttons/ActionButtons";
 import { useNavigate, useParams } from "react-router-dom";
+import { useContext } from "react";
+import { TokenContext } from "../../Contexts/Token-context";
 
 export function FacultyListTable() {
+  const { token } = useContext(TokenContext);
   const navigate = useNavigate();
   const { facultyServices } = useService();
 
   const facultyQuery = useQuery([queryKeys.getFaculties], () =>
-    facultyServices.getAllFaculties()
+    facultyServices.getAllFaculties(token)
   );
   if (facultyQuery.isLoading) {
     return <h1 className="loading">Is Loading...</h1>;

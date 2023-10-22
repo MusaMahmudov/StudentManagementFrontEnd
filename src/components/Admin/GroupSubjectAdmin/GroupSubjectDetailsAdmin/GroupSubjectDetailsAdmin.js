@@ -15,12 +15,16 @@ import {
   tableCellClasses,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useContext } from "react";
+import { Token } from "@mui/icons-material";
+import { TokenContext } from "../../../../Contexts/Token-context";
 const GroupSubjectDetailsAdmin = () => {
+  const { token } = useContext(TokenContext);
   const navigate = useNavigate();
   const { Id } = useParams();
   const { groupSubjectServices } = useService();
   const groupSubjectQuery = useQuery([queryKeys.getGroupSubjects], () =>
-    groupSubjectServices.getGroupSubjectById(Id)
+    groupSubjectServices.getGroupSubjectById(Id, token)
   );
   if (groupSubjectQuery.isLoading) {
     return <h1>Is Loading...</h1>;

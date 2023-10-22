@@ -8,7 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useEffect, useReducer, useState } from "react";
+import { useContext, useEffect, useReducer, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
 import { queryKeys } from "../../../../QueryKeys";
@@ -17,19 +17,21 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { updateExamReducer } from "../../../../Reducers/UpdateExamReducer";
 import { AdminGroupTitle } from "../../../../UI/Common/AdminGroupTitle";
+import { TokenContext } from "../../../../Contexts/Token-context";
 const UpdateExamAdmin = () => {
+  const { token } = useContext(TokenContext);
   const { examServices, examTypeServices, groupSubjectServices } = useService();
   const { data: examTypeData, isError } = useQuery(
     [queryKeys.getExamTypes],
-    () => examTypeServices.getAllExamTypes()
+    () => examTypeServices.getAllExamTypes(token)
   );
   const { data: groupSubjectsData } = useQuery(
     [queryKeys.getGroupSubjects],
-    () => groupSubjectServices.getAllGroupSubjects()
+    () => groupSubjectServices.getAllGroupSubjects(token)
   );
   const { Id } = useParams();
   const examQuery = useQuery([queryKeys.getExamById], () =>
-    examServices.getExamByIdForUpdate(Id)
+    examServices.getExamByIdForUpdate(Id, token)
   );
 
   const [examTypeError, setExamTypeError] = useState();
@@ -62,9 +64,12 @@ const UpdateExamAdmin = () => {
   //   examTypeId: examQuery.data?.data.examType?.id,
   //   groupSubjectId: examQuery.data?.data.groupSubject?.id,
   //   maxScore: examQuery.data?.data.maxScore,
-  const mutate = useMutation(() => examServices.updateExam(Id, inputState), {
-    onSuccess: () => navigate("/Exams"),
-  });
+  const mutate = useMutation(
+    () => examServices.updateExam(Id, inputState, token),
+    {
+      onSuccess: () => navigate("/Exams"),
+    }
+  );
   const handleExamUpdate = (e) => {
     e.preventDefault();
     if (

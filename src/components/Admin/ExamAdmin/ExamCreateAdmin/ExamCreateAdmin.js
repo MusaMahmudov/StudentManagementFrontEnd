@@ -1,5 +1,5 @@
 import { Autocomplete, Box, Button, Select, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Query, useMutation, useQueries, useQuery } from "react-query";
 import useService from "../../../../hooks";
 import { useNavigate } from "react-router-dom";
@@ -7,14 +7,28 @@ import { AdminGroupTitle } from "../../../../UI/Common/AdminGroupTitle";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { queryKeys } from "../../../../QueryKeys";
+import { TokenContext } from "../../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const CreateExam = () => {
+  const navigate = useNavigate();
+  const { token } = useContext(TokenContext);
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken[tokenRoleProperty] !== "Admin") {
+        navigate("Error");
+      }
+    }
+  });
   const { examServices, examTypeServices, groupSubjectServices } = useService();
   const { data: examTypeData } = useQuery([queryKeys.getExamTypes], () =>
-    examTypeServices.getAllExamTypes()
+    examTypeServices.getAllExamTypes(token)
   );
+
   const { data: groupSubjectData } = useQuery(
     [queryKeys.getGroupSubjects],
-    () => groupSubjectServices.getAllGroupSubjects()
+    () => groupSubjectServices.getAllGroupSubjects(token)
   );
   const [examTypeInputValue, setExamTypeInputValue] = useState();
   const [groupSubjectInputValue, setGroupSubjectInputValue] = useState();
@@ -43,12 +57,11 @@ const CreateExam = () => {
       }T18:47:20.116`,
     }));
   };
-  const navigate = useNavigate();
   console.log(newExam);
   const handleExam = ({ target: { value: inputValue, name: inputName } }) => {
     setNewExam((prev) => ({ ...prev, [inputName]: inputValue.trim() }));
   };
-  const mutate = useMutation(() => examServices.createExam(newExam), {
+  const mutate = useMutation(() => examServices.createExam(newExam, token), {
     onSuccess: () => navigate("/Exams"),
   });
   console.log(groupSubjectData);

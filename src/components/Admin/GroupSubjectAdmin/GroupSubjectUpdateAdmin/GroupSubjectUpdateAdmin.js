@@ -1,12 +1,15 @@
 import { Autocomplete, Box, Button, TextField } from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useEffect, useReducer, useState } from "react";
+import { useContext, useEffect, useReducer, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
 import { queryKeys } from "../../../../QueryKeys";
 import { AdminGroupTitle } from "../../../../UI/Common/AdminGroupTitle";
 import { updateGroupSubjectReducer } from "../../../../Reducers/UpdateGroupSubjectReducer";
+import { TokenContext } from "../../../../Contexts/Token-context";
 const UpdateGroupSubjectAdmin = () => {
+  const { token } = useContext(TokenContext);
+
   const {
     groupSubjectServices,
     teacherServices,
@@ -14,13 +17,13 @@ const UpdateGroupSubjectAdmin = () => {
     subjectServices,
   } = useService();
   const { data: teacherData, isError } = useQuery([queryKeys.getTeachers], () =>
-    teacherServices.getAllTeachers()
+    teacherServices.getAllTeachers(token)
   );
   const { data: groupData } = useQuery([queryKeys.getGroupsQuery], () =>
-    groupServices.getAllGroups()
+    groupServices.getAllGroups(token)
   );
   const { data: subjectData } = useQuery([queryKeys.getSubjects], () =>
-    subjectServices.getAllSubjects()
+    subjectServices.getAllSubjects(token)
   );
 
   const [teacherError, setTeacherError] = useState();
@@ -50,6 +53,8 @@ const UpdateGroupSubjectAdmin = () => {
     creditsIsValid: true,
     hoursIsValid: true,
     totalWeeksIsValid: true,
+    semesterIsValid: true,
+    YearIsValid: true,
   });
   const [inputState, dispatch] = useReducer(updateGroupSubjectReducer, {
     groupId: groupSubjectData?.group.id,
@@ -58,9 +63,15 @@ const UpdateGroupSubjectAdmin = () => {
     totalWeeks: groupSubjectData.totalWeeks,
     hours: groupSubjectData.hours,
     credits: groupSubjectData.credits,
+    semester: groupSubjectData.semester,
+    year: groupSubjectData.year,
   });
   const mutate = useMutation(() =>
-    groupSubjectServices.updateGroupSubject(groupSubjectData.id, inputState)
+    groupSubjectServices.updateGroupSubject(
+      groupSubjectData.id,
+      inputState,
+      token
+    )
   );
   useEffect(() => {
     if (mutate.isError && mutate.error.response.data.message) {
@@ -79,21 +90,47 @@ const UpdateGroupSubjectAdmin = () => {
       setEnteredValueIsValid((prev) => ({ ...prev, subjectIdIsValid: true }));
     }
 
-    if (inputState.credits === "" || inputState.credits === null) {
+    if (
+      inputState.credits < 1 ||
+      inputState.credits > 50 ||
+      inputState.credits === null
+    ) {
       setEnteredValueIsValid((prev) => ({ ...prev, creditsIsValid: false }));
     } else {
       setEnteredValueIsValid((prev) => ({ ...prev, creditsIsValid: true }));
     }
 
-    if (inputState.hours === "" || inputState.hours === null) {
+    if (
+      inputState.hours < 1 ||
+      inputState.hours > 200 ||
+      inputState.hours === null
+    ) {
       setEnteredValueIsValid((prev) => ({ ...prev, hoursIsValid: false }));
     } else {
       setEnteredValueIsValid((prev) => ({ ...prev, hoursIsValid: true }));
     }
-    if (inputState.totalWeeks === "" || inputState.totalWeeks === null) {
+    if (
+      inputState.totalWeeks < 1 ||
+      inputState.totalWeeks > 50 ||
+      inputState.totalWeeks === null
+    ) {
       setEnteredValueIsValid((prev) => ({ ...prev, totalWeeksIsValid: false }));
     } else {
       setEnteredValueIsValid((prev) => ({ ...prev, totalWeeksIsValid: true }));
+    }
+    if (inputState.semester === "" || inputState.semester === null) {
+      setEnteredValueIsValid((prev) => ({ ...prev, semesterIsValid: false }));
+    } else {
+      setEnteredValueIsValid((prev) => ({ ...prev, semesterIsValid: true }));
+    }
+    if (
+      inputState.year > new Date().getFullYear() ||
+      inputState.year < 2010 ||
+      inputState.year === null
+    ) {
+      setEnteredValueIsValid((prev) => ({ ...prev, YearIsValid: false }));
+    } else {
+      setEnteredValueIsValid((prev) => ({ ...prev, YearIsValid: true }));
     }
 
     // for (let prop in enteredValueisValid) {
@@ -142,7 +179,8 @@ const UpdateGroupSubjectAdmin = () => {
                 }}
                 error={enteredValueisValid.creditsIsValid ? "" : "error"}
                 helperText={
-                  !enteredValueisValid.creditsIsValid && "Credits required"
+                  !enteredValueisValid.creditsIsValid &&
+                  "Credits must be between 1 and 50"
                 }
               />
               <TextField
@@ -161,7 +199,8 @@ const UpdateGroupSubjectAdmin = () => {
                 }}
                 error={enteredValueisValid.hoursIsValid ? "" : "error"}
                 helperText={
-                  !enteredValueisValid.hoursIsValid && "Hours  required"
+                  !enteredValueisValid.hoursIsValid &&
+                  "Hours  must be between 1 and 200"
                 }
               />
               <TextField
@@ -181,7 +220,45 @@ const UpdateGroupSubjectAdmin = () => {
                 error={enteredValueisValid.totalWeeksIsValid ? "" : "error"}
                 helperText={
                   !enteredValueisValid.totalWeeksIsValid &&
-                  "Total weeks  required"
+                  "Total weeks  must be between 1 and 50"
+                }
+              />
+              <TextField
+                size="small"
+                id="outlined-basic"
+                label="Semester"
+                variant="outlined"
+                name="semester"
+                defaultValue={groupSubjectData.semester}
+                onChange={(e) => {
+                  dispatch({
+                    type: "semester",
+                    payload: e.target.value,
+                  });
+                }}
+                error={enteredValueisValid.semesterIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.semesterIsValid && "Semester required"
+                }
+              />
+              <TextField
+                type="number"
+                size="small"
+                id="outlined-basic"
+                label="Year"
+                variant="outlined"
+                name="year"
+                defaultValue={groupSubjectData.year}
+                onChange={(e) => {
+                  dispatch({
+                    type: "year",
+                    payload: e.target.value,
+                  });
+                }}
+                error={enteredValueisValid.YearIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.YearIsValid &&
+                  `Year must be between 2010 and ${new Date().getFullYear()}`
                 }
               />
               <Autocomplete

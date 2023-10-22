@@ -7,40 +7,54 @@ import {
   TextField,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useReducer, useState } from "react";
+import { useContext, useEffect, useReducer, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
 import { queryKeys } from "../../../../QueryKeys";
 import { updateUserReducer } from "../../../../Reducers/UpdateUserReducer";
+import { TokenContext } from "../../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const UpdateUserAdmin = () => {
   const [error, setError] = useState();
-
+  const { token } = useContext(TokenContext);
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken[tokenRoleProperty] !== "Admin") {
+        navigate("Error");
+      }
+    }
+  });
   const { Id } = useParams();
   const navigate = useNavigate();
   const { teacherServices, studentServices, userServices, roleServices } =
     useService();
   const userQuery = useQuery([queryKeys.getUser], () =>
-    userServices.getUserByIdForUpdate(Id)
+    userServices.getUserByIdForUpdate(Id, token)
   );
   const { data: studentData } = useQuery([queryKeys.getStudentsQuery], () =>
-    studentServices.getAllStudents()
+    studentServices.getAllStudents(token)
   );
   const { data: roleData } = useQuery([queryKeys.GetRoles], () =>
-    roleServices.getAllRoles()
+    roleServices.getAllRoles(token)
   );
   const { data: teacherData } = useQuery([queryKeys.getTeachers], () =>
-    teacherServices.getAllTeachers()
+    teacherServices.getAllTeachers(token)
   );
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     userNameIsValid: true,
     passwordIsValid: true,
     emailIsValid: true,
   });
-  const mutate = useMutation(() => userServices.updateUser(Id, inputState), {
-    onSuccess: () => {
-      navigate("/Users");
-    },
-  });
+  const mutate = useMutation(
+    () => userServices.updateUser(Id, inputState, token),
+    {
+      onSuccess: () => {
+        navigate("/Users");
+      },
+    }
+  );
   useEffect(() => {
     if (mutate.isError && mutate.error.response.data.message) {
       setError([mutate.error.response.data.message]);

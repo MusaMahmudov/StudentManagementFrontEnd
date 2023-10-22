@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import "./groupUpdateAdmin.scss";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useEffect, useReducer, useState } from "react";
+import { useContext, useEffect, useReducer, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../hooks";
 import { queryKeys } from "../../../QueryKeys";
@@ -21,11 +21,14 @@ import { updateTeacherReduce } from "../../../Reducers/UpdateTeacherReducer";
 import { AdminGroupTitle } from "../../../UI/Common/AdminGroupTitle";
 import { updateGroupReducer } from "../../../Reducers/UpdateGroupReducer";
 import { type } from "@testing-library/user-event/dist/type";
+import { TokenContext } from "../../../Contexts/Token-context";
 const UpdateGroupAdmin = () => {
+  const { token } = useContext(TokenContext);
+
   const { groupServices, facultyServices } = useService();
   const { data: facultyData, isError } = useQuery(
     [queryKeys.getFaculties],
-    () => facultyServices.getAllFaculties()
+    () => facultyServices.getAllFaculties(token)
   );
   const [facultyError, setFacultyError] = useState();
   if (isError) {
@@ -50,7 +53,7 @@ const UpdateGroupAdmin = () => {
     facultyId: currectFacultyId,
   });
   const mutate = useMutation(
-    () => groupServices.updateGroup(groupData.id, inputState)
+    () => groupServices.updateGroup(groupData.id, inputState, token)
     // { onSuccess: () => navigate("/Groups") }
   );
   const handleGroupUpdate = () => {

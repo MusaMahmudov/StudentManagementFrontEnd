@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AdminStudentTitle } from "../../../UI/Common/AdminStudentTitle";
@@ -7,12 +7,23 @@ import { DeleteButton } from "../../../UI/Buttons/ActionButtons";
 import useService from "../../../hooks";
 import { useMutation } from "react-query";
 import { AdminTeacherTitle } from "../../../UI/Common/AdminTeacherTitle";
+import { TokenContext } from "../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../utils/TokenProperties";
 
 const DeleteTeacherAdmin = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const { token } = useContext(TokenContext);
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    if (decodedToken[tokenRoleProperty] !== "Admin") {
+      navigate("Error");
+    }
+  }
+
   const { teacherServices } = useService();
-  const mutate = useMutation((id) => teacherServices.deleteTeacher(id), {
+  const mutate = useMutation((id) => teacherServices.deleteTeacher(id, token), {
     onSuccess: () => navigate(-1),
   });
   return (

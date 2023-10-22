@@ -8,7 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useEffect, useReducer, useState } from "react";
+import { useContext, useEffect, useReducer, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../hooks";
 import { queryKeys } from "../../../QueryKeys";
@@ -17,15 +17,18 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { updateTeacherReduce } from "../../../Reducers/UpdateTeacherReducer";
+import { TokenContext } from "../../../Contexts/Token-context";
 const UpdateTeacherAdmin = () => {
   const { teacherServices, userServices } = useService();
   const { data: userData } = useQuery([queryKeys.getUsers], () =>
     userServices.getAllUser()
   );
   const navigate = useNavigate();
+  const { token } = useContext(TokenContext);
+
   const { Id } = useParams();
   const teacherQuery = useQuery([queryKeys.getTeacherById], () =>
-    teacherServices.getTeacherByIdForUpdate(Id)
+    teacherServices.getTeacherByIdForUpdate(Id, token)
   );
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     dateOfBirthIsValid: true,
@@ -40,7 +43,7 @@ const UpdateTeacherAdmin = () => {
   console.log("teacherData", teacherQuery.data?.data);
   const [error, setError] = useState();
   const mutate = useMutation(
-    () => teacherServices.updateTeacher(Id, inputState),
+    () => teacherServices.updateTeacher(Id, inputState, token),
     {
       onSuccess: () => navigate("/Teachers"),
     }

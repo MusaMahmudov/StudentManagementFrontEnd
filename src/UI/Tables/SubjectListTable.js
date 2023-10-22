@@ -15,13 +15,17 @@ import {
   UpdateButton,
 } from "../Buttons/ActionButtons";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { TokenContext } from "../../Contexts/Token-context";
 
 export function SubjectListTable() {
+  const { token } = useContext(TokenContext);
+
   const navigate = useNavigate();
   const { subjectServices } = useService();
 
   const subjectQuery = useQuery([queryKeys.getSubjects], () =>
-    subjectServices.getAllSubjects()
+    subjectServices.getAllSubjects(token)
   );
   if (subjectQuery.isLoading) {
     return <h1 className="loading">Is Loading...</h1>;

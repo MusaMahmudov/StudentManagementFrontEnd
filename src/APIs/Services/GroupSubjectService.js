@@ -4,19 +4,19 @@ export class groupSubjectService extends HTTPClient {
   constructor() {
     super(BaseUrlForAll);
   }
-  async getAllGroupSubjects() {
-    return await this.getAll("GroupSubjects");
+  async getAllGroupSubjects(token) {
+    return await this.getAll("GroupSubjects", token);
   }
-  async getGroupSubjectById(id) {
-    return await this.getById("GroupSubjects", id);
+  async getGroupSubjectById(id, token) {
+    return await this.getById("GroupSubjects", id, token);
   }
-  async createGroupSubject(body) {
-    return await this.post("GroupSubjects", body);
+  async createGroupSubject(body, token) {
+    return await this.post("GroupSubjects", body, token);
   }
-  async updateGroupSubject(id, body) {
-    return await this.put("GroupSubjects", id, body);
+  async updateGroupSubject(id, body, token) {
+    return await this.put("GroupSubjects", id, body, token);
   }
-  async deleteGroupSubject(id) {
-    return await this.delete("GroupSubjects", id);
+  async deleteGroupSubject(id, token) {
+    return await this.delete("GroupSubjects", id, token);
   }
 }

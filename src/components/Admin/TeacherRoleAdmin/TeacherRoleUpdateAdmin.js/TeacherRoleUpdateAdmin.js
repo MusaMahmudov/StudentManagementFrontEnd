@@ -7,12 +7,15 @@ import {
   TextField,
 } from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
 
 import { AdminExamTypeTitle } from "../../../../UI/Common/AdminExamTypeTitle";
+import { TokenContext } from "../../../../Contexts/Token-context";
 const UpdateTeacherRoleAdmin = () => {
+  const { token } = useContext(TokenContext);
+
   const { teacherRoleServices } = useService();
 
   const navigate = useNavigate();
@@ -20,7 +23,7 @@ const UpdateTeacherRoleAdmin = () => {
   const { state: teacherRoleData } = useLocation();
   const [inputState, setInputState] = useState(teacherRoleData);
   const mutate = useMutation(() =>
-    teacherRoleServices.updateTeacherRole(inputState.id, inputState)
+    teacherRoleServices.updateTeacherRole(inputState.id, inputState, token)
   );
   const handleTeacherRoleUpdate = () => {
     mutate.mutate();

@@ -1,11 +1,24 @@
 import { Autocomplete, Box, Button, Select, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
 import { useNavigate } from "react-router-dom";
 import { AdminGroupTitle } from "../../../../UI/Common/AdminGroupTitle";
+import { TokenContext } from "../../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const CreateTeacherRoleAdmin = () => {
   const { teacherRoleServices } = useService();
+  const { token } = useContext(TokenContext);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken[tokenRoleProperty] !== "Admin") {
+        navigate("Error");
+      }
+    }
+  }, []);
 
   const [newTeacherRole, setNewTeacherRole] = useState({
     name: null,
@@ -15,15 +28,13 @@ const CreateTeacherRoleAdmin = () => {
   });
   let formValid = true;
 
-  const navigate = useNavigate();
-
   const handleTeacherRole = ({
     target: { value: inputValue, name: inputName },
   }) => {
     setNewTeacherRole((prev) => ({ ...prev, [inputName]: inputValue.trim() }));
   };
   const mutate = useMutation(
-    () => teacherRoleServices.createTeacherRole(newTeacherRole),
+    () => teacherRoleServices.createTeacherRole(newTeacherRole, token),
     {
       onSuccess: () => navigate("/TeacherRoles"),
     }

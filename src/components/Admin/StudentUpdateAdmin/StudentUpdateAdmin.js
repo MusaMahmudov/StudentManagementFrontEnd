@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import "./studentUpdateAdmin.scss";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useReducer, useState } from "react";
+import { useContext, useEffect, useReducer, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import useService from "../../../hooks";
 import { queryKeys } from "../../../QueryKeys";
@@ -16,15 +16,20 @@ import { updateStudentReducer } from "../../../Reducers/UpdateStudentReducer";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import { TokenContext } from "../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../utils/TokenProperties";
 const UpdateStudentAdmin = () => {
+  const navigate = useNavigate();
+  const { token } = useContext(TokenContext);
+
   const { groupServices, studentServices, userServices } = useService();
   const { data: userData } = useQuery([queryKeys.getUsers], () =>
-    userServices.getAllUser()
+    userServices.getAllUser(token)
   );
-  const navigate = useNavigate();
   const { Id } = useParams();
   const studentQuery = useQuery([queryKeys.getStudentByIdQuery], () =>
-    studentServices.getStudentByIdForUpdate(Id)
+    studentServices.getStudentByIdForUpdate(Id, token)
   );
   const { data: groupData } = useQuery([queryKeys.getGroupsQuery], () =>
     groupServices.getAllGroups()
@@ -47,7 +52,7 @@ const UpdateStudentAdmin = () => {
   );
 
   const mutate = useMutation(
-    () => studentServices.updateStudent(Id, inputState),
+    () => studentServices.updateStudent(Id, inputState, token),
     {
       onSuccess: () => {
         navigate("/Students");

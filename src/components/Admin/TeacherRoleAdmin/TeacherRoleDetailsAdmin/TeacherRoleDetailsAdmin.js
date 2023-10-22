@@ -7,11 +7,14 @@ import { useQuery } from "react-query";
 import { queryKeys } from "../../../../QueryKeys";
 import { AdminExamTypeTitle } from "../../../../UI/Common/AdminExamTypeTitle";
 import { AdminFacultyTitle } from "../../../../UI/Common/AdminFacultyTitle";
+import { useContext } from "react";
+import { TokenContext } from "../../../../Contexts/Token-context";
 const TeacherRoleDetailsAdmin = () => {
+  const { token } = useContext(TokenContext);
   const { Id } = useParams();
   const { teacherRoleServices } = useService();
   const teacherRoleQuery = useQuery([queryKeys.getTeacherRoleById], () =>
-    teacherRoleServices.getTeacherRoleById(Id)
+    teacherRoleServices.getTeacherRoleById(Id, token)
   );
   if (teacherRoleQuery.isLoading) {
     return <h1>Is Loading...</h1>;

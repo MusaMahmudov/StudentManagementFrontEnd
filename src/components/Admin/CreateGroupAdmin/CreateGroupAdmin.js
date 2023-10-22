@@ -1,15 +1,27 @@
 import { Autocomplete, Box, Button, Select, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../hooks";
 import { useNavigate } from "react-router-dom";
 import { AdminGroupTitle } from "../../../UI/Common/AdminGroupTitle";
 import { queryKeys } from "../../../QueryKeys";
 import { ConstructionOutlined } from "@mui/icons-material";
+import { TokenContext } from "../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../utils/TokenProperties";
 const CreateGroupAdmin = () => {
+  const navigate = useNavigate();
+
+  const { token } = useContext(TokenContext);
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    if (decodedToken[tokenRoleProperty] !== "Admin") {
+      navigate("Error");
+    }
+  }
   const { studentServices, groupServices, facultyServices } = useService();
   const { data: studentData } = useQuery([queryKeys.getStudentsQuery], () =>
-    studentServices.getAllStudents()
+    studentServices.getAllStudents(token)
   );
   console.log("students", studentData);
   const [newGroup, setNewGroup] = useState({});
@@ -22,16 +34,15 @@ const CreateGroupAdmin = () => {
   });
   let formValid = true;
 
-  const navigate = useNavigate();
   const { data: facultyData } = useQuery([queryKeys.getFaculties], () =>
-    facultyServices.getAllFaculties()
+    facultyServices.getAllFaculties(token)
   );
   const [facultyInputValue, setFacultyInputValue] = useState();
   const handleGroup = ({ target: { value: inputValue, name: inputName } }) => {
     setNewGroup((prev) => ({ ...prev, [inputName]: inputValue.trim() }));
     console.log(newGroup);
   };
-  const mutate = useMutation(() => groupServices.createGroup(newGroup), {
+  const mutate = useMutation(() => groupServices.createGroup(newGroup, token), {
     onSuccess: () => navigate("/Groups"),
   });
 

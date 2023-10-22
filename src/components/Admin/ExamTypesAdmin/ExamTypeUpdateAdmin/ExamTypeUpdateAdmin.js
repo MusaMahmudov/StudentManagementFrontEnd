@@ -7,7 +7,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useEffect, useReducer, useState } from "react";
+import { useContext, useEffect, useReducer, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
 import { queryKeys } from "../../../../QueryKeys";
@@ -16,7 +16,9 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { AdminExamTypeTitle } from "../../../../UI/Common/AdminExamTypeTitle";
 import { TRUE } from "sass";
+import { TokenContext } from "../../../../Contexts/Token-context";
 const UpdateExamTypeAdmin = () => {
+  const { token } = useContext(TokenContext);
   const { examTypeServices } = useService();
   const navigate = useNavigate();
   const { Id } = useParams();
@@ -25,7 +27,7 @@ const UpdateExamTypeAdmin = () => {
     isLoading,
     isError,
   } = useQuery([queryKeys.getExamTypes], () =>
-    examTypeServices.getExamTypeByIdForUpdate(Id)
+    examTypeServices.getExamTypeByIdForUpdate(Id, token)
   );
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     nameIsValid: true,
@@ -33,7 +35,7 @@ const UpdateExamTypeAdmin = () => {
   let formValid = true;
   const [inputState, setInputState] = useState(examTypeData?.data);
   const mutate = useMutation(
-    () => examTypeServices.updateExamType(Id, inputState),
+    () => examTypeServices.updateExamType(Id, inputState, token),
     { onSuccess: () => navigate("/ExamTypes") }
   );
   const handleExamTypeUpdate = (e) => {

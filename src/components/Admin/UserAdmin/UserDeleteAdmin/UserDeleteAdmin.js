@@ -5,14 +5,27 @@ import useService from "../../../../hooks";
 import { useMutation, useQuery } from "react-query";
 import { queryKeys } from "../../../../QueryKeys";
 import { DeleteButton } from "../../../../UI/Buttons/ActionButtons";
+import { useContext, useEffect } from "react";
+import { TokenContext } from "../../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const DeleteUserAdmin = () => {
+  const { token } = useContext(TokenContext);
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken[tokenRoleProperty] !== "Admin") {
+        navigate("Error");
+      }
+    }
+  });
   const { Id } = useParams();
   const navigate = useNavigate();
   const { userServices } = useService();
   const userQuery = useQuery([queryKeys.getUsers], () =>
-    userServices.getUserById(Id)
+    userServices.getUserById(Id, token)
   );
-  const mutate = useMutation((Id) => userServices.deleteUser(Id), {
+  const mutate = useMutation((Id) => userServices.deleteUser(Id, token), {
     onSuccess: () => navigate("/Users"),
   });
 

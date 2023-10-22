@@ -7,11 +7,15 @@ import { useQuery } from "react-query";
 import { queryKeys } from "../../../../QueryKeys";
 import { AdminExamTypeTitle } from "../../../../UI/Common/AdminExamTypeTitle";
 import { AdminFacultyTitle } from "../../../../UI/Common/AdminFacultyTitle";
+import { useContext } from "react";
+import { TokenContext } from "../../../../Contexts/Token-context";
+import { Token } from "@mui/icons-material";
 const FacultyDetailsAdmin = () => {
+  const { token } = useContext(TokenContext);
   const { Id } = useParams();
   const { facultyServices } = useService();
   const facultyQuery = useQuery([queryKeys.getFacultyById], () =>
-    facultyServices.getFacultyById(Id)
+    facultyServices.getFacultyById(Id, token)
   );
   if (facultyQuery.isLoading) {
     return <h1>Is Loading...</h1>;

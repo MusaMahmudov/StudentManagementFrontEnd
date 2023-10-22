@@ -1,11 +1,25 @@
 import { Autocomplete, Box, Button, Select, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
 import { useNavigate } from "react-router-dom";
 import { AdminGroupTitle } from "../../../../UI/Common/AdminGroupTitle";
 import { queryKeys } from "../../../../QueryKeys";
+import { TokenContext } from "../../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const CreateExamType = () => {
+  const { token } = useContext(TokenContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken[tokenRoleProperty] !== "Admin") {
+        navigate("Error");
+      }
+    }
+  });
   const { examTypeServices } = useService();
 
   const [newExamType, setExamType] = useState({
@@ -16,15 +30,13 @@ const CreateExamType = () => {
   });
   let formValid = true;
 
-  const navigate = useNavigate();
-
   const handleExamType = ({
     target: { value: inputValue, name: inputName },
   }) => {
     setExamType((prev) => ({ ...prev, [inputName]: inputValue.trim() }));
   };
   const mutate = useMutation(
-    () => examTypeServices.createExamType(newExamType),
+    () => examTypeServices.createExamType(newExamType, token),
     {
       onSuccess: () => navigate("/ExamTypes"),
     }

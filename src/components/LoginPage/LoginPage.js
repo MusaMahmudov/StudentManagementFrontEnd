@@ -22,6 +22,17 @@ import { useMutation } from "react-query";
 import useService from "../../hooks";
 import { useState } from "react";
 import axios from "axios";
+import jwtDecode from "jwt-decode";
+import { getToken } from "../../utils/GetToken";
+import { Token } from "@mui/icons-material";
+import { useEffect } from "react";
+import { useContext } from "react";
+import {
+  TokenContext,
+  TokenContextProvider,
+} from "../../Contexts/Token-context";
+import ErrorPage from "../ErrorPage/ErrorPage";
+import { tokenRoleProperty } from "../../utils/TokenProperties";
 
 function Copyright(props) {
   return (
@@ -40,24 +51,52 @@ function Copyright(props) {
 
 const defaultTheme = createTheme();
 export default function SignIn() {
-  const navigate = useNavigate();
+  const context = useContext(TokenContext);
+
+  useEffect(() => {
+    const tokenCheck = getToken();
+    if (tokenCheck) {
+      const decodedCheckToken = jwtDecode(tokenCheck);
+      switch (decodedCheckToken[TokenContextProvider]) {
+        case "Admin":
+          return (window.location.href =
+            "http://localhost:3000/AdminDashboard");
+        case "Moderator":
+          return (window.location.href =
+            "http://localhost:3000/AdminDashboard");
+        case "Student":
+          return (window.location.href = "http://localhost:3001/Student");
+        default:
+          return <ErrorPage />;
+      }
+    }
+  }, []);
   const { authServices } = useService();
   const [error, setError] = useState();
   const [token, setToken] = useState();
   const [user, setUser] = useState({
     userName: "",
     password: "",
+    rememberMe: false,
   });
-
-  var mutate = useMutation(() => authServices.Auth(user), {
+  var mutate = useMutation(() => authServices.Login(user), {
     onError: () => setError("Username or password wrong"),
     onSuccess: (res) => setToken(res.data?.token),
   });
   if (mutate.isSuccess) {
     localStorage.setItem("token", token);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    console.log(token);
+    var decodedToken = jwtDecode(token);
+
+    switch (decodedToken[tokenRoleProperty]) {
+      case "Admin":
+        return (window.location.href = "http://localhost:3000/AdminDashboard");
+      case "Moderator":
+        return (window.location.href = "http://localhost:3000/AdminDashboard");
+      case "Student":
+        return (window.location.href = "http://localhost:3001/Student");
+    }
   }
+
   const handleSubmit = (event) => {
     event.preventDefault();
     if (user.password && user.userName) {
@@ -104,7 +143,7 @@ export default function SignIn() {
                 }));
               }}
               error={user.userName ? "" : "error"}
-              helperText={user.userName && "User name is required"}
+              helperText={user.userName ? "" : "User name is required"}
             />
             <TextField
               margin="normal"
@@ -122,14 +161,20 @@ export default function SignIn() {
                 }));
               }}
               error={user.password ? "" : "error"}
-              helperText={user.password && "Password  is required"}
+              helperText={user.password ? "" : "Password  is required"}
             />
             <div className="errorMessage">
               <h1>{error}</h1>
             </div>
             <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
+              control={<Checkbox color="primary" />}
               label="Remember me"
+              onChange={(e) =>
+                setUser((prev) => ({
+                  ...prev,
+                  rememberMe: !prev.rememberMe,
+                }))
+              }
             />
 
             <Button

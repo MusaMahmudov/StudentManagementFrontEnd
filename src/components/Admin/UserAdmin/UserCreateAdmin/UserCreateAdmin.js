@@ -1,10 +1,22 @@
 import { Autocomplete, Box, Button, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
 import { useNavigate } from "react-router-dom";
 import { queryKeys } from "../../../../QueryKeys";
+import { TokenContext } from "../../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const CreateUserAdmin = () => {
+  const { token } = useContext(TokenContext);
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken[tokenRoleProperty] !== "Admin") {
+        navigate("Error");
+      }
+    }
+  });
   const { studentServices, teacherServices, userServices, roleServices } =
     useService();
   const [newUser, setNewUser] = useState({
@@ -27,15 +39,15 @@ const CreateUserAdmin = () => {
 
   const { data: studentData, isLoading: studentsIsLoading } = useQuery(
     [queryKeys.getStudentsQuery],
-    () => studentServices.getAllStudents()
+    () => studentServices.getAllStudents(token)
   );
   const { data: teacherData, isLoading: teachersIsLoading } = useQuery(
     [queryKeys.getTeachers],
-    () => teacherServices.getAllTeachers()
+    () => teacherServices.getAllTeachers(token)
   );
   const { data: roleData, isLoading: roleSIsLoading } = useQuery(
     [queryKeys.GetRoles],
-    () => roleServices.getAllRoles()
+    () => roleServices.getAllRoles(token)
   );
   const [studentInputValue, setStudentInputValue] = useState();
   const [teacherInputValue, setTeacherInputValue] = useState();
@@ -43,7 +55,7 @@ const CreateUserAdmin = () => {
   const handleUser = ({ target: { value: inputValue, name: inputName } }) => {
     setNewUser((prev) => ({ ...prev, [inputName]: inputValue }));
   };
-  const mutate = useMutation(() => userServices.createUser(newUser), {
+  const mutate = useMutation(() => userServices.createUser(newUser, token), {
     onSuccess: () => navigate("/Users"),
   });
   console.log("User", newUser);

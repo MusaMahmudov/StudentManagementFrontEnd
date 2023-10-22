@@ -16,13 +16,19 @@ import {
   UpdateButton,
 } from "../Buttons/ActionButtons";
 import { useNavigate, useParams } from "react-router-dom";
+import { getToken } from "../../utils/GetToken";
+import { useContext, useEffect } from "react";
+import { TokenContext } from "../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../utils/TokenProperties";
 
 export function UserListTable() {
   const navigate = useNavigate();
   const { userServices } = useService();
+  const { token } = useContext(TokenContext);
 
   const userQuery = useQuery([queryKeys.getUsers], () =>
-    userServices.getAllUser()
+    userServices.getAllUser(token)
   );
   if (userQuery.isLoading) {
     return <h1 className="loading">Is Loading...</h1>;
@@ -31,6 +37,7 @@ export function UserListTable() {
     return <h1 className="errorMessage">Something went wrong</h1>;
   }
   console.log(userQuery);
+
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">

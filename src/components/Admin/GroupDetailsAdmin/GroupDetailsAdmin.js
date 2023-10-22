@@ -16,12 +16,15 @@ import {
   tableCellClasses,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useContext } from "react";
+import { TokenContext } from "../../../Contexts/Token-context";
 const GroupDetailsAdmin = () => {
   const navigate = useNavigate();
+  const { token } = useContext(TokenContext);
   const { Id } = useParams();
   const { groupServices } = useService();
   const groupQuery = useQuery([queryKeys.getGroupQuery], () =>
-    groupServices.getGroupById(Id)
+    groupServices.getGroupById(Id, token)
   );
   if (groupQuery.isLoading) {
     return <h1>Is Loading...</h1>;

@@ -15,13 +15,17 @@ import {
   UpdateButton,
 } from "../Buttons/ActionButtons";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { TokenContext } from "../../Contexts/Token-context";
 
 export function TeacherRoleListTable() {
+  const { token } = useContext(TokenContext);
+
   const navigate = useNavigate();
   const { teacherRoleServices } = useService();
 
   const teacherRoleQuery = useQuery([queryKeys.getTeacherRoles], () =>
-    teacherRoleServices.getAllTeacherRoles()
+    teacherRoleServices.getAllTeacherRoles(token)
   );
   if (teacherRoleQuery.isLoading) {
     return <h1 className="loading">Is Loading...</h1>;

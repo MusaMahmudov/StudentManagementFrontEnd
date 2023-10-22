@@ -4,11 +4,14 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import useService from "../../../../hooks";
 import { useQuery } from "react-query";
 import { queryKeys } from "../../../../QueryKeys";
+import { useContext } from "react";
+import { TokenContext } from "../../../../Contexts/Token-context";
 const UserDetailsAdmin = () => {
   const { Id } = useParams();
+  const { token } = useContext(TokenContext);
   const { userServices } = useService();
   const userQuery = useQuery([queryKeys.getUsers], () =>
-    userServices.getUserById(Id)
+    userServices.getUserById(Id, token)
   );
   if (userQuery.isLoading) {
     return <h1>Is Loading...</h1>;

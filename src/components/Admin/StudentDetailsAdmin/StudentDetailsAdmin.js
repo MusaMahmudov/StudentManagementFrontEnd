@@ -8,11 +8,13 @@ import useService from "../../../hooks";
 import { useQuery } from "react-query";
 import { queryKeys } from "../../../QueryKeys";
 import { ConstructionOutlined } from "@mui/icons-material";
+import { getToken } from "../../../utils/GetToken";
 const StudentDetailsAdmin = () => {
+  const token = getToken();
   const { Id } = useParams();
   const { studentServices } = useService();
   const studendQuery = useQuery([queryKeys.getStudentByIdQuery], () =>
-    studentServices.getStudentById(Id)
+    studentServices.getStudentById(Id, token)
   );
   if (studendQuery.isLoading) {
     return <h1>Is Loading...</h1>;

@@ -5,19 +5,19 @@ export class TeacherRoleService extends HTTPClient {
   constructor() {
     super(BaseURL);
   }
-  async getAllTeacherRoles() {
-    return await this.getAll("TeacherRoles");
+  async getAllTeacherRoles(token) {
+    return await this.getAll("TeacherRoles", token);
   }
-  async getTeacherRoleById(id) {
-    return await this.getById("TeacherRoles", id);
+  async getTeacherRoleById(id, token) {
+    return await this.getById("TeacherRoles", id, token);
   }
-  async createTeacherRole(body) {
-    return await this.post("TeacherRoles", body);
+  async createTeacherRole(body, token) {
+    return await this.post("TeacherRoles", body, token);
   }
-  async deleteTeacherRole(id) {
-    return await this.delete("TeacherRoles", id);
+  async deleteTeacherRole(id, token) {
+    return await this.delete("TeacherRoles", id, token);
   }
-  async updateTeacherRole(id, body) {
-    return await this.put("TeacherRoles", id, body);
+  async updateTeacherRole(id, body, token) {
+    return await this.put("TeacherRoles", id, body, token);
   }
 }

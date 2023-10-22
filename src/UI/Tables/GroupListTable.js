@@ -15,13 +15,17 @@ import {
   UpdateButton,
 } from "../Buttons/ActionButtons";
 import { useNavigate, useParams } from "react-router-dom";
+import { useContext } from "react";
+import { TokenContext } from "../../Contexts/Token-context";
 
 export function GroupListTable() {
   const navigate = useNavigate();
+  const { token } = useContext(TokenContext);
+
   const { groupServices } = useService();
 
   const groupQuery = useQuery([queryKeys.getGroupsQuery], () =>
-    groupServices.getAllGroups()
+    groupServices.getAllGroups(token)
   );
   if (groupQuery.isLoading) {
     return <h1 className="loading">Is Loading...</h1>;

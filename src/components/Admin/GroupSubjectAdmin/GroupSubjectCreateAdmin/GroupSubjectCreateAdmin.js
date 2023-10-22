@@ -1,15 +1,27 @@
 import { Autocomplete, Box, Button, Select, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
 import { useNavigate } from "react-router-dom";
 import { AdminGroupTitle } from "../../../../UI/Common/AdminGroupTitle";
 import { queryKeys } from "../../../../QueryKeys";
+import { TokenContext } from "../../../../Contexts/Token-context";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const CreateGroupSubjectAdmin = () => {
   const { groupServices, subjectServices, groupSubjectServices } = useService();
+  const { token } = useContext(TokenContext);
   const { data: subjectData } = useQuery([queryKeys.getSubjects], () =>
-    subjectServices.getAllSubjects()
+    subjectServices.getAllSubjects(token)
   );
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken[tokenRoleProperty] !== "Admin") {
+        navigate("Error");
+      }
+    }
+  }, []);
   const [error, setErrors] = useState("");
   const [newGroupSubject, setNewGroupSubject] = useState({
     groupId: null,
@@ -25,12 +37,14 @@ const CreateGroupSubjectAdmin = () => {
     creditsIsValid: true,
     hoursIsValid: true,
     totalWeeksIsValid: true,
+    semesterIsValid: true,
+    YearIsValid: true,
   });
   let formValid = true;
 
   const navigate = useNavigate();
   const { data: groupData } = useQuery([queryKeys.getGroupsQuery], () =>
-    groupServices.getAllGroups()
+    groupServices.getAllGroups(token)
   );
   const [subjectInputValue, setSubjectInputValue] = useState();
   const [groupInputValue, setGroupInputValue] = useState();
@@ -42,7 +56,7 @@ const CreateGroupSubjectAdmin = () => {
     console.log(newGroupSubject);
   };
   const mutate = useMutation(
-    () => groupSubjectServices.createGroupSubject(newGroupSubject),
+    () => groupSubjectServices.createGroupSubject(newGroupSubject, token),
     {
       onSuccess: () => navigate("/GroupSubjects"),
     }
@@ -81,36 +95,48 @@ const CreateGroupSubjectAdmin = () => {
     }
 
     if (
-      newGroupSubject.credits?.trim() === "" ||
+      newGroupSubject.credits < 1 ||
+      newGroupSubject.credits > 50 ||
       newGroupSubject.credits === null
     ) {
       setEnteredValueIsValid((prev) => ({ ...prev, creditsIsValid: false }));
-      formValid = false;
     } else {
-      formValid = true;
       setEnteredValueIsValid((prev) => ({ ...prev, creditsIsValid: true }));
     }
 
     if (
-      newGroupSubject.hours?.trim() === "" ||
+      newGroupSubject.hours < 1 ||
+      newGroupSubject.hours > 200 ||
       newGroupSubject.hours === null
     ) {
       setEnteredValueIsValid((prev) => ({ ...prev, hoursIsValid: false }));
-      formValid = false;
     } else {
-      formValid = true;
       setEnteredValueIsValid((prev) => ({ ...prev, hoursIsValid: true }));
     }
     if (
-      newGroupSubject.totalWeeks?.trim() === "" ||
+      newGroupSubject.totalWeeks < 1 ||
+      newGroupSubject.totalWeeks > 50 ||
       newGroupSubject.totalWeeks === null
     ) {
       setEnteredValueIsValid((prev) => ({ ...prev, totalWeeksIsValid: false }));
-      formValid = false;
     } else {
-      formValid = true;
       setEnteredValueIsValid((prev) => ({ ...prev, totalWeeksIsValid: true }));
     }
+    if (newGroupSubject.semester === "" || newGroupSubject.semester === null) {
+      setEnteredValueIsValid((prev) => ({ ...prev, semesterIsValid: false }));
+    } else {
+      setEnteredValueIsValid((prev) => ({ ...prev, semesterIsValid: true }));
+    }
+    if (
+      newGroupSubject.year > new Date().getFullYear() ||
+      newGroupSubject.year < 2010 ||
+      newGroupSubject.year === null
+    ) {
+      setEnteredValueIsValid((prev) => ({ ...prev, YearIsValid: false }));
+    } else {
+      setEnteredValueIsValid((prev) => ({ ...prev, YearIsValid: true }));
+    }
+
     mutate.mutate(newGroupSubject);
   };
   console.log(newGroupSubject);
@@ -173,6 +199,32 @@ const CreateGroupSubjectAdmin = () => {
                 helperText={
                   !enteredValueisValid.totalWeeksIsValid &&
                   "Total weeks  required"
+                }
+              />
+              <TextField
+                size="small"
+                id="outlined-basic"
+                label="Semester"
+                variant="outlined"
+                name="semester"
+                onChange={handleGroupSubject}
+                error={enteredValueisValid.semesterIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.semesterIsValid && "Semester required"
+                }
+              />
+              <TextField
+                type="number"
+                size="small"
+                id="outlined-basic"
+                label="Year"
+                variant="outlined"
+                name="year"
+                onChange={handleGroupSubject}
+                error={enteredValueisValid.YearIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.YearIsValid &&
+                  `Year must be between 2010 and ${new Date().getFullYear()}`
                 }
               />
               <Autocomplete

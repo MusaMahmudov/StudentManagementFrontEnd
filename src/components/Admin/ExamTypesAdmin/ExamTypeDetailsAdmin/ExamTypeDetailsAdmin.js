@@ -6,11 +6,14 @@ import useService from "../../../../hooks";
 import { useQuery } from "react-query";
 import { queryKeys } from "../../../../QueryKeys";
 import { AdminExamTypeTitle } from "../../../../UI/Common/AdminExamTypeTitle";
+import { useContext } from "react";
+import { TokenContext } from "../../../../Contexts/Token-context";
 const ExamTypeDetailsAdmin = () => {
+  const { token } = useContext(TokenContext);
   const { Id } = useParams();
   const { examTypeServices } = useService();
   const examTypeQuery = useQuery([queryKeys.getExamTypeById], () =>
-    examTypeServices.getExamTypeById(Id)
+    examTypeServices.getExamTypeById(Id, token)
   );
   if (examTypeQuery.isLoading) {
     return <h1>Is Loading...</h1>;

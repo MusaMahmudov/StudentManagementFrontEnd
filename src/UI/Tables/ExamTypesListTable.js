@@ -14,14 +14,19 @@ import {
   DetailButton,
   UpdateButton,
 } from "../Buttons/ActionButtons";
+
 import { useNavigate, useParams } from "react-router-dom";
+import { useContext } from "react";
+import { TokenContext } from "../../Contexts/Token-context";
 
 export function ExamTypeListTable() {
+  const { token } = useContext(TokenContext);
+
   const navigate = useNavigate();
   const { examTypeServices } = useService();
 
   const examTypeQuery = useQuery([queryKeys.getExamTypes], () =>
-    examTypeServices.getAllExamTypes()
+    examTypeServices.getAllExamTypes(token)
   );
   if (examTypeQuery.isLoading) {
     return <h1 className="loading">Is Loading...</h1>;

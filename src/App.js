@@ -62,24 +62,42 @@ import DeleteGroupSubjectAdmin from "./components/Admin/GroupSubjectAdmin/GroupS
 import CreateGroupSubjectAdmin from "./components/Admin/GroupSubjectAdmin/GroupSubjectCreateAdmin/GroupSubjectCreateAdmin";
 import UpdateGroupSubjectAdmin from "./components/Admin/GroupSubjectAdmin/GroupSubjectUpdateAdmin/GroupSubjectUpdateAdmin";
 import GroupSubjectDetailsAdmin from "./components/Admin/GroupSubjectAdmin/GroupSubjectDetailsAdmin/GroupSubjectDetailsAdmin";
-import { TokenContext } from "./Contexts/Token-context";
+import { TokenContext, TokenContextProvider } from "./Contexts/Token-context";
 import UserListAdmin from "./components/Admin/UserAdmin/UserListAdmin/UserListAdmin";
 import CreateUserAdmin from "./components/Admin/UserAdmin/UserCreateAdmin/UserCreateAdmin";
 import UserDetailsAdmin from "./components/Admin/UserAdmin/UserDetailsAdmin/UserDetailsAdmin";
 import UpdateUserAdmin from "./components/Admin/UserAdmin/UserUpdateAdmin/UserUpdateAdmin";
 import DeleteUserAdmin from "./components/Admin/UserAdmin/UserDeleteAdmin/UserDeleteAdmin";
+import { getToken } from "./utils/GetToken";
+import jwtDecode from "jwt-decode";
+import { tokenRoleProperty } from "./utils/TokenProperties";
+import ErrorPageNoAccess from "./components/ErrorPageNoAccess/ErrorPageNoAccess";
 
 function App() {
   const queryClient = new QueryClient();
   const location = useLocation();
   const navigate = useNavigate();
-  console.log(location.pathname);
+  const token = getToken();
+  const decodedToken = token ? jwtDecode(token) : null;
   useEffect(() => {
-    if (location.pathname === "/" || location.pathname === "") {
+    if (!token) {
+      navigate("SignIn");
+    } else if (
+      decodedToken[tokenRoleProperty] !== "Admin" &&
+      decodedToken[tokenRoleProperty] !== "Moderator"
+    ) {
+      navigate("Error");
+    } else if (location.pathname === "/" || location.pathname === "") {
       navigate("/AdminDashboard");
     }
   }, []);
+  // useEffect(() => {
+  //   if (location.pathname === "/" || location.pathname === "") {
+  //     navigate("/AdminDashboard");
+  //   }
+  // }, []);
 
+  console.log(location.pathname);
   return (
     <div className="App">
       <QueryClientProvider client={queryClient}>
@@ -266,6 +284,9 @@ function App() {
             ></Route>
           </Route>
           <Route path="*" element={<ErrorPage />} />
+          <Route path="ErrorPage" element={<ErrorPage />} />
+          <Route path="Error" element={<ErrorPageNoAccess />} />
+
           <Route path="/SignIn" element={<SignIn />}></Route>
         </Routes>
       </QueryClientProvider>
