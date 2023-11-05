@@ -6,11 +6,16 @@ import { StudentListTable } from "../../../UI/Tables/StudentListTable";
 import { Button, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { Route, Routes, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const StudentAdminPage = () => {
   const navigate = useNavigate();
 
-  const searchByFullName = (event) => {};
+  const [fullNameSearch, setFullNameSearch] = useState("");
+  const [idSearch, setIdSearch] = useState("");
+  const [emailSearch, setEmailSearch] = useState("");
+  const [mainGroupSearch, setMainGroupSearch] = useState("");
+
   return (
     <div className="student-list-admin">
       <div className="container">
@@ -29,7 +34,31 @@ const StudentAdminPage = () => {
             label="Search  by Full Name..."
             variant="outlined"
             sx={{ background: "white" }}
-            onChange={(event) => searchByFullName(event)}
+            onChange={(event) => setFullNameSearch(event.target.value)}
+          />
+          <TextField
+            size="small"
+            id="outlined-basic"
+            label="Search  by Id..."
+            variant="outlined"
+            sx={{ background: "white" }}
+            onChange={(event) => setIdSearch(event.target.value)}
+          />
+          <TextField
+            size="small"
+            id="outlined-basic"
+            label="Search  by Email..."
+            variant="outlined"
+            sx={{ background: "white" }}
+            onChange={(event) => setEmailSearch(event.target.value)}
+          />
+          <TextField
+            size="small"
+            id="outlined-basic"
+            label="Search  by Main Group..."
+            variant="outlined"
+            sx={{ background: "white" }}
+            onChange={(event) => setMainGroupSearch(event.target.value)}
           />
         </section>
         <section className="students">
@@ -47,7 +76,12 @@ const StudentAdminPage = () => {
               </div>
             </div>
             <div className="students-list-info">
-              <StudentListTable />
+              <StudentListTable
+                fullNameSearch={fullNameSearch}
+                idSearch={idSearch}
+                emailSearch={emailSearch}
+                mainGroupSearch={mainGroupSearch}
+              />
             </div>
           </div>
         </section>

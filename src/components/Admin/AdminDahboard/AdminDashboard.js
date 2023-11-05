@@ -13,8 +13,10 @@ import ErrorPage from "../../ErrorPage/ErrorPage";
 import { useNavigate } from "react-router-dom";
 import { TokenContext } from "../../../Contexts/Token-context";
 import { ValidateToken } from "../../../utils/TokenValidation";
+import { tokenUserNameProperty } from "../../../utils/TokenProperties";
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { decodedToken } = useContext(TokenContext);
 
   // if (token) {
   //   const decodedToken = jwtDecode(token);
@@ -48,21 +50,21 @@ const AdminDashboard = () => {
     studentServices.getAllStudents(token)
   );
   var { data: groupData } = useQuery(["Group"], () =>
-    groupServices.getAllGroups()
+    groupServices.getAllGroups(token)
   );
   var { data: teacherData } = useQuery(["Teacher"], () =>
-    teacherServices.getAllTeachers()
+    teacherServices.getAllTeachers(token)
   );
 
   var { data: facultyData } = useQuery(["faculty"], () =>
-    facultyServices.getAllFaculties()
+    facultyServices.getAllFaculties(token)
   );
 
   return (
     <div className="admin-dashboard">
       <div className="container">
         <div className="title">
-          <h1>Welcome Musa!</h1>
+          <h1>Welcome {decodedToken[tokenUserNameProperty]}!</h1>
           <h1>Home/Admin</h1>
         </div>
         <div className="numbers">

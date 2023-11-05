@@ -69,7 +69,10 @@ const StudentDetailsAdmin = () => {
                   </section>
                   <section className="info-right">
                     <h1>Main group</h1>
-                    <p>{studendQuery.data?.data.name ?? "No main group"}</p>
+                    <p>
+                      {studendQuery.data?.data.mainGroup?.name ??
+                        "No main group"}
+                    </p>
                   </section>
                 </div>
                 <div className="info">

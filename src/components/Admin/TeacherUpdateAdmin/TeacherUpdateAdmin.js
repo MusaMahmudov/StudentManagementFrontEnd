@@ -21,7 +21,7 @@ import { TokenContext } from "../../../Contexts/Token-context";
 const UpdateTeacherAdmin = () => {
   const { teacherServices, userServices } = useService();
   const { data: userData } = useQuery([queryKeys.getUsers], () =>
-    userServices.getAllUser()
+    userServices.getAllUser(token)
   );
   const navigate = useNavigate();
   const { token } = useContext(TokenContext);
@@ -116,11 +116,7 @@ const UpdateTeacherAdmin = () => {
     console.log(date);
     dispatch({
       type: "dateOfBirth",
-      payload: `${date.$y ?? null}-${
-        date.$M ?? null < 10 ? `0${date.$M ?? null}` : `${date.$M ?? null}`
-      }-${
-        date.$D ?? null < 10 ? `0${date.$D ?? null}` : `${date.$D ?? null}`
-      }T18:47:20.116`,
+      payload: dayjs(date).format("YYYY-MM-DDTHH:mm:ss.SSS"),
     });
   };
   console.log("UserInput", userInputValue);

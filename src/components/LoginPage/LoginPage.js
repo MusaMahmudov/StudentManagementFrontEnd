@@ -33,6 +33,7 @@ import {
 } from "../../Contexts/Token-context";
 import ErrorPage from "../ErrorPage/ErrorPage";
 import { tokenRoleProperty } from "../../utils/TokenProperties";
+import { Alert, Snackbar } from "@mui/material";
 
 function Copyright(props) {
   return (
@@ -51,40 +52,71 @@ function Copyright(props) {
 
 const defaultTheme = createTheme();
 export default function SignIn() {
-  const context = useContext(TokenContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const tokenCheck = getToken();
-    if (tokenCheck) {
-      const decodedCheckToken = jwtDecode(tokenCheck);
-      switch (decodedCheckToken[TokenContextProvider]) {
-        case "Admin":
-          return (window.location.href =
-            "http://localhost:3000/AdminDashboard");
-        case "Moderator":
-          return (window.location.href =
-            "http://localhost:3000/AdminDashboard");
-        case "Student":
-          return (window.location.href = "http://localhost:3001/Student");
-        default:
-          return <ErrorPage />;
-      }
-    }
+    const existingToken = getToken();
+    // if (existingToken) {
+    //   // navigate("Error");
+    //   const decodedCheckToken = jwtDecode(existingToken);
+    //   switch (decodedCheckToken[tokenRoleProperty]) {
+    //     case "Admin":
+    //       window.location.href = "http://localhost:3000/AdminDashboard";
+    //       return console.log("");
+    //     case "Moderator":
+    //       window.location.href = "http://localhost:3000/AdminDashboard";
+    //       return console.log("");
+    //     case "Student":
+    //       window.location.href = "http://localhost:3001/Student";
+    //       return console.log("");
+    //   }
+    //   // const decodedCheckToken = jwtDecode(existingToken);
+    //   // switch (decodedCheckToken[tokenRoleProperty]) {
+    //   //   case "Admin":
+    //   //     navigate("AdminDashboard");
+    //   //     return;
+    //   //   case "Moderator":
+    //   //     navigate("AdminDashboard");
+    //   //     return;
+    //   //   case "Student":
+    //   //     navigate("AdminDashboard");
+    //   //     return;
+    //   //   default:
+    //   //     return <ErrorPage />;
+    //   // }
+    // }
   }, []);
   const { authServices } = useService();
   const [error, setError] = useState();
   const [token, setToken] = useState();
+  const [expireDate, setExpireDate] = useState();
   const [user, setUser] = useState({
     userName: "",
     password: "",
     rememberMe: false,
   });
+  const [open, setOpen] = useState(false);
+
+  const handleClick = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
+  };
   var mutate = useMutation(() => authServices.Login(user), {
-    onError: () => setError("Username or password wrong"),
-    onSuccess: (res) => setToken(res.data?.token),
+    onError: () => handleClick(),
+    onSuccess: (res) => (
+      setToken(res.data?.token), setExpireDate(res.data?._expireDate)
+    ),
   });
   if (mutate.isSuccess) {
     localStorage.setItem("token", token);
+    localStorage.setItem("expireDate", expireDate);
     var decodedToken = jwtDecode(token);
 
     switch (decodedToken[tokenRoleProperty]) {
@@ -93,7 +125,9 @@ export default function SignIn() {
       case "Moderator":
         return (window.location.href = "http://localhost:3000/AdminDashboard");
       case "Student":
-        return (window.location.href = "http://localhost:3001/Student");
+        return (window.location.href = `http://localhost:3001/StudentDashboard?token=${token}`);
+      case "Teacher":
+        return (window.location.href = `http://localhost:3001/TeacherDashboard?token=${token}`);
     }
   }
 
@@ -163,9 +197,19 @@ export default function SignIn() {
               error={user.password ? "" : "error"}
               helperText={user.password ? "" : "Password  is required"}
             />
-            <div className="errorMessage">
-              <h1>{error}</h1>
-            </div>
+            {/* <div className="errorMessage"> */}
+            {/* <h1>{error}</h1> */}
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+              <Alert
+                onClose={handleClose}
+                severity="error"
+                sx={{ width: "100%" }}
+                variant="filled"
+              >
+                Username or Password is wrong!
+              </Alert>
+            </Snackbar>
+            {/* </div> */}
             <FormControlLabel
               control={<Checkbox color="primary" />}
               label="Remember me"

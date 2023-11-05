@@ -19,7 +19,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useContext } from "react";
 import { TokenContext } from "../../Contexts/Token-context";
 
-export function StudentListTable() {
+export function StudentListTable({
+  fullNameSearch,
+  idSearch,
+  emailSearch,
+  mainGroupSearch,
+}) {
   const navigate = useNavigate();
   const { studentServices } = useService();
   const { token } = useContext(TokenContext);
@@ -49,62 +54,97 @@ export function StudentListTable() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {studentQuery.data?.data.map((student) => (
-            <TableRow
-              key={student?.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                onClick={() =>
-                  navigate(`${student.id}`, {
-                    state: { ...student },
-                  })
-                }
+          {studentQuery.data?.data
+            .filter((student) =>
+              fullNameSearch.trim() === ""
+                ? student
+                : student.fullName
+                    .trim()
+                    .toLowerCase()
+                    .includes(fullNameSearch.trim().toLowerCase())
+            )
+            .filter((student) =>
+              idSearch.trim() === ""
+                ? student
+                : student.id
+                    .trim()
+                    .toLowerCase()
+                    .includes(idSearch.trim().toLowerCase())
+            )
+            .filter((student) =>
+              emailSearch.trim() === ""
+                ? student
+                : student.email
+                    .trim()
+                    .toLowerCase()
+                    .includes(emailSearch.trim().toLowerCase())
+            )
+            .filter((student) =>
+              mainGroupSearch.trim() === ""
+                ? student
+                : student.mainGroup?.name
+                    .trim()
+                    .toLowerCase()
+                    .includes(mainGroupSearch.trim().toLowerCase())
+            )
+            .map((student) => (
+              <TableRow
+                key={student?.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                {student.id}
-              </TableCell>
-              <TableCell
-                className="cover"
-                component="th"
-                scope="row"
-                onClick={() =>
-                  navigate(`${student.id}`, {
-                    state: { ...student },
-                  })
-                }
-              >
-                {student.fullName}
-              </TableCell>
-              <TableCell>{student.email}</TableCell>
-              <TableCell>{student.educationDegree}</TableCell>
-              <TableCell>{student.appUser?.userName ?? "No user"}</TableCell>
-              <TableCell>{student.mainGroup?.name ?? "No group"}</TableCell>
+                <TableCell
+                  onClick={() =>
+                    navigate(`${student.id}`, {
+                      state: { ...student },
+                    })
+                  }
+                >
+                  {student.id}
+                </TableCell>
+                <TableCell
+                  className="cover"
+                  component="th"
+                  scope="row"
+                  onClick={() =>
+                    navigate(`${student.id}`, {
+                      state: { ...student },
+                    })
+                  }
+                >
+                  {student.fullName}
+                </TableCell>
+                <TableCell>{student.email}</TableCell>
+                <TableCell>{student.educationDegree}</TableCell>
+                <TableCell>{student.appUser?.userName ?? "No user"}</TableCell>
+                <TableCell>{student.mainGroup?.name ?? "No group"}</TableCell>
 
-              <TableCell>
-                <DetailButton
-                  onClick={() => navigate(`${student.id}`, { state: student })}
-                />
-                <UpdateButton
-                  onClick={() =>
-                    navigate(`UpdateStudent/${student.id}`, {
-                      state: student,
-                    })
-                  }
-                >
-                  Update
-                </UpdateButton>
-                <DeleteButton
-                  onClick={() =>
-                    navigate(`DeleteStudent/${student.id}`, {
-                      state: student,
-                    })
-                  }
-                >
-                  Delete
-                </DeleteButton>
-              </TableCell>
-            </TableRow>
-          ))}
+                <TableCell>
+                  <DetailButton
+                    onClick={() =>
+                      navigate(`${student.id}`, { state: student })
+                    }
+                  />
+                  <UpdateButton
+                    onClick={() =>
+                      navigate(`UpdateStudent/${student.id}`, {
+                        state: student,
+                      })
+                    }
+                  >
+                    Update
+                  </UpdateButton>
+                  <DeleteButton
+                    onClick={() =>
+                      navigate(`DeleteStudent/${student.id}`, {
+                        state: student,
+                      })
+                    }
+                  >
+                    Delete
+                  </DeleteButton>
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
     </TableContainer>

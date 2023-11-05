@@ -155,8 +155,8 @@ const ExamDetailsAdmin = () => {
                 >
                   <TableHead>
                     <TableRow>
-                      <StyledTableCell align="right">Student</StyledTableCell>
-                      <StyledTableCell>Score</StyledTableCell>
+                      <StyledTableCell align="left">Student</StyledTableCell>
+                      <StyledTableCell align="left">Score</StyledTableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -168,17 +168,21 @@ const ExamDetailsAdmin = () => {
                             "&:last-child td, &:last-child th": { border: 0 },
                           }}
                         >
-                          <StyledTableCell component="th" scope="row">
+                          <StyledTableCell
+                            align="left"
+                            component="th"
+                            scope="row"
+                          >
                             {examResult?.studentName}
                           </StyledTableCell>
-                          <StyledTableCell align="right">
+                          <StyledTableCell align="left">
                             {examResult?.score ?? "No result"}
                           </StyledTableCell>
                         </StyledTableRow>
                       ))
                     ) : (
                       <StyledTableRow>
-                        <StyledTableCell colSpan={2} align="center">
+                        <StyledTableCell colSpan={2} align="left">
                           No Results
                         </StyledTableCell>
                       </StyledTableRow>

@@ -6,15 +6,14 @@ import {
   TokenContext,
   TokenContextProvider,
 } from "../../../Contexts/Token-context";
-import { getToken } from "../../../utils/GetToken";
+import { getDecodedToken, getToken } from "../../../utils/GetToken";
 import jwtDecode from "jwt-decode";
 import SignIn from "../../LoginPage/LoginPage";
 import ErrorPage from "../../ErrorPage/ErrorPage";
 
 const Layout = () => {
-  const [decodedToken, setDecodedToken] = useState();
   const token = getToken();
-
+  const decodedToken = getDecodedToken();
   // if (!token) {
   //   <Navigate to={<SignIn />} />;
   // }
@@ -31,7 +30,7 @@ const Layout = () => {
   // }
 
   return (
-    <TokenContext.Provider value={{ token }}>
+    <TokenContext.Provider value={{ token, decodedToken }}>
       <main>
         <Navbar />
         <div className="main-container">

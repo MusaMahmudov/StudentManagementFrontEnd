@@ -11,6 +11,10 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 import AccessibilityIcon from "@mui/icons-material/Accessibility";
 import QuizIcon from "@mui/icons-material/Quiz";
 import PersonIcon from "@mui/icons-material/Person";
+import StickyNote2Icon from "@mui/icons-material/StickyNote2";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import OutputIcon from "@mui/icons-material/Output";
 const Sidebar = () => {
   const navigate = useNavigate();
   return (
@@ -52,6 +56,14 @@ const Sidebar = () => {
               <ArrowForwardIosIcon className="right-icon" />
             </li>
             <li className="submenu">
+              <StickyNote2Icon className="left-icon" />
+
+              <button onClick={() => navigate("/LessonTypes")}>
+                Lesson types
+              </button>
+              <ArrowForwardIosIcon className="right-icon" />
+            </li>
+            <li className="submenu">
               <BusinessIcon className="left-icon" />
 
               <button onClick={() => navigate("/Faculties")}>Faculties</button>
@@ -76,11 +88,25 @@ const Sidebar = () => {
               <button onClick={() => navigate("/Exams")}>Exams</button>
               <ArrowForwardIosIcon className="right-icon" />
             </li>
+            <li className="submenu">
+              <OutputIcon className="left-icon" />
+              <button onClick={() => navigate("/ExamResults")}>
+                Exam Results
+              </button>
+              <ArrowForwardIosIcon className="right-icon" />
+            </li>
 
             <li className="submenu">
-              <QuizIcon className="left-icon" />
+              <LibraryBooksIcon className="left-icon" />
               <button onClick={() => navigate("/GroupSubjects")}>
                 Groups' subjects
+              </button>
+              <ArrowForwardIosIcon className="right-icon" />
+            </li>
+            <li className="submenu">
+              <AccessTimeIcon className="left-icon" />
+              <button onClick={() => navigate("/SubjectHours")}>
+                Subject's Hours
               </button>
               <ArrowForwardIosIcon className="right-icon" />
             </li>

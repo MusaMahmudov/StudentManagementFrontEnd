@@ -32,7 +32,7 @@ const UpdateStudentAdmin = () => {
     studentServices.getStudentByIdForUpdate(Id, token)
   );
   const { data: groupData } = useQuery([queryKeys.getGroupsQuery], () =>
-    groupServices.getAllGroups()
+    groupServices.getAllGroups(token)
   );
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     fullNameIsValid: true,
@@ -200,7 +200,7 @@ const UpdateStudentAdmin = () => {
   const handleBirthday = (date) => {
     dispatch({
       type: "dateOfBirth",
-      patload: dayjs(date).format("YYYY-MM-DDTHH:mm:ss.SSS"),
+      payload: dayjs(date).format("YYYY-MM-DDTHH:mm:ss.SSS"),
     });
   };
   let [inputState, dispatch] = useReducer(updateStudentReducer, {});

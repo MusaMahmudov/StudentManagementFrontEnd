@@ -1,5 +1,5 @@
 import { StudentListTable } from "../../../../UI/Tables/StudentListTable";
-import { Button, TextField } from "@mui/material";
+import { Button, Fab, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { AdminGroupTitle } from "../../../../UI/Common/AdminGroupTitle";
@@ -33,11 +33,14 @@ const GroupSubjectListAdmin = () => {
                 <h1>Groups' subjects</h1>
               </div>
               <div className="buttons">
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
+                <Fab
                   onClick={() => navigate("CreateGroupSubject")}
-                ></Button>
+                  color="primary"
+                  aria-label="add"
+                >
+                  <AddIcon />
+                </Fab>
+                {/* <Button variant="contained" startIcon={<AddIcon />}></Button> */}
               </div>
             </div>
             <div className="groups-list-info">

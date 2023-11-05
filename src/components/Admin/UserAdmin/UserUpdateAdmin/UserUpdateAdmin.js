@@ -16,7 +16,7 @@ import { TokenContext } from "../../../../Contexts/Token-context";
 import jwtDecode from "jwt-decode";
 import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const UpdateUserAdmin = () => {
-  const [error, setError] = useState();
+  const [error, setError] = useState([]);
   const { token } = useContext(TokenContext);
   useEffect(() => {
     if (token) {
@@ -26,6 +26,7 @@ const UpdateUserAdmin = () => {
       }
     }
   });
+
   const { Id } = useParams();
   const navigate = useNavigate();
   const { teacherServices, studentServices, userServices, roleServices } =
@@ -46,7 +47,10 @@ const UpdateUserAdmin = () => {
     userNameIsValid: true,
     passwordIsValid: true,
     emailIsValid: true,
+    passwordIsValid: true,
+    confirmPasswordIsValid: true,
   });
+
   const mutate = useMutation(
     () => userServices.updateUser(Id, inputState, token),
     {
@@ -55,6 +59,15 @@ const UpdateUserAdmin = () => {
       },
     }
   );
+  useEffect(() => {
+    if (
+      mutate.isError &&
+      mutate.error.response.data.message &&
+      mutate.error.response.status != "500"
+    ) {
+      setError([mutate.error.response.data.message]);
+    }
+  }, [mutate.isError]);
   useEffect(() => {
     if (mutate.isError && mutate.error.response.data.message) {
       setError([mutate.error.response.data.message]);
@@ -176,6 +189,40 @@ const UpdateUserAdmin = () => {
                   !enteredValueisValid.emailIsValid && `Email required`
                 }
               />
+              <TextField
+                type="password"
+                size="small"
+                id="outlined-basic"
+                label="Password"
+                variant="outlined"
+                onChange={(e) =>
+                  dispatch({
+                    type: "password",
+                    payload: e.target.value,
+                  })
+                }
+                error={enteredValueisValid.userNameIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.userNameIsValid && "User Name required"
+                }
+              />
+              <TextField
+                type="password"
+                size="small"
+                id="outlined-basic"
+                label="Confirm Password"
+                variant="outlined"
+                onChange={(e) =>
+                  dispatch({
+                    type: "confirmPassword",
+                    payload: e.target.value,
+                  })
+                }
+                error={enteredValueisValid.userNameIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.userNameIsValid && "User Name required"
+                }
+              />
 
               <Autocomplete
                 disablePortal
@@ -203,6 +250,7 @@ const UpdateUserAdmin = () => {
                   })
                 }
               />
+
               {roleData && (
                 <Autocomplete
                   multiple
@@ -257,7 +305,7 @@ const UpdateUserAdmin = () => {
               />
 
               <div className="errorMessage">
-                <h1>{error}</h1>
+                {error ? error.map((err) => <h1>{err}</h1>) : ""}
               </div>
               <Button
                 type="submit"

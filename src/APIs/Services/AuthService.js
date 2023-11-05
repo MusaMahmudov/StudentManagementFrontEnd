@@ -10,6 +10,6 @@ export class authService extends HTTPClient {
     return await this.post("Authentications/Login", body);
   }
   async Logout(token) {
-    return await this.postLogout("Authentications/LogOut", token);
+    return await this.post("Authentications/LogOut", token);
   }
 }

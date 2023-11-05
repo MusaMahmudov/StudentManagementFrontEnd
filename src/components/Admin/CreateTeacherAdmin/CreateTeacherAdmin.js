@@ -18,6 +18,7 @@ import { queryKeys } from "../../../QueryKeys";
 import { TokenContext } from "../../../Contexts/Token-context";
 import jwtDecode from "jwt-decode";
 import { tokenRoleProperty } from "../../../utils/TokenProperties";
+import dayjs from "dayjs";
 const CreateTeacherAdmin = () => {
   const { teacherServices, userServices } = useService();
   const { token } = useContext(TokenContext);
@@ -37,7 +38,7 @@ const CreateTeacherAdmin = () => {
     address: "",
   });
   const { data: userData } = useQuery([queryKeys.getUsers], () =>
-    userServices.getAllUser()
+    userServices.getAllUser(token)
   );
   const [userInputValue, setUserInputValue] = useState();
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
@@ -69,9 +70,7 @@ const CreateTeacherAdmin = () => {
     console.log(date);
     setNewTeacher((prev) => ({
       ...prev,
-      dateOfBirth: `${date.$y}-${
-        date.$M < 9 ? `0${date.$M + 1}` : `${date.$M + 1}`
-      }-${date.$D < 9 ? `0${date.$D}` : `${date.$D}`}T18:47:20.116`,
+      dateOfBirth: dayjs(date).format("YYYY-MM-DDTHH:mm:ss.SSS"),
     }));
   };
   console.log(mutate);

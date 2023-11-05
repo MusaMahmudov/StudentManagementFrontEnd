@@ -17,6 +17,9 @@ export const queryKeys = {
   getExams: "getExamTypes",
   getExamById: "getExamById",
 
+  getExamResults: "getExamResults",
+  getExamResultById: "getExamResultById",
+
   getSubjects: "getSubjects",
   getSubjectById: "getSubjectById",
 
@@ -30,4 +33,10 @@ export const queryKeys = {
   getUser: "getUser",
 
   GetRoles: "getRoles",
+
+  GetLessonTypes: "getLessonTypes",
+  GetLessonTypeById: "getLessonTypeById",
+
+  GetSubjectHours: "getSubjectHours",
+  GetSubjectHour: "getSubjectHour",
 };

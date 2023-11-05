@@ -16,21 +16,30 @@ import {
   UpdateButton,
 } from "../Buttons/ActionButtons";
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { TokenContext } from "../../Contexts/Token-context";
 
-export function TeacherListTable() {
+export function TeacherListTable({
+  fullNameSearch,
+  idSearch,
+  emailSearch,
+  mobileNumberSearch,
+}) {
   const navigate = useNavigate();
   const { token } = useContext(TokenContext);
   const { teacherServices } = useService();
 
-  const teachertQuery = useQuery([queryKeys.getTeachers], () =>
-    teacherServices.getAllTeachers(token)
+  const {
+    data: teachersData,
+    isLoading,
+    isError,
+  } = useQuery([queryKeys.getAllTeachers], () =>
+    teacherServices.getAllTeachers(token, fullNameSearch)
   );
-  if (teachertQuery.isLoading) {
+  if (isLoading) {
     return <h1 className="loading">Is Loading...</h1>;
   }
-  if (teachertQuery.isError) {
+  if (isError) {
     return <h1 className="errorMessage">Something went wrong</h1>;
   }
   return (
@@ -47,60 +56,95 @@ export function TeacherListTable() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {teachertQuery.data?.data.map((teacher) => (
-            <TableRow
-              key={teacher?.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                onClick={() =>
-                  navigate(`${teacher.id}`, {
-                    state: { ...teacher },
-                  })
-                }
+          {teachersData.data
+            .filter((teacher) => {
+              return fullNameSearch.trim().toLowerCase() === ""
+                ? teacher
+                : teacher.fullName
+                    .toLowerCase()
+                    .trim()
+                    .includes(fullNameSearch.toLowerCase());
+            })
+            .filter((teacher) => {
+              return idSearch.trim().toLowerCase() === ""
+                ? teacher
+                : teacher.id
+                    .toLowerCase()
+                    .trim()
+                    .includes(idSearch.toLowerCase());
+            })
+            .filter((teacher) => {
+              return emailSearch.trim().toLowerCase() === ""
+                ? teacher
+                : teacher.eMail
+                    .toLowerCase()
+                    .trim()
+                    .includes(emailSearch.toLowerCase());
+            })
+            .filter((teacher) => {
+              return mobileNumberSearch.trim().toLowerCase() === ""
+                ? teacher
+                : teacher.mobileNumber
+                    .toLowerCase()
+                    .trim()
+                    .includes(mobileNumberSearch.toLowerCase());
+            })
+            .map((teacher) => (
+              <TableRow
+                key={teacher?.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                {teacher.id}
-              </TableCell>
-              <TableCell
-                className="cover"
-                component="th"
-                scope="row"
-                onClick={() =>
-                  navigate(`${teacher.id}`, {
-                    state: { ...teacher },
-                  })
-                }
-              >
-                {teacher.fullName}
-              </TableCell>
-              <TableCell>{teacher.eMail}</TableCell>
-              <TableCell>{teacher.appUser?.userName ?? "No user"}</TableCell>
-              <TableCell>{teacher.mobileNumber}</TableCell>
-              <TableCell>
-                <DetailButton
-                  onClick={() => navigate(`${teacher.id}`, { state: teacher })}
-                />
-                <UpdateButton
+                <TableCell
                   onClick={() =>
-                    navigate(`/Teachers/UpdateTeacher/${teacher.id}`, {
+                    navigate(`${teacher.id}`, {
                       state: { ...teacher },
                     })
                   }
                 >
-                  Update
-                </UpdateButton>
-                <DeleteButton
+                  {teacher.id}
+                </TableCell>
+                <TableCell
+                  className="cover"
+                  component="th"
+                  scope="row"
                   onClick={() =>
-                    navigate(`/Teachers/DeleteTeacher/${teacher.id}`, {
-                      state: teacher,
+                    navigate(`${teacher.id}`, {
+                      state: { ...teacher },
                     })
                   }
                 >
-                  Delete
-                </DeleteButton>
-              </TableCell>
-            </TableRow>
-          ))}
+                  {teacher.fullName}
+                </TableCell>
+                <TableCell>{teacher.eMail}</TableCell>
+                <TableCell>{teacher.appUser?.userName ?? "No user"}</TableCell>
+                <TableCell>{teacher.mobileNumber}</TableCell>
+                <TableCell>
+                  <DetailButton
+                    onClick={() =>
+                      navigate(`${teacher.id}`, { state: teacher })
+                    }
+                  />
+                  <UpdateButton
+                    onClick={() =>
+                      navigate(`/Teachers/UpdateTeacher/${teacher.id}`, {
+                        state: { ...teacher },
+                      })
+                    }
+                  >
+                    Update
+                  </UpdateButton>
+                  <DeleteButton
+                    onClick={() =>
+                      navigate(`/Teachers/DeleteTeacher/${teacher.id}`, {
+                        state: teacher,
+                      })
+                    }
+                  >
+                    Delete
+                  </DeleteButton>
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
     </TableContainer>

@@ -65,7 +65,7 @@ const CreateStudentAdmin = () => {
   );
   const [userInputValue, setUserInputValue] = useState();
   const { data: groupData } = useQuery([queryKeys.getGroupsQuery], () =>
-    groupServices.getAllGroups()
+    groupServices.getAllGroups(token)
   );
   const [mainGroup, setMainGroup] = useState();
   const [mainGroupInputValue, setMainGroupInputValue] = useState();
@@ -78,7 +78,7 @@ const CreateStudentAdmin = () => {
   const mutate = useMutation(
     () => studentServices.createStudent(newStudent, token),
     {
-      onSuccess: () => navigate(-1),
+      onSuccess: () => navigate("Students"),
     }
   );
   console.log("Student", newStudent);
@@ -100,9 +100,7 @@ const CreateStudentAdmin = () => {
   const handleBirthday = (date) => {
     setNewStudent((prev) => ({
       ...prev,
-      dateOfBirth: `${date.$y}-${
-        date.$M < 9 ? `0${date.$M + 1}` : `${date.$M + 1}`
-      }-${date.$D < 9 ? `0${date.$D}` : `${date.$D}`}T18:47:20.116`,
+      dateOfBirth: dayjs(date).format("YYYY-MM-DDTHH:mm:ss.SSS"),
     }));
   };
   const handleNewStudent = (e) => {
@@ -273,6 +271,7 @@ const CreateStudentAdmin = () => {
                 }
               />
               <TextField
+                type="number"
                 size="small"
                 id="outlined-basic"
                 label="Home Phone Number"
@@ -286,6 +285,7 @@ const CreateStudentAdmin = () => {
                 }
               />
               <TextField
+                type="number"
                 size="small"
                 id="outlined-basic"
                 label="Phone Number"

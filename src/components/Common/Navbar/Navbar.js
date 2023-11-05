@@ -12,9 +12,9 @@ import {
   tokenRoleProperty,
   tokenUserNameProperty,
 } from "../../../utils/TokenProperties";
-
 const Navbar = () => {
   const navigate = useNavigate();
+  const { authServices } = useService();
   // const [isFullScreen, setFullScreen] = React.useState(false);
   const [userInformation, setUserInformation] = useState({
     userName: "",
@@ -32,26 +32,14 @@ const Navbar = () => {
       });
     }
   }, []);
-  console.log(userInformation);
 
   const handleLogout = () => {
     if (token) {
+      // authServices.Logout(token);
       localStorage.removeItem("token");
       navigate("/SignIn");
     }
   };
-  // const fullScreenHandle = () => {
-  //   if (!isFullScreen) {
-  //     if (document.documentElement.requestFullscreen) {
-  //       document.documentElement.requestFullscreen();
-  //     }
-  //   } else {
-  //     if (document.exitFullscreen) {
-  //       document.exitFullscreen();
-  //     }
-  //   }
-  //   setFullScreen(!isFullScreen);
-  // };
 
   return (
     <div className="header">
@@ -63,14 +51,11 @@ const Navbar = () => {
           <div>
             <button onClick={() => handleLogout()}>Logout</button>
           </div>
-          {/* <div>
-            <button onClick={fullScreenHandle}>
-              <img src={fullScreenIcon} className="full-screen-logo" />
-            </button>
-          </div> */}
           <div className="user-info">
             <h1>{userInformation.userName}</h1>
-            <p>{userInformation.role}</p>
+            <p class="sm:text-red-500 md:text-green-500 lg:text-blue-500 xl:text-purple-500">
+              {userInformation.role}
+            </p>
           </div>
         </div>
       </div>

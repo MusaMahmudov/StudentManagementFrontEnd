@@ -73,14 +73,45 @@ import jwtDecode from "jwt-decode";
 import { tokenRoleProperty } from "./utils/TokenProperties";
 import ErrorPageNoAccess from "./components/ErrorPageNoAccess/ErrorPageNoAccess";
 
+import LessonTypeListAdmin from "./components/Admin/LessonTypeAdmin/LessonTypeListAdmin/LessonTypeListAdmin";
+import LessonTypeDetailsAdmin from "./components/Admin/LessonTypeAdmin/LessonTypeDetailsAdmin/LessonTypeDetailsAdmin";
+import CreateLessonType from "./components/Admin/LessonTypeAdmin/LessonTypeCreateAdmin/LessonTypeCreateAdmin";
+import DeleteLessonTypeAdmin from "./components/Admin/LessonTypeAdmin/LessonTypeDeleteAdmin/LessonTypeDeleteAdmin";
+import UpdateLessonTypeAdmin from "./components/Admin/LessonTypeAdmin/LessonTypeUpdateAdmin/LessonTypeUpdateAdmin";
+import SubjectHourListAdmin from "./components/Admin/SubjectHourAdmin/SubjectHourListAdmin/SubjectHourListAdmin";
+import CreateSubjectHourAdmin from "./components/Admin/SubjectHourAdmin/SubjectHourCreateAdmin/SubjectHourCreateAdmin";
+import UpdateSubjectHourAdmin from "./components/Admin/SubjectHourAdmin/SubjectHourUpdateAdmin/SubjectHourUpdateAdmin";
+import SubjectHourDetailsAdmin from "./components/Admin/SubjectHourAdmin/SubjectHourDetailsAdmin/SubjectHourDetailsAdmin";
+import DeleteSubjectHourAdmin from "./components/Admin/SubjectHourAdmin/SubjectHourDeleteAdmin/SubjectHourDeleteAdmin";
+import ExamResultListAdmin from "./components/Admin/ExamResultAdmin/ExamResultListAdmin/ExamResultListAdmin";
+import ExamResultDetailsAdmin from "./components/Admin/ExamResultAdmin/ExamResultDetailsAdmin/ExamResultDetailsAdmin";
+import CreateExamResult from "./components/Admin/ExamResultAdmin/ExamResultCreateAdmin/ExamResultCreateAdmin";
+import UpdateExamResultAdmin from "./components/Admin/ExamResultAdmin/ExamResultUpdateAdmin/ExamResultUpdateAdmin";
+import ExamResultDeleteAdmin from "./components/Admin/ExamResultAdmin/ExamResultDeleteAdmin/ExamResultDeleteAdmin";
+
 function App() {
   const queryClient = new QueryClient();
   const location = useLocation();
   const navigate = useNavigate();
   const token = getToken();
+  const expireDate = localStorage.getItem("expireDate");
   const decodedToken = token ? jwtDecode(token) : null;
+  const date = new Date();
+  const expire = new Date(expireDate);
+
   useEffect(() => {
     if (!token) {
+      navigate("SignIn");
+    } else if (expire < date) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("expireDate");
+      navigate("SignIn");
+    } else if (
+      decodedToken[tokenRoleProperty] === "Student" ||
+      decodedToken[tokenRoleProperty] === "Teacher"
+    ) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("expireDate");
       navigate("SignIn");
     } else if (
       decodedToken[tokenRoleProperty] !== "Admin" &&
@@ -96,8 +127,10 @@ function App() {
   //     navigate("/AdminDashboard");
   //   }
   // }, []);
+  if (window.onoffline) {
+    return <h1>onoffline</h1>;
+  }
 
-  console.log(location.pathname);
   return (
     <div className="App">
       <QueryClientProvider client={queryClient}>
@@ -232,6 +265,43 @@ function App() {
               element={<DeleteTeacherRoleAdmin />}
             ></Route>
 
+            <Route path="LessonTypes" element={<LessonTypeListAdmin />}></Route>
+            <Route
+              path="LessonTypes/:Id"
+              element={<LessonTypeDetailsAdmin />}
+            ></Route>
+            <Route
+              path="LessonTypes/CreateLessonType"
+              element={<CreateLessonType />}
+            ></Route>
+            <Route
+              path="LessonTypes/DeleteLessonType/:Id"
+              element={<DeleteLessonTypeAdmin />}
+            ></Route>
+            <Route
+              path="LessonTypes/UpdateLessonType/:Id"
+              element={<UpdateLessonTypeAdmin />}
+            ></Route>
+
+            <Route path="ExamResults" element={<ExamResultListAdmin />}></Route>
+            <Route
+              path="ExamResults/:Id"
+              element={<ExamResultDetailsAdmin />}
+            ></Route>
+            <Route
+              path="ExamResults/CreateExamResult"
+              element={<CreateExamResult />}
+            ></Route>
+            <Route
+              path="ExamResults/UpdateExamResult/:Id"
+              element={<UpdateExamResultAdmin />}
+            ></Route>
+
+            <Route
+              path="ExamResults/DeleteExamResult/:Id"
+              element={<ExamResultDeleteAdmin />}
+            ></Route>
+
             <Route path="Exams" element={<ExamListAdmin />}></Route>
             <Route path="Exams/CreateExam" element={<CreateExam />}></Route>
             <Route path="Exams/:Id" element={<ExamDetailsAdmin />}></Route>
@@ -267,6 +337,28 @@ function App() {
               path="GroupSubjects/DeleteGroupSubject/:Id"
               element={<DeleteGroupSubjectAdmin />}
             ></Route>
+
+            <Route
+              path="SubjectHours"
+              element={<SubjectHourListAdmin />}
+            ></Route>
+            <Route
+              path="SubjectHours/CreateSubjectHour"
+              element={<CreateSubjectHourAdmin />}
+            ></Route>
+            <Route
+              path="SubjectHours/UpdateSubjectHour/:Id"
+              element={<UpdateSubjectHourAdmin />}
+            ></Route>
+            <Route
+              path="SubjectHours/:Id"
+              element={<SubjectHourDetailsAdmin />}
+            ></Route>
+            <Route
+              path="SubjectHours/DeleteSubjectHour/:Id"
+              element={<DeleteSubjectHourAdmin />}
+            ></Route>
+
             <Route path="Users" element={<UserListAdmin />}></Route>
             <Route path="Users/:Id" element={<UserDetailsAdmin />}></Route>
             <Route

@@ -216,6 +216,7 @@ const UpdateExamAdmin = () => {
                 )}
               />
               <Autocomplete
+                value={groupSubjectInputValue}
                 disablePortal
                 id="combo-box-mainGroup"
                 size="small"

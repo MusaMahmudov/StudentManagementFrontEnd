@@ -7,6 +7,12 @@ export class studentService extends HTTPClient {
   async getAllStudents(token) {
     return await this.getAll("Students", token);
   }
+  async getAllStudentsForCreateOrUpdateForExamResult(token) {
+    return await this.getAll(
+      "Students/GetStudentsForCreateOrUpdateForExamResult",
+      token
+    );
+  }
   async getStudentById(id, token) {
     return await this.getById("Students", id, token);
   }
