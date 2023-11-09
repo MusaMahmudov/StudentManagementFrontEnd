@@ -15,11 +15,11 @@ import {
   UpdateButton,
 } from "../Buttons/ActionButtons";
 import { useNavigate, useParams } from "react-router-dom";
-import { getToken } from "../../utils/GetToken";
+import { getToken } from "../../utils/TokenServices";
 import { useContext } from "react";
 import { TokenContext } from "../../Contexts/Token-context";
 
-export function ExamListTable() {
+export function ExamListTable({ role }) {
   const { token } = useContext(TokenContext);
 
   const navigate = useNavigate();
@@ -44,6 +44,7 @@ export function ExamListTable() {
             <TableCell>Exam Type</TableCell>
             <TableCell>Group</TableCell>
             <TableCell>Subject</TableCell>
+            <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -97,6 +98,7 @@ export function ExamListTable() {
                   Update
                 </UpdateButton>
                 <DeleteButton
+                  disabled={role !== "Admin" ? true : false}
                   onClick={() =>
                     navigate(`DeleteExam/${exam.id}`, {
                       state: exam,

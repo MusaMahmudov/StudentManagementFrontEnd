@@ -1,5 +1,7 @@
 export const updateGroupReducer = (state, action) => {
   switch (action.type) {
+    case "init":
+      return { ...state, ...action.payload };
     case "name":
       return { ...state, name: action.payload };
 
@@ -10,6 +12,6 @@ export const updateGroupReducer = (state, action) => {
       return { ...state, facultyId: action.payload };
 
     case "studentsId":
-      return { ...state, studentsId: action.payload };
+      return { ...state, studentsId: [...action.payload] };
   }
 };

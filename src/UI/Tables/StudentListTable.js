@@ -24,14 +24,20 @@ export function StudentListTable({
   idSearch,
   emailSearch,
   mainGroupSearch,
+  role,
 }) {
   const navigate = useNavigate();
   const { studentServices } = useService();
   const { token } = useContext(TokenContext);
 
-  const studentQuery = useQuery([queryKeys.getStudentsQuery], () =>
-    studentServices.getAllStudents(token)
+  const studentQuery = useQuery(
+    [queryKeys.getStudentsQuery],
+    () => studentServices.getAllStudents(token),
+    {
+      onSuccess: () => localStorage.setItem("studentsListData", studentQuery),
+    }
   );
+
   if (studentQuery.isLoading) {
     return <h1 className="loading">Is Loading...</h1>;
   }
@@ -40,14 +46,14 @@ export function StudentListTable({
   }
   return (
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+      <Table aria-label="simple table">
         <TableHead>
           <TableRow>
             <TableCell>Id</TableCell>
 
             <TableCell>Full Name</TableCell>
             <TableCell>Email</TableCell>
-            <TableCell>Education Degree</TableCell>
+            {/* <TableCell>Education Degree</TableCell> */}
             <TableCell>User name</TableCell>
             <TableCell>Main group</TableCell>
             <TableCell>Actions</TableCell>
@@ -114,7 +120,7 @@ export function StudentListTable({
                   {student.fullName}
                 </TableCell>
                 <TableCell>{student.email}</TableCell>
-                <TableCell>{student.educationDegree}</TableCell>
+                {/* <TableCell>{student.educationDegree}</TableCell> */}
                 <TableCell>{student.appUser?.userName ?? "No user"}</TableCell>
                 <TableCell>{student.mainGroup?.name ?? "No group"}</TableCell>
 
@@ -134,6 +140,7 @@ export function StudentListTable({
                     Update
                   </UpdateButton>
                   <DeleteButton
+                    disabled={role !== "Admin" ? true : false}
                     onClick={() =>
                       navigate(`DeleteStudent/${student.id}`, {
                         state: student,

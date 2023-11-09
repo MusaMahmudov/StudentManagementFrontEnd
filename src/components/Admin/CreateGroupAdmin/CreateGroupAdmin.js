@@ -11,7 +11,7 @@ import jwtDecode from "jwt-decode";
 import { tokenRoleProperty } from "../../../utils/TokenProperties";
 const CreateGroupAdmin = () => {
   const navigate = useNavigate();
-
+  const [error, setError] = useState();
   const { token } = useContext(TokenContext);
   if (token) {
     const decodedToken = jwtDecode(token);
@@ -20,11 +20,17 @@ const CreateGroupAdmin = () => {
     }
   }
   const { studentServices, groupServices, facultyServices } = useService();
-  const { data: studentData } = useQuery([queryKeys.getStudentsQuery], () =>
-    studentServices.getAllStudents(token)
+  const { data: studentData, isLoading: isLoadingStudents } = useQuery(
+    [queryKeys.getStudentsQuery],
+    () => studentServices.getAllStudents(token)
   );
   console.log("students", studentData);
-  const [newGroup, setNewGroup] = useState({});
+  const [newGroup, setNewGroup] = useState({
+    name: "",
+    year: "",
+    facultyId: "",
+    studentsId: [],
+  });
 
   console.log("NewGroup", newGroup);
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
@@ -42,9 +48,19 @@ const CreateGroupAdmin = () => {
     setNewGroup((prev) => ({ ...prev, [inputName]: inputValue.trim() }));
     console.log(newGroup);
   };
+
   const mutate = useMutation(() => groupServices.createGroup(newGroup, token), {
     onSuccess: () => navigate("/Groups"),
   });
+  useEffect(() => {
+    if (
+      mutate.isError &&
+      mutate.error.response.data.message &&
+      mutate.error.response.status != "500"
+    ) {
+      setError(mutate.error.response.data.message);
+    }
+  }, [mutate]);
 
   console.log(enteredValueisValid);
   const handleNewGroup = (e) => {
@@ -78,6 +94,9 @@ const CreateGroupAdmin = () => {
     }
   };
   console.log(newGroup);
+  if (isLoadingStudents) {
+    return <h1>... Is Loading</h1>;
+  }
 
   return (
     <div className="update-student">
@@ -92,6 +111,8 @@ const CreateGroupAdmin = () => {
               component="form"
               sx={{
                 "& > :not(style)": { m: 1, width: "65ch" },
+                display: "flex",
+                flexDirection: "column",
               }}
               noValidate
               autoComplete="off"
@@ -167,6 +188,9 @@ const CreateGroupAdmin = () => {
                   )}
                 />
               )}
+              <div className="errorMessage">
+                <h1>{error}</h1>
+              </div>
 
               <Button
                 type="submit"

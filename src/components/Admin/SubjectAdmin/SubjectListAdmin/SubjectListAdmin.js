@@ -1,11 +1,15 @@
-import { Button, TextField } from "@mui/material";
+import { Button, Fab, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 
 import { SubjectListTable } from "../../../../UI/Tables/SubjectListTable";
 import { AdminFacultyTitle } from "../../../../UI/Common/AdminFacultyTitle";
+import { getDecodedToken } from "../../../../utils/TokenServices";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const SubjectListAdmin = () => {
   const navigate = useNavigate();
+  const decodedToken = getDecodedToken();
+  const role = decodedToken[tokenRoleProperty];
 
   const searchByFullName = (event) => {};
   return (
@@ -32,15 +36,19 @@ const SubjectListAdmin = () => {
                 <h1>Subjects</h1>
               </div>
               <div className="buttons">
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
+                <Fab
                   onClick={() => navigate("CreateSubject")}
-                ></Button>
+                  color="primary"
+                  aria-label="add"
+                  sx={{ zIndex: 10 }}
+                  disabled={role !== "Admin" ? true : false}
+                >
+                  <AddIcon />
+                </Fab>
               </div>
             </div>
             <div className="students-list-info">
-              <SubjectListTable />
+              <SubjectListTable role={role} />
             </div>
           </div>
         </section>

@@ -7,7 +7,7 @@ import { useContext, useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { queryKeys } from "../../../QueryKeys";
 import { ApexChart } from "../../../UI/Charts/StudentsByYearChart";
-import { getToken } from "../../../utils/GetToken";
+import { getToken } from "../../../utils/TokenServices";
 import jwtDecode from "jwt-decode";
 import ErrorPage from "../../ErrorPage/ErrorPage";
 import { useNavigate } from "react-router-dom";
@@ -64,7 +64,9 @@ const AdminDashboard = () => {
     <div className="admin-dashboard">
       <div className="container">
         <div className="title">
-          <h1>Welcome {decodedToken[tokenUserNameProperty]}!</h1>
+          <h1>
+            Welcome {decodedToken ? decodedToken[tokenUserNameProperty] : ""}!
+          </h1>
           <h1>Home/Admin</h1>
         </div>
         <div className="numbers">

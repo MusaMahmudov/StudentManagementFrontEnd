@@ -3,14 +3,17 @@ import useService from "../../../hooks";
 import "./studentListAdmin.scss";
 import { queryKeys } from "../../../QueryKeys";
 import { StudentListTable } from "../../../UI/Tables/StudentListTable";
-import { Button, TextField } from "@mui/material";
+import { Box, Button, Fab, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { getDecodedToken } from "../../../utils/TokenServices";
+import { tokenRoleProperty } from "../../../utils/TokenProperties";
 
 const StudentAdminPage = () => {
+  const decodedToken = getDecodedToken();
+  const role = decodedToken[tokenRoleProperty];
   const navigate = useNavigate();
-
   const [fullNameSearch, setFullNameSearch] = useState("");
   const [idSearch, setIdSearch] = useState("");
   const [emailSearch, setEmailSearch] = useState("");
@@ -68,15 +71,23 @@ const StudentAdminPage = () => {
                 <h1>Students</h1>
               </div>
               <div className="buttons">
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={() => navigate("CreateStudent")}
-                ></Button>
+                <div className="buttons">
+                  <Fab
+                    onClick={() => navigate("CreateStudent")}
+                    color="primary"
+                    aria-label="add"
+                    sx={{ zIndex: 10 }}
+                    disabled={role !== "Admin" ? true : false}
+                  >
+                    <AddIcon />
+                  </Fab>
+                  {/* <Button variant="contained" startIcon={<AddIcon />}></Button> */}
+                </div>
               </div>
             </div>
             <div className="students-list-info">
               <StudentListTable
+                role={role}
                 fullNameSearch={fullNameSearch}
                 idSearch={idSearch}
                 emailSearch={emailSearch}

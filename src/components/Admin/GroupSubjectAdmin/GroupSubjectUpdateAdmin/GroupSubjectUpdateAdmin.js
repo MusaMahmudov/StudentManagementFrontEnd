@@ -7,17 +7,27 @@ import { queryKeys } from "../../../../QueryKeys";
 import { AdminGroupTitle } from "../../../../UI/Common/AdminGroupTitle";
 import { updateGroupSubjectReducer } from "../../../../Reducers/UpdateGroupSubjectReducer";
 import { TokenContext } from "../../../../Contexts/Token-context";
+import AddIcon from "@mui/icons-material/Add";
+
 const UpdateGroupSubjectAdmin = () => {
   const { token } = useContext(TokenContext);
-
+  const { Id } = useParams();
   const {
     groupSubjectServices,
     teacherServices,
     groupServices,
     subjectServices,
+    teacherRoleServices,
   } = useService();
-  const { data: teacherData, isError } = useQuery([queryKeys.getTeachers], () =>
-    teacherServices.getAllTeachers(token)
+  const groupSubjectQuery = useQuery([queryKeys.getGroupSubjects], () =>
+    groupSubjectServices.getGroupSubjectByIdForUpdate(Id)
+  );
+
+  const teacherQuery = useQuery([queryKeys.getTeachers], () =>
+    teacherServices.getTeachersForGroupSubject(token)
+  );
+  const teacherRoleQuery = useQuery([queryKeys.getTeacherRoles], () =>
+    teacherRoleServices.getAllTeacherRoles(token)
   );
   const { data: groupData } = useQuery([queryKeys.getGroupsQuery], () =>
     groupServices.getAllGroups(token)
@@ -25,25 +35,59 @@ const UpdateGroupSubjectAdmin = () => {
   const { data: subjectData } = useQuery([queryKeys.getSubjects], () =>
     subjectServices.getAllSubjects(token)
   );
-
+  const [teachers, setTeachers] = useState([]);
   const [teacherError, setTeacherError] = useState();
-  if (isError) {
+  if (teacherQuery.isError) {
     setTeacherError("Something get wrong");
   }
+  const handleAddTeacher = () => {
+    setEnteredValueIsValid((prev) => ({
+      ...prev,
+      teacherRoleIsValid: [...prev.teacherRoleIsValid, true],
+    }));
+    const newTeacher = {
+      teacherId: "",
+      roleId: "",
+    };
+    setTeachers((prev) => [...prev, newTeacher]);
+  };
+  const handleRemoveTeacher = () => {
+    if (
+      enteredValueisValid.teacherRoleIsValid.length > 0 &&
+      teachers.length > 0
+    ) {
+      setEnteredValueIsValid((prev) => ({
+        ...prev,
+        teacherRoleIsValid: [...prev.teacherRoleIsValid.slice(0, -1)],
+      }));
+
+      setTeachers((prev) => [...prev.slice(0, -1)]);
+      teacherRoleQuery.refetch();
+      teacherQuery.refetch();
+    }
+  };
+
+  const handleTeacherChange = (index, event, newValue, id) => {
+    const updatedTeachers = [...teachers];
+    if (newValue?.fullName) {
+      updatedTeachers[index]["teacherId"] = newValue.id;
+    } else if (newValue?.name) {
+      updatedTeachers[index]["roleId"] = newValue.id;
+    } else if (!newValue) {
+      updatedTeachers[index][id] = "";
+    }
+    setTeachers(updatedTeachers);
+  };
 
   const navigate = useNavigate();
-  console.log(teacherData);
-  const { state: groupSubjectData } = useLocation();
+  console.log(teacherQuery.data?.data);
 
-  const [teacherInputValue, setTeacherInputValue] = useState(
-    groupSubjectData?.teachers
-  );
   const [subjectInputValue, setSubjectInputValue] = useState(
-    groupSubjectData?.subject
+    groupSubjectQuery.data?.data.subject
   );
-  console.log(groupSubjectData);
+  console.log(groupSubjectQuery.data);
   const [groupInputValue, setGroupInputValue] = useState(
-    groupSubjectData?.group
+    groupSubjectQuery.data?.data.group
   );
   let formValid = true;
   const [error, setErrors] = useState();
@@ -55,30 +99,32 @@ const UpdateGroupSubjectAdmin = () => {
     totalWeeksIsValid: true,
     semesterIsValid: true,
     YearIsValid: true,
+    teacherRoleIsValid: [],
   });
-  const [inputState, dispatch] = useReducer(updateGroupSubjectReducer, {
-    groupId: groupSubjectData?.group.id,
-    subjectId: groupSubjectData?.subject.id,
-    teacherRole: [],
-    totalWeeks: groupSubjectData.totalWeeks,
-    hours: groupSubjectData.hours,
-    credits: groupSubjectData.credits,
-    semester: groupSubjectData.semester,
-    year: groupSubjectData.year,
-  });
-  const mutate = useMutation(() =>
-    groupSubjectServices.updateGroupSubject(
-      groupSubjectData.id,
-      inputState,
-      token
-    )
+  const [inputState, dispatch] = useReducer(updateGroupSubjectReducer, {});
+  const mutate = useMutation(
+    () => groupSubjectServices.updateGroupSubject(Id, inputState, token),
+    {
+      onSuccess: () => navigate("/GroupSubjects"),
+    }
   );
+  useEffect(() => {
+    inputState.teacherRole = teachers;
+  }, [teachers]);
+  useEffect(() => {
+    dispatch({
+      type: "init",
+      payload: groupSubjectQuery.data?.data,
+    });
+  }, [groupSubjectQuery.isSuccess]);
+
   useEffect(() => {
     if (mutate.isError && mutate.error.response.data.message) {
       setErrors(mutate.error.response.data.message);
     }
   }, [mutate]);
   const handleGroupSubjectUpdate = (e) => {
+    e.preventDefault();
     if (inputState.groupId === "" || inputState.groupId === null) {
       setEnteredValueIsValid((prev) => ({ ...prev, groupIdIsValid: false }));
     } else {
@@ -140,8 +186,10 @@ const UpdateGroupSubjectAdmin = () => {
     //   }
     // }
     mutate.mutate();
-    navigate("/GroupSubjects");
   };
+  if (groupSubjectQuery.isLoading) {
+    return <h1>... Is Loading</h1>;
+  }
   console.log("inputState", inputState);
   return (
     <div className="update-group">
@@ -156,6 +204,8 @@ const UpdateGroupSubjectAdmin = () => {
           </div>
           <div className="inputs">
             <Box
+              display={"flex"}
+              flexDirection={"column"}
               component="form"
               sx={{
                 "& > :not(style)": { m: 1, width: "65ch" },
@@ -170,7 +220,7 @@ const UpdateGroupSubjectAdmin = () => {
                 label="Credits"
                 variant="outlined"
                 name="credits"
-                defaultValue={groupSubjectData.credits}
+                defaultValue={groupSubjectQuery.data?.data.credits}
                 onChange={(e) => {
                   dispatch({
                     type: "credits",
@@ -190,7 +240,7 @@ const UpdateGroupSubjectAdmin = () => {
                 label="Hours"
                 variant="outlined"
                 name="hours"
-                defaultValue={groupSubjectData.hours}
+                defaultValue={groupSubjectQuery.data?.data.hours}
                 onChange={(e) => {
                   dispatch({
                     type: "hours",
@@ -210,7 +260,7 @@ const UpdateGroupSubjectAdmin = () => {
                 label="Total weeks"
                 variant="outlined"
                 name="totalWeeks"
-                defaultValue={groupSubjectData.totalWeeks}
+                defaultValue={groupSubjectQuery.data?.data.totalWeeks}
                 onChange={(e) => {
                   dispatch({
                     type: "totalWeeks",
@@ -229,7 +279,7 @@ const UpdateGroupSubjectAdmin = () => {
                 label="Semester"
                 variant="outlined"
                 name="semester"
-                defaultValue={groupSubjectData.semester}
+                defaultValue={groupSubjectQuery.data?.data.semester}
                 onChange={(e) => {
                   dispatch({
                     type: "semester",
@@ -248,7 +298,7 @@ const UpdateGroupSubjectAdmin = () => {
                 label="Year"
                 variant="outlined"
                 name="year"
-                defaultValue={groupSubjectData.year}
+                defaultValue={groupSubjectQuery.data?.data.year}
                 onChange={(e) => {
                   dispatch({
                     type: "year",
@@ -307,6 +357,73 @@ const UpdateGroupSubjectAdmin = () => {
                   <TextField {...params} label="Group" />
                 )}
               />
+              {inputState.teacherRole?.map((teacher, index) => (
+                <div key={index}>
+                  <h1>Teacher {index + 1}</h1>
+                  <Autocomplete
+                    disablePortal
+                    label={`Teacher ${index + 1}`}
+                    id="teacherId"
+                    options={teacherQuery.data?.data ?? []}
+                    getOptionLabel={(option) => option.fullName}
+                    onChange={(e, newValue) =>
+                      handleTeacherChange(index, e, newValue, "teacherId")
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Teacher"
+                        error={
+                          enteredValueisValid.teacherRoleIsValid[index]
+                            ? ""
+                            : "error"
+                        }
+                      />
+                    )}
+                  />
+                  <Autocomplete
+                    label={`Teacher ${index + 1} Role`}
+                    id="roleId"
+                    sx={{ marginBottom: 2, marginTop: 2 }}
+                    options={teacherRoleQuery.data?.data ?? []}
+                    getOptionLabel={(option) => option.name}
+                    onChange={(e, newValue) =>
+                      handleTeacherChange(index, e, newValue, "roleId")
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Role"
+                        error={
+                          enteredValueisValid.teacherRoleIsValid[index]
+                            ? ""
+                            : "error"
+                        }
+                      />
+                    )}
+                  />
+                </div>
+              ))}
+              <Box display={"flex"} justifyContent={"space-between"}>
+                <Button
+                  color="primary"
+                  variant="contained"
+                  aria-label="add"
+                  onClick={handleAddTeacher}
+                >
+                  <AddIcon />
+                  Add Teacher
+                </Button>
+                {teachers.length > 0 && (
+                  <Button
+                    color="error"
+                    variant="contained"
+                    onClick={() => handleRemoveTeacher()}
+                  >
+                    Delete Teacher
+                  </Button>
+                )}
+              </Box>
               <div className="errorMessage">
                 <p>{error}</p>
               </div>

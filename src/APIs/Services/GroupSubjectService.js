@@ -7,8 +7,21 @@ export class groupSubjectService extends HTTPClient {
   async getAllGroupSubjects(token) {
     return await this.getAll("GroupSubjects", token);
   }
+  async getAllGroupSubjectsForExamForUpdate(token) {
+    return await this.getAll(
+      "GroupSubjects/GetGroupSubjectsForExamUpdate",
+      token
+    );
+  }
   async getGroupSubjectById(id, token) {
     return await this.getById("GroupSubjects", id, token);
+  }
+  async getGroupSubjectByIdForUpdate(id, token) {
+    return await this.getById(
+      "GroupSubjects/GetGroupSubjectForUpdate",
+      id,
+      token
+    );
   }
   async createGroupSubject(body, token) {
     return await this.post("GroupSubjects", body, token);

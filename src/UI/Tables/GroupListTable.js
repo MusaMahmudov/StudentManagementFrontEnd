@@ -18,7 +18,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useContext } from "react";
 import { TokenContext } from "../../Contexts/Token-context";
 
-export function GroupListTable() {
+export function GroupListTable({ role }) {
   const navigate = useNavigate();
   const { token } = useContext(TokenContext);
 
@@ -91,6 +91,7 @@ export function GroupListTable() {
                   Update
                 </UpdateButton>
                 <DeleteButton
+                  disabled={role !== "Admin" ? true : false}
                   onClick={() =>
                     navigate(`DeleteGroup/${group.id}`, {
                       state: group,

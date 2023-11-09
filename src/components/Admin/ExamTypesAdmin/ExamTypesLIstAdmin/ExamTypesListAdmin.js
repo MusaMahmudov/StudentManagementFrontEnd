@@ -1,11 +1,15 @@
 import { StudentListTable } from "../../../../UI/Tables/StudentListTable";
-import { Button, TextField } from "@mui/material";
+import { Button, Fab, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import "./examTypesListAdmin.scss";
 import { ExamTypeListTable } from "../../../../UI/Tables/ExamTypesListTable";
+import { getDecodedToken } from "../../../../utils/TokenServices";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const ExamTypesListAdmin = () => {
   const navigate = useNavigate();
+  const decodedToken = getDecodedToken();
+  const role = decodedToken[tokenRoleProperty];
 
   const searchByFullName = (event) => {};
   return (
@@ -36,15 +40,19 @@ const ExamTypesListAdmin = () => {
                 <h1>Exam Types</h1>
               </div>
               <div className="buttons">
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
+                <Fab
                   onClick={() => navigate("CreateExamType")}
-                ></Button>
+                  color="primary"
+                  aria-label="add"
+                  sx={{ zIndex: 10 }}
+                  disabled={role !== "Admin" ? true : false}
+                >
+                  <AddIcon />
+                </Fab>
               </div>
             </div>
             <div className="students-list-info">
-              <ExamTypeListTable />
+              <ExamTypeListTable role={role} />
             </div>
           </div>
         </section>

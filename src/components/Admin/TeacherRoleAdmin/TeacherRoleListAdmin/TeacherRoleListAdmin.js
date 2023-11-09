@@ -1,12 +1,16 @@
-import { Button, TextField } from "@mui/material";
+import { Button, Fab, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 
 import { SubjectListTable } from "../../../../UI/Tables/SubjectListTable";
 import { AdminFacultyTitle } from "../../../../UI/Common/AdminFacultyTitle";
 import { TeacherRoleListTable } from "../../../../UI/Tables/TeacherRoleListTable";
+import { getDecodedToken } from "../../../../utils/TokenServices";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const TeacherRoleListAdmin = () => {
   const navigate = useNavigate();
+  const decodedToken = getDecodedToken();
+  const role = decodedToken[tokenRoleProperty];
 
   const searchByFullName = (event) => {};
   return (
@@ -33,15 +37,18 @@ const TeacherRoleListAdmin = () => {
                 <h1>Teacher Roles</h1>
               </div>
               <div className="buttons">
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
+                <Fab
                   onClick={() => navigate("CreateTeacherRole")}
-                ></Button>
+                  color="primary"
+                  aria-label="add"
+                  disabled={role !== "Admin" ? true : false}
+                >
+                  <AddIcon />
+                </Fab>
               </div>
             </div>
             <div className="students-list-info">
-              <TeacherRoleListTable />
+              <TeacherRoleListTable role={role} />
             </div>
           </div>
         </section>

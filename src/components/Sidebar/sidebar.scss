@@ -2,9 +2,11 @@
   & #sidebar {
     max-width: 240px;
     width: 200px;
-    height: 100%;
+    overflow-y: auto;
+
     & .container {
-      padding: 20px 30px;
+      padding: 10px 30px;
+      padding-bottom: 100px;
       & .sidebar-menu {
         width: 100%;
         & .menu {

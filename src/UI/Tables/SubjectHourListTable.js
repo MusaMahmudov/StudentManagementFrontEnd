@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { TokenContext } from "../../Contexts/Token-context";
 
-export function SubjectHourListTable() {
+export function SubjectHourListTable({ role }) {
   const { token } = useContext(TokenContext);
   const navigate = useNavigate();
   const { subjectHourServices } = useService();
@@ -40,6 +40,7 @@ export function SubjectHourListTable() {
             <TableCell>Id</TableCell>
             <TableCell>Group Name</TableCell>
             <TableCell>Subject Name</TableCell>
+            <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -76,6 +77,7 @@ export function SubjectHourListTable() {
                   Update
                 </UpdateButton>
                 <DeleteButton
+                  disabled={role !== "Admin" ? true : false}
                   onClick={() =>
                     navigate(`DeleteSubjectHour/${subjectHour.id}`, {
                       state: subjectHour,

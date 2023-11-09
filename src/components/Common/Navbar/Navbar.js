@@ -1,10 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import "./navbar.scss";
 import adnsuLogo from "../../../assets/images/logo_adnsu.png";
-import fullScreenIcon from "../../../assets/images/FullScreen-Icon.svg";
-import useService from "../../../hooks";
-import { useMutation } from "react-query";
-import { getToken } from "../../../utils/GetToken";
+import useService, { useStyles } from "../../../hooks";
 import { useNavigate } from "react-router-dom";
 import { TokenContext } from "../../../Contexts/Token-context";
 import jwtDecode from "jwt-decode";
@@ -12,17 +9,21 @@ import {
   tokenRoleProperty,
   tokenUserNameProperty,
 } from "../../../utils/TokenProperties";
-const Navbar = () => {
+import PersonIcon from "@mui/icons-material/Person";
+import Popover from "@mui/material/Popover";
+import Button from "@mui/material/Button";
+import { Box, Menu } from "@mui/material";
+import { useCookies } from "react-cookie";
+import ReorderIcon from "@mui/icons-material/Reorder";
+import { removeExpireDate, removeToken } from "../../../utils/TokenServices";
+const Navbar = ({ onToggleSidebar }) => {
   const navigate = useNavigate();
-  const { authServices } = useService();
-  // const [isFullScreen, setFullScreen] = React.useState(false);
+  const [cookies, setCookies, removeCookies] = useCookies(["tokenCookie"]);
   const [userInformation, setUserInformation] = useState({
     userName: "",
     role: "",
   });
   const { token } = useContext(TokenContext);
-
-  console.log(userInformation);
   useEffect(() => {
     if (token) {
       const decodedToken = jwtDecode(token);
@@ -35,31 +36,106 @@ const Navbar = () => {
 
   const handleLogout = () => {
     if (token) {
-      // authServices.Logout(token);
-      localStorage.removeItem("token");
+      localStorage.clear();
+      removeExpireDate();
+      removeToken();
       navigate("/SignIn");
     }
   };
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
 
   return (
-    <div className="header">
-      <div className="container">
-        <div className="left-navbar">
-          <img src={adnsuLogo} className="adnsu-logo" />
-        </div>
-        <div className="right-navbar">
-          <div>
-            <button onClick={() => handleLogout()}>Logout</button>
+    <Box>
+      <div className="header">
+        <div className="container">
+          <div className="left-navbar">
+            <div className="logo">
+              <img src={adnsuLogo} className="adnsu-logo" />
+            </div>
+            <div className="sidebar-toggle">
+              <button className="toggle-button" onClick={onToggleSidebar}>
+                <ReorderIcon />
+              </button>
+            </div>
           </div>
-          <div className="user-info">
-            <h1>{userInformation.userName}</h1>
-            <p class="sm:text-red-500 md:text-green-500 lg:text-blue-500 xl:text-purple-500">
-              {userInformation.role}
-            </p>
+          <div className="right-navbar">
+            <div className="user-info">
+              <Button
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                aria-describedby={id}
+                variant="contained"
+                onClick={handleClick}
+              >
+                <span>
+                  <PersonIcon sx={{ fontSize: 35, marginTop: 1 }} />
+                </span>
+                <span>
+                  <h1>{userInformation.userName}</h1>
+                  <p>{userInformation.role}</p>
+                </span>
+              </Button>
+              <Popover
+                id={id}
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    zIndex: "9999",
+                  }}
+                >
+                  <Button
+                    sx={{ padding: "10px 30px" }}
+                    onClick={() => navigate("MyProfile")}
+                  >
+                    My Profile
+                  </Button>
+                  <Button
+                    sx={{ padding: "10px 10px", fontSize: "13px" }}
+                    onClick={() => navigate("ChangePassword")}
+                  >
+                    Change Password
+                  </Button>
+                  <Button
+                    sx={{ padding: "10px 30px" }}
+                    onClick={() => handleLogout()}
+                  >
+                    Logout
+                  </Button>
+                </Box>
+              </Popover>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Box>
   );
 };
 export default Navbar;

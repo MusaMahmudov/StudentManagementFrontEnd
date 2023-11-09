@@ -35,7 +35,7 @@ const CreateStudentAdmin = () => {
   const [newStudent, setNewStudent] = useState({
     dateOfBirth: null,
     mainGroup: null,
-    groupId: [],
+    // groupId: [],
     appUserId: null,
     fullName: "",
     yearOfGraduation: "",
@@ -78,7 +78,7 @@ const CreateStudentAdmin = () => {
   const mutate = useMutation(
     () => studentServices.createStudent(newStudent, token),
     {
-      onSuccess: () => navigate("Students"),
+      onSuccess: () => navigate("/Students"),
     }
   );
   console.log("Student", newStudent);
@@ -120,7 +120,7 @@ const CreateStudentAdmin = () => {
     if (
       newStudent.yearOfGraduation.trim() === "" ||
       newStudent.yearOfGraduation < 1900 ||
-      newStudent.yearOfGraduation > new Date().getFullYear
+      newStudent.yearOfGraduation > new Date().getFullYear()
     ) {
       setEnteredValueIsValid((prev) => ({ ...prev, yearOfGraduation: false }));
       formValid = false;
@@ -372,7 +372,7 @@ const CreateStudentAdmin = () => {
                   <TextField {...params} label="Main Group" />
                 )}
               />
-              {groupData && (
+              {/* {groupData && (
                 <Autocomplete
                   multiple
                   id="tags-outlined"
@@ -400,7 +400,7 @@ const CreateStudentAdmin = () => {
                     />
                   )}
                 />
-              )}
+              )} */}
 
               <div className="errorMessage">{error}</div>
               <Button

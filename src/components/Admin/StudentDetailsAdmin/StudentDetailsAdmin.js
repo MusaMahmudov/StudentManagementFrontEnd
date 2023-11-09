@@ -8,9 +8,10 @@ import useService from "../../../hooks";
 import { useQuery } from "react-query";
 import { queryKeys } from "../../../QueryKeys";
 import { ConstructionOutlined } from "@mui/icons-material";
-import { getToken } from "../../../utils/GetToken";
+import { GetTokenFromCookie } from "../../../utils/TokenServices";
+import { TokenContext } from "../../../Contexts/Token-context";
 const StudentDetailsAdmin = () => {
-  const token = getToken();
+  const { token } = useContext(TokenContext);
   const { Id } = useParams();
   const { studentServices } = useService();
   const studendQuery = useQuery([queryKeys.getStudentByIdQuery], () =>
@@ -91,7 +92,8 @@ const StudentDetailsAdmin = () => {
                   <section className="info-right">
                     <h1>Faculty</h1>
                     <p>
-                      {studendQuery.data?.data.facultyName ?? "No faculty yet"}
+                      {studendQuery.data?.data.mainGroup?.facultyName ??
+                        "No faculty yet"}
                     </p>
                   </section>
                 </div>

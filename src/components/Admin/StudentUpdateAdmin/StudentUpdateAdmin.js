@@ -25,14 +25,15 @@ const UpdateStudentAdmin = () => {
 
   const { groupServices, studentServices, userServices } = useService();
   const { data: userData } = useQuery([queryKeys.getUsers], () =>
-    userServices.getAllUser(token)
+    userServices.getAllUsersForStudentAndTeacherUpdate(token)
   );
+  console.log(userData?.data, "userdAte");
   const { Id } = useParams();
   const studentQuery = useQuery([queryKeys.getStudentByIdQuery], () =>
     studentServices.getStudentByIdForUpdate(Id, token)
   );
   const { data: groupData } = useQuery([queryKeys.getGroupsQuery], () =>
-    groupServices.getAllGroups(token)
+    groupServices.getGroupsForObjectsUpdate(token)
   );
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     fullNameIsValid: true,
@@ -47,9 +48,9 @@ const UpdateStudentAdmin = () => {
   });
   console.log(groupData);
   console.log("studentDATA", studentQuery.data?.data);
-  const [newBirthday, setNewBirthday] = useState(
-    studentQuery.data?.data.date0fBirth
-  );
+  // const [newBirthday, setNewBirthday] = useState(
+  //   studentQuery.data?.data.date0fBirth
+  // );
 
   const mutate = useMutation(
     () => studentServices.updateStudent(Id, inputState, token),
@@ -205,23 +206,22 @@ const UpdateStudentAdmin = () => {
   };
   let [inputState, dispatch] = useReducer(updateStudentReducer, {});
 
-  const [mainGroupInputValue, setMainGroupInputValue] = useState(
-    studentQuery.data?.data.mainGroup ?? null
-  );
-  const [userInputValue, setUserInputValue] = useState(
-    studentQuery.data?.data.appUser?.id ?? null
-  );
+  // const [mainGroupInputValue, setMainGroupInputValue] = useState(
+  //   studentQuery.data?.data.mainGroup ?? null
+  // );
+  // const [userInputValue, setUserInputValue] = useState(
+  //   studentQuery.data?.data.appUser?.id ?? null
+  // );
   useEffect(() => {
     if (studentQuery.isSuccess) {
       if (!inputState.fullName) {
-        setUserInputValue(studentQuery.data?.data.appUser);
         dispatch({
           type: "init",
           payload: studentQuery.data?.data,
         });
       }
     }
-  }, [studentQuery.isSuccess]);
+  }, [studentQuery.isSuccess, userData, groupData]);
   if (studentQuery.isLoading) {
     return <h1>...isLoading</h1>;
   }
@@ -430,25 +430,21 @@ const UpdateStudentAdmin = () => {
                 size="small"
                 options={userData?.data ?? []}
                 getOptionLabel={(option) => option.userName}
-                inputValue={userInputValue}
-                onInputChange={(e, newValue) => {
-                  setUserInputValue(newValue);
-                }}
-                value={
+                defaultValue={
                   userData?.data.find(
-                    (item) => item.id === studentQuery.data?.data.appUser?.id
-                  ) || null
+                    (user) => user.id === studentQuery.data?.data.appUserId
+                  ) ?? null
                 }
                 sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="User" />}
                 onChange={(e, newValue) =>
                   dispatch({
                     type: "appUserId",
                     payload: newValue ? newValue.id : null,
                   })
                 }
+                renderInput={(params) => <TextField {...params} label="User" />}
               />
-              {groupData && (
+              {/* {groupData && (
                 <Autocomplete
                   multiple
                   id="tags-outlined"
@@ -476,7 +472,7 @@ const UpdateStudentAdmin = () => {
                     />
                   )}
                 />
-              )}
+              )} */}
 
               <Autocomplete
                 disablePortal
@@ -484,24 +480,20 @@ const UpdateStudentAdmin = () => {
                 size="small"
                 options={groupData?.data ?? []}
                 getOptionLabel={(option) => option.name}
-                inputValue={mainGroupInputValue}
-                onInputChange={(e, newValue) => {
-                  setMainGroupInputValue(newValue);
-                }}
                 sx={{ width: 300 }}
+                defaultValue={
+                  groupData?.data.find(
+                    (group) => group.id === studentQuery.data?.data.groupId
+                  ) ?? null
+                }
                 renderInput={(params) => (
-                  <TextField {...params} label="Main Group" />
+                  <TextField {...params} label="Group" />
                 )}
                 onChange={(e, newValue) =>
                   dispatch({
-                    type: "mainGroup",
+                    type: "groupId",
                     payload: newValue ? newValue.id : null,
                   })
-                }
-                value={
-                  groupData?.data.find(
-                    (item) => item.id === inputState?.mainGroup?.id
-                  ) || null
                 }
               />
               <LocalizationProvider dateAdapter={AdapterDayjs}>

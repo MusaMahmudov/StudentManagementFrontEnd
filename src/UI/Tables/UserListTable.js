@@ -16,13 +16,13 @@ import {
   UpdateButton,
 } from "../Buttons/ActionButtons";
 import { useNavigate, useParams } from "react-router-dom";
-import { getToken } from "../../utils/GetToken";
+import { getToken } from "../../utils/TokenServices";
 import { useContext, useEffect } from "react";
 import { TokenContext } from "../../Contexts/Token-context";
 import jwtDecode from "jwt-decode";
 import { tokenRoleProperty } from "../../utils/TokenProperties";
 
-export function UserListTable() {
+export function UserListTable({ role }) {
   const navigate = useNavigate();
   const { userServices } = useService();
   const { token } = useContext(TokenContext);
@@ -30,6 +30,7 @@ export function UserListTable() {
   const userQuery = useQuery([queryKeys.getUsers], () =>
     userServices.getAllUser(token)
   );
+  console.log(userQuery, "userQuery");
   if (userQuery.isLoading) {
     return <h1 className="loading">Is Loading...</h1>;
   }
@@ -79,7 +80,9 @@ export function UserListTable() {
               </TableCell>
               <TableCell>
                 {user.roles.length !== 0
-                  ? user.roles.map((role) => role)
+                  ? user.roles.map((role, index) =>
+                      index !== 0 ? ` - ${role}` : `${role}`
+                    )
                   : "no roles"}
               </TableCell>
               <TableCell>{user.isActive ? "Yes" : "No"}</TableCell>
@@ -88,6 +91,7 @@ export function UserListTable() {
                   onClick={() => navigate(`${user.id}`, { state: user })}
                 />
                 <UpdateButton
+                  disabled={role !== "Admin" ? true : false}
                   onClick={() =>
                     navigate(`UpdateUser/${user.id}`, {
                       state: user,
@@ -97,6 +101,7 @@ export function UserListTable() {
                   Update
                 </UpdateButton>
                 <DeleteButton
+                  disabled={role !== "Admin" ? true : false}
                   onClick={() =>
                     navigate(`DeleteUser/${user.id}`, {
                       state: user,

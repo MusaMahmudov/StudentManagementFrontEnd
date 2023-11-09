@@ -10,9 +10,12 @@ import { queryKeys } from "../../../../QueryKeys";
 import { TokenContext } from "../../../../Contexts/Token-context";
 import jwtDecode from "jwt-decode";
 import { tokenRoleProperty } from "../../../../utils/TokenProperties";
+import dayjs from "dayjs";
 const CreateExam = () => {
   const navigate = useNavigate();
   const { token } = useContext(TokenContext);
+  const [error, setError] = useState();
+
   useEffect(() => {
     if (token) {
       const decodedToken = jwtDecode(token);
@@ -35,16 +38,18 @@ const CreateExam = () => {
 
   const [examDate, setExamDate] = useState();
   const [newExam, setNewExam] = useState({
-    name: null,
-    date: null,
-    examTypeId: null,
-    groupSubjectId: null,
-    maxScore: null,
+    name: "",
+    date: "",
+    examTypeId: "",
+    groupSubjectId: "",
+    maxScore: "",
   });
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     nameIsValid: true,
     maxScoreIsValid: true,
     dateIsValid: true,
+    examTypeIsValid: true,
+    groupSubjectIsValid: true,
   });
   let formValid = true;
 
@@ -52,23 +57,28 @@ const CreateExam = () => {
     console.log(date);
     setNewExam((prev) => ({
       ...prev,
-      date: `${date.$y}-${date.$M < 9 ? `0${date.$M + 1}` : `${date.$M + 1}`}-${
-        date.$D < 9 ? `0${date.$D}` : `${date.$D}`
-      }T18:47:20.116`,
+      date: dayjs(date).format("YYYY-MM-DDTHH:mm:ss.SSS"),
     }));
   };
-  console.log(newExam);
   const handleExam = ({ target: { value: inputValue, name: inputName } }) => {
     setNewExam((prev) => ({ ...prev, [inputName]: inputValue.trim() }));
   };
   const mutate = useMutation(() => examServices.createExam(newExam, token), {
     onSuccess: () => navigate("/Exams"),
   });
-  console.log(groupSubjectData);
-
+  useEffect(() => {
+    if (
+      mutate.isError &&
+      mutate.error.response.data.message &&
+      mutate.error.response.status != "500"
+    ) {
+      setError(mutate.error.response.data.message);
+    }
+  }, [mutate]);
   const handleNewExam = (e) => {
     e.preventDefault();
-    if (newExam.name?.trim() === "" || newExam.name === null) {
+    setError("");
+    if (newExam.name?.trim().length < 3 || newExam.name === null) {
       setEnteredValueIsValid((prev) => ({ ...prev, nameIsValid: false }));
       formValid = false;
     } else {
@@ -89,6 +99,26 @@ const CreateExam = () => {
       formValid = true;
       setEnteredValueIsValid((prev) => ({ ...prev, dateIsValid: true }));
     }
+    if (newExam.examTypeId === "" || newExam.date === null) {
+      setEnteredValueIsValid((prev) => ({ ...prev, examTypeIsValid: false }));
+      formValid = false;
+    } else {
+      formValid = true;
+      setEnteredValueIsValid((prev) => ({ ...prev, examTypeIsValid: true }));
+    }
+    if (newExam.groupSubjectId === "" || newExam.date === null) {
+      setEnteredValueIsValid((prev) => ({
+        ...prev,
+        groupSubjectIsValid: false,
+      }));
+      formValid = false;
+    } else {
+      formValid = true;
+      setEnteredValueIsValid((prev) => ({
+        ...prev,
+        groupSubjectIsValid: true,
+      }));
+    }
 
     if (formValid) {
       mutate.mutate(newExam);
@@ -108,6 +138,8 @@ const CreateExam = () => {
           </div>
           <div className="inputs">
             <Box
+              display={"flex"}
+              flexDirection={"column"}
               component="form"
               sx={{
                 "& > :not(style)": { m: 1, width: "65ch" },
@@ -124,7 +156,9 @@ const CreateExam = () => {
                 name="name"
                 onChange={handleExam}
                 error={enteredValueisValid.nameIsValid ? "" : "error"}
-                helperText={!enteredValueisValid.nameIsValid && "Name required"}
+                helperText={
+                  !enteredValueisValid.nameIsValid && "Name must be more than 3"
+                }
               />
               <TextField
                 required
@@ -141,14 +175,13 @@ const CreateExam = () => {
                 }
               />
 
-              <LocalizationProvider
-                dateAdapter={AdapterDayjs}
-                error={enteredValueisValid.dateIsValid ? "" : "error"}
-                helperText={
-                  !enteredValueisValid.dateIsValid && "Date  required"
-                }
-              >
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker value={examDate} onChange={handleDate} />
+                <h1 className="errorMessage date">
+                  {enteredValueisValid.dateIsValid
+                    ? ""
+                    : "Exam's date required"}
+                </h1>
               </LocalizationProvider>
               <Autocomplete
                 disablePortal
@@ -168,7 +201,15 @@ const CreateExam = () => {
                 }}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Exam type" />
+                  <TextField
+                    {...params}
+                    label="Exam type"
+                    error={enteredValueisValid.examTypeIsValid ? "" : "error"}
+                    helperText={
+                      !enteredValueisValid.examTypeIsValid &&
+                      "Exam type required"
+                    }
+                  />
                 )}
               />
               <Autocomplete
@@ -192,12 +233,23 @@ const CreateExam = () => {
                 }}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Subject" />
+                  <TextField
+                    {...params}
+                    label="Subject"
+                    error={
+                      enteredValueisValid.groupSubjectIsValid ? "" : "error"
+                    }
+                    helperText={
+                      !enteredValueisValid.groupSubjectIsValid &&
+                      "Subject required"
+                    }
+                  />
                 )}
               />
+              <h1 className="errorMessage">{error}</h1>
 
               <Button type="submit" onClick={handleNewExam} variant="contained">
-                Create Faculty
+                Create Exam
               </Button>
             </Box>
           </div>

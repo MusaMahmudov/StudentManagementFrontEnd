@@ -9,6 +9,9 @@ export class examService extends HTTPClient {
   async getAllExams(token) {
     return await this.getAll("Exams", token);
   }
+  async getAllExamsForExamResultUpdate(token) {
+    return await this.getAll("Exams/GetAllExamsForExamResultUpdate", token);
+  }
   async getExamById(id, token) {
     return await this.getById("Exams", id, token);
   }

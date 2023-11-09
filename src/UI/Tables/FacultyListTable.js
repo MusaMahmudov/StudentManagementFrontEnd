@@ -18,7 +18,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useContext } from "react";
 import { TokenContext } from "../../Contexts/Token-context";
 
-export function FacultyListTable() {
+export function FacultyListTable({ role }) {
   const { token } = useContext(TokenContext);
   const navigate = useNavigate();
   const { facultyServices } = useService();
@@ -39,6 +39,7 @@ export function FacultyListTable() {
           <TableRow>
             <TableCell>Id</TableCell>
             <TableCell>Name</TableCell>
+            <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -83,6 +84,7 @@ export function FacultyListTable() {
                   Update
                 </UpdateButton>
                 <DeleteButton
+                  disabled={role !== "Admin" ? true : false}
                   onClick={() =>
                     navigate(`DeleteFaculty/${faculty.id}`, {
                       state: faculty,

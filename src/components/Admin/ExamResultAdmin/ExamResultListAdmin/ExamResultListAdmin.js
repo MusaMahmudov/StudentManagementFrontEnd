@@ -1,15 +1,18 @@
 import { useQuery } from "react-query";
 import useService from "../../../../hooks";
 import { queryKeys } from "../../../../QueryKeys";
-import { Button, TextField } from "@mui/material";
+import { Button, Fab, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { ExamResultListTable } from "../../../../UI/Tables/ExamResultTable";
+import { getDecodedToken } from "../../../../utils/TokenServices";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 
 const ExamResultListAdmin = () => {
   const navigate = useNavigate();
-
+  const decodedToken = getDecodedToken();
+  const role = decodedToken[tokenRoleProperty];
   const [groupNameSearch, setGroupNameSearch] = useState("");
   const [subjectNameSearch, setSubjectNameSearch] = useState("");
   const [examTypeSearch, setExamTypeSearch] = useState("");
@@ -67,11 +70,15 @@ const ExamResultListAdmin = () => {
                 <h1>Exam Results</h1>
               </div>
               <div className="buttons">
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
+                <Fab
                   onClick={() => navigate("CreateExamResult")}
-                ></Button>
+                  color="primary"
+                  aria-label="add"
+                  sx={{ zIndex: 10 }}
+                  disabled={role !== "Admin" ? true : false}
+                >
+                  <AddIcon />
+                </Fab>
               </div>
             </div>
             <div className="students-list-info">
@@ -80,6 +87,7 @@ const ExamResultListAdmin = () => {
                 examTypeSearch={examTypeSearch}
                 subjectNameSearch={subjectNameSearch}
                 studentFullNameSearch={studentFullNameSearch}
+                role={role}
               />
             </div>
           </div>

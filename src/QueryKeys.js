@@ -34,6 +34,8 @@ export const queryKeys = {
 
   GetRoles: "getRoles",
 
+  getToken: "GetToken",
+
   GetLessonTypes: "getLessonTypes",
   GetLessonTypeById: "getLessonTypeById",
 

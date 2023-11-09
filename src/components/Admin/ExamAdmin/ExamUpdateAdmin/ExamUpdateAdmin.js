@@ -1,12 +1,4 @@
-import {
-  Autocomplete,
-  Box,
-  Button,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from "@mui/material";
+import { Autocomplete, Box, Button, TextField } from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useContext, useEffect, useReducer, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
@@ -21,57 +13,58 @@ import { TokenContext } from "../../../../Contexts/Token-context";
 const UpdateExamAdmin = () => {
   const { token } = useContext(TokenContext);
   const { examServices, examTypeServices, groupSubjectServices } = useService();
-  const { data: examTypeData, isError } = useQuery(
-    [queryKeys.getExamTypes],
-    () => examTypeServices.getAllExamTypes(token)
+  const [error, setError] = useState();
+  const {
+    data: examTypeData,
+    isError,
+    isLoading: examTypeIsLoading,
+  } = useQuery([queryKeys.getExamTypes], () =>
+    examTypeServices.getAllExamTypes(token)
   );
-  const { data: groupSubjectsData } = useQuery(
-    [queryKeys.getGroupSubjects],
-    () => groupSubjectServices.getAllGroupSubjects(token)
-  );
+  const { data: groupSubjectsData, isLoading: groupSubjectIsLoading } =
+    useQuery([queryKeys.getGroupSubjects], () =>
+      groupSubjectServices.getAllGroupSubjectsForExamForUpdate(token)
+    );
   const { Id } = useParams();
   const examQuery = useQuery([queryKeys.getExamById], () =>
     examServices.getExamByIdForUpdate(Id, token)
   );
-
-  const [examTypeError, setExamTypeError] = useState();
-  if (isError) {
-    setExamTypeError("Something get wrong");
-  }
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     nameIsValid: true,
     maxScoreIsValid: true,
     dateIsValid: true,
   });
   const navigate = useNavigate();
-  const [groupSubjectInputValue, setGroupSubjectInputValue] = useState();
-  const [examTypeInputValue, setExamTypeInputValue] = useState();
-  console.log("examtype", examTypeInputValue);
+
   const handleDate = (date) => {
-    console.log(date);
     dispatch({
       type: "date",
-      payload: `${date.$y}-${date.$M < 10 ? `0${date.$M}` : `${date.$M}`}-${
-        date.$D < 10 ? `0${date.$D}` : `${date.$D}`
-      }T18:47:20.116`,
+      payload: dayjs(date).format("YYYY-MM-DDTHH:mm:ss.SSS"),
     });
   };
-  console.log("exam Data", examQuery.data?.data);
 
   const [inputState, dispatch] = useReducer(updateExamReducer, {});
-  // name: examQuery.data?.data?.name,
-  //   date: examQuery.data?.data?.date,
-  //   examTypeId: examQuery.data?.data.examType?.id,
-  //   groupSubjectId: examQuery.data?.data.groupSubject?.id,
-  //   maxScore: examQuery.data?.data.maxScore,
+
   const mutate = useMutation(
     () => examServices.updateExam(Id, inputState, token),
     {
       onSuccess: () => navigate("/Exams"),
     }
   );
+  useEffect(() => {
+    if (
+      mutate.isError &&
+      mutate.error.response.data.message &&
+      mutate.error.response.status != "500"
+    ) {
+      setError(mutate.error.response.data.message);
+    }
+  }, [mutate]);
+
   const handleExamUpdate = (e) => {
     e.preventDefault();
+    setError("");
+
     if (
       inputState.name === "" ||
       inputState.groupId === null ||
@@ -102,23 +95,13 @@ const UpdateExamAdmin = () => {
   useEffect(() => {
     console.log("succsse");
     if (examQuery.isSuccess) {
-      setGroupSubjectInputValue(() => {
-        return groupSubjectsData?.data.find(
-          (item) => item.id === examQuery.data?.data.groupSubjectId
-        );
-      });
-      setExamTypeInputValue(() => {
-        return examTypeData?.data.find(
-          (item) => item.id === examQuery.data?.data.examTypeId
-        );
-      });
       dispatch({
         type: "init",
         payload: examQuery.data?.data,
       });
     }
   }, [examQuery.isSuccess]);
-  if (examQuery.isLoading) {
+  if (examQuery.isLoading || examTypeIsLoading || groupSubjectIsLoading) {
     return <h1>...Is Loading</h1>;
   }
   if (examQuery.isError) {
@@ -199,107 +182,44 @@ const UpdateExamAdmin = () => {
                 size="small"
                 options={examTypeData?.data ?? []}
                 getOptionLabel={(option) => option.name}
+                defaultValue={examTypeData?.data.find(
+                  (examType) => examType.id === examQuery.data?.data.examTypeId
+                )}
                 onChange={(e, newValue) => {
                   dispatch({
                     type: "examTypeId",
                     payload: newValue?.id,
                   });
                 }}
-                inputValue={examTypeInputValue}
-                onInputChange={(e, newValue) => {
-                  setExamTypeInputValue(newValue);
-                }}
-                value={examTypeInputValue}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
                   <TextField {...params} label="Exam Type" />
                 )}
               />
               <Autocomplete
-                value={groupSubjectInputValue}
                 disablePortal
                 id="combo-box-mainGroup"
                 size="small"
-                defaultValue={groupSubjectInputValue}
                 options={groupSubjectsData?.data ?? []}
                 getOptionLabel={(option) =>
-                  `${option.subject.name} - ${option.group.name}`
+                  `${option.subjectName} - ${option.groupName}`
                 }
+                defaultValue={groupSubjectsData?.data.find(
+                  (groupSubject) =>
+                    groupSubject.id === examQuery.data?.data.groupSubjectId
+                )}
                 onChange={(e, newValue) => {
                   dispatch({
                     type: "groupSubjectId",
                     payload: newValue?.id,
                   });
-                }}
-                inputValue={groupSubjectInputValue}
-                onInputChange={(e, newValue) => {
-                  setGroupSubjectInputValue(newValue);
                 }}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
                   <TextField {...params} label="Group Subject" />
                 )}
               />
-              {/* <Autocomplete
-                disablePortal
-                id="combo-box-subject"
-                size="small"
-                defaultValue={examTypeData}
-                onInputChange={(e, newValue) => {
-                  setGroupSubjectInputValue(newValue.id);
-                }}
-                options={groupSubjectsData?.data ?? []}
-                getOptionLabel={(option) => option.subject.name}
-                onChange={(e, newValue) => {
-                  dispatch({
-                    type: "subjectId",
-                    payload: newValue?.id,
-                  });
-                }}
-                sx={{ width: 300 }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Exam's type" />
-                )}
-              />
-
-              <Autocomplete
-                disablePortal
-                id="combo-box-demo"
-                size="small"
-                options={groupSubjectsData?.data ?? []}
-                getOptionLabel={(option) =>
-                  `${option.subject.name} - ${option.group.name}`
-                } // Fixed the concatenation issue
-                inputValue={groupSubjectInputValue}
-                onInputChange={(e, newValue) => {
-                  setGroupSubjectInputValue(newValue);
-                }}
-                value={
-                  groupSubjectsData?.data.find(
-                    (item) =>
-                      item.id ===
-                      (examQuery.data?.data.groupSubject &&
-                        examQuery.data?.data.groupSubject.id)
-                  ) || null
-                }
-                sx={{ width: 300 }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Subject"
-                    inputProps={{
-                      ...params.inputProps,
-                    }}
-                  />
-                )}
-                onChange={(e, newValue) =>
-                  dispatch({
-                    type: "groupSubjectId",
-                    payload: newValue ? newValue.id : null,
-                  })
-                }
-              /> */}
-
+              <h1 className="errorMessage">{error}</h1>
               <Button
                 type="submit"
                 onClick={handleExamUpdate}

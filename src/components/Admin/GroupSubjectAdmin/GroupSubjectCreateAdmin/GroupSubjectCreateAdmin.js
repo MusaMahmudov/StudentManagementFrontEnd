@@ -32,7 +32,6 @@ const CreateGroupSubjectAdmin = () => {
 
   useEffect(() => {
     newGroupSubject.teacherRole = teachers;
-    console.log(newGroupSubject.teacherRole, "teacherRole");
   }, [teachers]);
   useEffect(() => {
     if (token) {
@@ -73,19 +72,20 @@ const CreateGroupSubjectAdmin = () => {
     };
     setTeachers((prev) => [...prev, newTeacher]);
   };
-  const handleRemoveTeacher = (index) => {
-    let updatedTeacherRoleIsValid = [...enteredValueisValid.teacherRoleIsValid];
-    updatedTeacherRoleIsValid.splice(index, 1);
-    setEnteredValueIsValid((prev) => ({
-      ...prev,
-      teacherRoleIsValid: updatedTeacherRoleIsValid,
-    }));
-    let updatedTeachers = teachers.filter(
-      (teacher, indexOf) => indexOf !== index
-    );
-    setTeachers(updatedTeachers);
-    teacherRoleQuery.refetch();
-    teacherQuery.refetch();
+  const handleRemoveTeacher = () => {
+    if (
+      enteredValueisValid.teacherRoleIsValid.length > 0 &&
+      teachers.length > 0
+    ) {
+      setEnteredValueIsValid((prev) => ({
+        ...prev,
+        teacherRoleIsValid: [...prev.teacherRoleIsValid.slice(0, -1)],
+      }));
+
+      setTeachers((prev) => [...prev.slice(0, -1)]);
+      teacherRoleQuery.refetch();
+      teacherQuery.refetch();
+    }
   };
 
   const handleTeacherChange = (index, event, newValue, id) => {
@@ -388,24 +388,27 @@ const CreateGroupSubjectAdmin = () => {
                       />
                     )}
                   />
-                  <Button
-                    color="error"
-                    variant="contained"
-                    onClick={() => handleRemoveTeacher(index)}
-                  >
-                    Delete Teacher
-                  </Button>
                 </div>
               ))}
-              <Box>
-                <h1>Add Teacher</h1>
-                <Fab
+              <Box display={"flex"} justifyContent={"space-between"}>
+                <Button
                   color="primary"
+                  variant="contained"
                   aria-label="add"
                   onClick={handleAddTeacher}
                 >
                   <AddIcon />
-                </Fab>
+                  Add Teacher
+                </Button>
+                {teachers.length > 0 && (
+                  <Button
+                    color="error"
+                    variant="contained"
+                    onClick={() => handleRemoveTeacher()}
+                  >
+                    Delete Teacher
+                  </Button>
+                )}
               </Box>
 
               <div className="errorMessage">

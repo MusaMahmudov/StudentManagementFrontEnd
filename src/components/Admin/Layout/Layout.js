@@ -6,7 +6,11 @@ import {
   TokenContext,
   TokenContextProvider,
 } from "../../../Contexts/Token-context";
-import { getDecodedToken, getToken } from "../../../utils/GetToken";
+import {
+  GetTokenFromCookie,
+  getDecodedToken,
+  getToken,
+} from "../../../utils/TokenServices";
 import jwtDecode from "jwt-decode";
 import SignIn from "../../LoginPage/LoginPage";
 import ErrorPage from "../../ErrorPage/ErrorPage";
@@ -14,27 +18,22 @@ import ErrorPage from "../../ErrorPage/ErrorPage";
 const Layout = () => {
   const token = getToken();
   const decodedToken = getDecodedToken();
-  // if (!token) {
-  //   <Navigate to={<SignIn />} />;
-  // }
-  // const decodedToken = token ? jwtDecode(token) : null;
+  const [isOpen, setIsOpen] = useState(localStorage.getItem("sidebarToggle"));
 
-  // if (decodedToken) {
-  //   if (
-  //     decodedToken[
-  //       "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-  //     ] !== "Admin"
-  //   ) {
-  //     <Navigate to={<ErrorPage />} />;
-  //   }
-  // }
-
+  const handleToggleSidebar = () => {
+    setIsOpen((prev) => !prev);
+    localStorage.setItem("sidebarToggle", !isOpen);
+  };
+  const contentWrapperStyle = (isOpen) => ({
+    marginLeft: isOpen ? 210 : 0,
+    transition: "margin 0.1s",
+  });
   return (
     <TokenContext.Provider value={{ token, decodedToken }}>
       <main>
-        <Navbar />
-        <div className="main-container">
-          <Sidebar />
+        <Navbar onToggleSidebar={handleToggleSidebar} />
+        <div className="main-container" style={contentWrapperStyle(isOpen)}>
+          <Sidebar isOpen={isOpen} />
           <Outlet />
         </div>
       </main>

@@ -5,9 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { AdminGroupTitle } from "../../../../UI/Common/AdminGroupTitle";
 import { GroupListTable } from "../../../../UI/Tables/GroupListTable";
 import { GroupSubjectListTable } from "../../../../UI/Tables/GroupSubjectListTable";
+import { getDecodedToken } from "../../../../utils/TokenServices";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const GroupSubjectListAdmin = () => {
   const navigate = useNavigate();
-
+  const decodedToken = getDecodedToken();
+  const role = decodedToken[tokenRoleProperty];
   const searchByFullName = (event) => {};
   return (
     <div className="group-list-admin">
@@ -37,6 +40,7 @@ const GroupSubjectListAdmin = () => {
                   onClick={() => navigate("CreateGroupSubject")}
                   color="primary"
                   aria-label="add"
+                  disabled={role !== "Admin" ? true : false}
                 >
                   <AddIcon />
                 </Fab>
@@ -44,7 +48,7 @@ const GroupSubjectListAdmin = () => {
               </div>
             </div>
             <div className="groups-list-info">
-              <GroupSubjectListTable />
+              <GroupSubjectListTable role={role} />
             </div>
           </div>
         </section>

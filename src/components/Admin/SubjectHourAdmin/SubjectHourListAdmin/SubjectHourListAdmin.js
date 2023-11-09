@@ -1,11 +1,15 @@
-import { Button, TextField } from "@mui/material";
+import { Button, Fab, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { AdminFacultyTitle } from "../../../../UI/Common/AdminFacultyTitle";
 import { FacultyListTable } from "../../../../UI/Tables/FacultyListTable";
 import { SubjectHourListTable } from "../../../../UI/Tables/SubjectHourListTable";
+import { getDecodedToken } from "../../../../utils/TokenServices";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const SubjectHourListAdmin = () => {
   const navigate = useNavigate();
+  const decodedToken = getDecodedToken();
+  const role = decodedToken[tokenRoleProperty];
 
   return (
     <div className="student-list-admin">
@@ -30,11 +34,15 @@ const SubjectHourListAdmin = () => {
                 <h1>Subject Hours</h1>
               </div>
               <div className="buttons">
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
+                <Fab
+                  disabled={role !== "Admin" ? true : false}
                   onClick={() => navigate("CreateSubjectHour")}
-                ></Button>
+                  color="primary"
+                  aria-label="add"
+                  sx={{ zIndex: 10 }}
+                >
+                  <AddIcon />
+                </Fab>
               </div>
             </div>
             <div className="students-list-info">

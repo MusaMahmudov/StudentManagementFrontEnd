@@ -1,5 +1,7 @@
 @import "../../../UI/ScssUtils/variables.scss";
 .header {
+  position: fixed;
+  z-index: 999;
   margin: 0px;
   padding: 0px;
   width: 100%;
@@ -20,10 +22,6 @@
       & button {
         background: transparent;
         border: none;
-        & .full-screen-logo {
-          cursor: pointer;
-          width: 25px;
-        }
       }
 
       & .user-info {
@@ -31,17 +29,19 @@
         flex-direction: column;
         color: white;
         align-items: center;
+        background-color: black;
+        border-radius: 10px;
         & h1,
         p {
           margin: 0px;
         }
         & h1 {
           font-weight: 900;
-          font-size: 15px;
+          font-size: 12px;
         }
         & p {
           font-weight: 300;
-          font-size: 15px;
+          font-size: 12px;
         }
       }
     }
@@ -52,6 +52,23 @@
       align-items: center;
       justify-content: space-between;
       padding: 15px;
+      & .sidebar-toggle {
+        & .toggle-button {
+          background: white;
+          border: none;
+          border-radius: 5px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 8px 10px;
+          background: $navbarSecondeBackgroundColor;
+          cursor: pointer;
+          color: white;
+          & svg {
+            font-size: 30px;
+          }
+        }
+      }
       & i {
         background: black;
         display: flex;
@@ -69,3 +86,44 @@
     width: 200px;
   }
 }
+// @media screen and (max-width: 1920px) {
+//   .header {
+//     width: 100%;
+//     max-width: 1920px;
+//     min-width: 1290px;
+//   }
+// }
+// @media screen and (max-width: 1280px) {
+//   .header {
+//     width: 100%;
+//     max-width: 1280px;
+//     min-width: 961px;
+//   }
+// }
+
+// @media screen and (max-width: 960px) {
+//   .adnsu-logo {
+//     width: 160px !important;
+//   }
+//   .header {
+//     width: 100%;
+//     max-width: 960px;
+//     min-width: 601px;
+//   }
+// }
+// @media screen and (max-width: 600px) {
+//   .adnsu-logo {
+//     width: 120px !important;
+//   }
+//   .header {
+//     width: 100%;
+//     max-width: 600px;
+//     min-width: 280px;
+//   }
+// }
+
+// xs: Extra small devices (up to 599px)
+// sm: Small devices (600px to 959px)
+// md: Medium devices (960px to 1279px)
+// lg: Large devices (1280px to 1919px)
+// xl: Extra-large devices (1920px and above)

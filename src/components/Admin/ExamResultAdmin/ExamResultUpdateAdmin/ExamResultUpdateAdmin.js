@@ -40,8 +40,9 @@ const UpdateExamResultAdmin = () => {
     isError: isErrorExam,
     isLoadingExam,
     isSuccess: examDataIsSuccess,
-  } = useQuery([queryKeys.getExams], () => examServices.getAllExams(token));
-  console.log(examResultQuery.data?.data, "examResult");
+  } = useQuery([queryKeys.getExams], () =>
+    examServices.getAllExamsForExamResultUpdate(token)
+  );
 
   const [examError, setExamError] = useState();
   if (isErrorExam) {
@@ -53,11 +54,7 @@ const UpdateExamResultAdmin = () => {
     scoreIsValid: true,
   });
   const navigate = useNavigate();
-  const [examInputValue, setExamInputValue] = useState();
-  const [studentInputValue, setStudentInputValue] = useState();
-  console.log("examtype", examInputValue);
 
-  console.log("exam Data", examResultQuery.data?.data);
   useEffect(() => {
     let exam;
     if (inputState.examId) {
@@ -112,31 +109,20 @@ const UpdateExamResultAdmin = () => {
   };
   useEffect(() => {
     if (examResultQuery.isSuccess) {
-      setStudentInputValue(() => {
-        return studentData?.data.find(
-          (item) => item.id === examResultQuery.data?.data.studentId
-        );
-      });
-      setExamInputValue(() => {
-        return examData?.data.find(
-          (item) => item.id === examResultQuery.data?.data.examId
-        );
-      });
       dispatch({
         type: "init",
         payload: examResultQuery.data?.data,
       });
     }
   }, [examResultQuery.isSuccess]);
-  if (examResultQuery.isLoading) {
-    return <h1>...Is Loading</h1>;
-  }
+
   if (examResultQuery.isError) {
     return <h1>Something went wrong</h1>;
   }
-  console.log("inputState", inputState);
-  console.log("students", studentData?.data);
 
+  if (isLoadingExam || isLoadingStudent || examResultQuery.isLoading) {
+    return <h1>...Is Loading</h1>;
+  }
   return (
     <div className="update-group">
       <div className="container">
@@ -165,58 +151,37 @@ const UpdateExamResultAdmin = () => {
                 size="small"
                 options={studentData?.data ?? []}
                 getOptionLabel={(option) =>
-                  `  ${option.fullName} -   ${option.groupName} `
+                  `  ${option.fullName} - ${
+                    option.groupName ? option.groupName : "No Group"
+                  } `
                 }
+                defaultValue={studentData?.data.find(
+                  (student) =>
+                    student.id === examResultQuery.data?.data.studentId
+                )}
                 onChange={(e, newValue) => {
                   dispatch({
                     type: "studentId",
                     payload: newValue?.id,
                   });
                 }}
-                inputValue={studentInputValue}
-                onInputChange={(e, newValue) => {
-                  setStudentInputValue(newValue);
-                }}
-                value={studentInputValue}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
                   <TextField {...params} label="Student" />
                 )}
               />
-              {/* <Autocomplete
-                value={examInputValue}
-                disablePortal
-                id="combo-box-mainGroup"
-                size="small"
-                defaultValue={examInputValue}
-                onInputChange={(e, newValue) => {
-                  setExamInputValue(newValue);
-                }}
-                options={examData?.data ?? []}
-                getOptionLabel={(option) =>
-                  `${option.examType} - ${option.groupSubject.subjectName} - ${option.groupSubject.groupName}`
-                }
-                onChange={(e, newValue) => {
-                  dispatch({
-                    type: "examId",
-                    payload: newValue?.id,
-                  });
-                }}
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="Exam" />}
-              /> */}
+
               <Autocomplete
                 disablePortal
                 id="combo-box-subject"
                 size="small"
-                defaultValue={examInputValue}
-                onInputChange={(e, newValue) => {
-                  setExamInputValue(newValue);
-                }}
                 options={examData?.data ?? []}
                 getOptionLabel={(option) =>
-                  `${option.examType} - ${option.groupSubject.subjectName} - ${option.groupSubject.groupName}`
+                  `${option.examTypeName} - ${option.subjectName} - ${option.groupName}`
                 }
+                defaultValue={examData?.data.find(
+                  (exam) => exam.id === examResultQuery.data?.data.examId
+                )}
                 onChange={(e, newValue) => {
                   dispatch({
                     type: "examId",

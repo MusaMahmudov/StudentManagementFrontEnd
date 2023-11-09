@@ -24,6 +24,7 @@ export function ExamResultListTable({
   subjectNameSearch,
   examTypeSearch,
   studentFullNameSearch,
+  role,
 }) {
   const navigate = useNavigate();
   const { examResultServices } = useService();
@@ -156,6 +157,7 @@ export function ExamResultListTable({
                     Update
                   </UpdateButton>
                   <DeleteButton
+                    disabled={role !== "Admin" ? true : false}
                     onClick={() =>
                       navigate(`DeleteExamResult/${examResult.id}`, {
                         state: examResult,

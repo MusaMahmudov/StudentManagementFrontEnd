@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { TokenContext } from "../../Contexts/Token-context";
 
-export function TeacherRoleListTable() {
+export function TeacherRoleListTable({ role }) {
   const { token } = useContext(TokenContext);
 
   const navigate = useNavigate();
@@ -40,6 +40,7 @@ export function TeacherRoleListTable() {
           <TableRow>
             <TableCell>Id</TableCell>
             <TableCell>Name</TableCell>
+            <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -86,6 +87,7 @@ export function TeacherRoleListTable() {
                   Update
                 </UpdateButton>
                 <DeleteButton
+                  disabled={role !== "Admin" ? true : false}
                   onClick={() =>
                     navigate(`DeleteTeacherRole/${teacherRole.id}`, {
                       state: teacherRole,

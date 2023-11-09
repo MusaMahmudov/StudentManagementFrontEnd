@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { DeleteButton } from "../../../../UI/Buttons/ActionButtons";
-import { getToken } from "../../../../utils/GetToken";
+import { getToken } from "../../../../utils/TokenServices";
 import { useContext, useEffect } from "react";
 import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 import jwtDecode from "jwt-decode";

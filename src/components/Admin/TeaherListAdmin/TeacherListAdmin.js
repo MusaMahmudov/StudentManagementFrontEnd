@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, Fab, TextField } from "@mui/material";
 import "./teacherListAdmin.scss";
 import { StudentListTable } from "../../../UI/Tables/StudentListTable";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -10,10 +10,13 @@ import { queryKeys } from "../../../QueryKeys";
 import { TokenContext } from "../../../Contexts/Token-context";
 import useService from "../../../hooks";
 import { useQuery } from "react-query";
+import { getDecodedToken } from "../../../utils/TokenServices";
+import { tokenRoleProperty } from "../../../utils/TokenProperties";
 
 const TeacherListAdmin = () => {
   const navigate = useNavigate();
-
+  const decodedToken = getDecodedToken();
+  const role = decodedToken[tokenRoleProperty];
   const [fullNameSearch, setFullNameSearch] = useState("");
   const [idSearch, setIdSearch] = useState("");
   const [emailSearch, setEmailSearch] = useState("");
@@ -68,11 +71,15 @@ const TeacherListAdmin = () => {
               </div>
 
               <div className="buttons">
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
+                <Fab
                   onClick={() => navigate("CreateTeacher")}
-                ></Button>
+                  disabled={role !== "Admin" ? true : false}
+                  color="primary"
+                  aria-label="add"
+                  sx={{ zIndex: 10 }}
+                >
+                  <AddIcon />
+                </Fab>
               </div>
             </div>
             <div className="teachers-list-info">
@@ -81,6 +88,7 @@ const TeacherListAdmin = () => {
                 idSearch={idSearch}
                 emailSearch={emailSearch}
                 mobileNumberSearch={mobileNumberSearch}
+                role={role}
               />
             </div>
           </div>

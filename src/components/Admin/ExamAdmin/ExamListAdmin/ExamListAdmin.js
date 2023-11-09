@@ -1,14 +1,17 @@
-import { Button, TextField } from "@mui/material";
+import { Button, Fab, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { AdminFacultyTitle } from "../../../../UI/Common/AdminFacultyTitle";
 import { FacultyListTable } from "../../../../UI/Tables/FacultyListTable";
 import { ExamListTable } from "../../../../UI/Tables/ExamListTable";
-import { getToken } from "../../../../utils/GetToken";
+import { getDecodedToken, getToken } from "../../../../utils/TokenServices";
 import ErrorPage from "../../../ErrorPage/ErrorPage";
+import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 const ExamListAdmin = () => {
   const navigate = useNavigate();
-
+  const decodedToken = getDecodedToken();
+  const role = decodedToken[tokenRoleProperty];
+  console.log(role);
   const searchByFullName = (event) => {};
   return (
     <div className="student-list-admin">
@@ -31,15 +34,19 @@ const ExamListAdmin = () => {
                 <h1>Exams</h1>
               </div>
               <div className="buttons">
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
+                <Fab
                   onClick={() => navigate("CreateExam")}
-                ></Button>
+                  color="primary"
+                  aria-label="add"
+                  sx={{ zIndex: 10 }}
+                  disabled={role !== "Admin" ? true : false}
+                >
+                  <AddIcon />
+                </Fab>
               </div>
             </div>
             <div className="students-list-info">
-              <ExamListTable />
+              <ExamListTable role={role} />
             </div>
           </div>
         </section>

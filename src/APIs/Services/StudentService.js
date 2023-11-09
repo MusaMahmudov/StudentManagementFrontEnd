@@ -13,11 +13,25 @@ export class studentService extends HTTPClient {
       token
     );
   }
+  async getStudentsForGroupForDetails(groupId, token) {
+    return await this.getById(
+      "Students/GetStudentsForGroupForDetails",
+      groupId,
+      token
+    );
+  }
   async getStudentById(id, token) {
     return await this.getById("Students", id, token);
   }
   async getStudentByIdForUpdate(id, token) {
     return await this.getById("Students/update", id, token);
+  }
+  async getStudentForGroupUpdate(groupId, token) {
+    return await this.getById(
+      "Students/GetStudentsForGroupForUpdate",
+      groupId,
+      token
+    );
   }
   async createStudent(body, token) {
     return await this.post("Students", body, token);

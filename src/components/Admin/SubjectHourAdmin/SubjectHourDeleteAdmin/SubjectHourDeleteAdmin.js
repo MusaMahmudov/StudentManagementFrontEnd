@@ -5,7 +5,7 @@ import { AdminStudentTitle } from "../../../../UI/Common/AdminStudentTitle";
 import { DeleteButton } from "../../../../UI/Buttons/ActionButtons";
 import useService from "../../../../hooks";
 import { useMutation } from "react-query";
-import { getToken } from "../../../../utils/GetToken";
+import { getToken } from "../../../../utils/TokenServices";
 import jwtDecode from "jwt-decode";
 import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 import { TokenContext } from "../../../../Contexts/Token-context";

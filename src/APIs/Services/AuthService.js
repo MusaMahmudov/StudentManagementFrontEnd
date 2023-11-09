@@ -12,4 +12,7 @@ export class authService extends HTTPClient {
   async Logout(token) {
     return await this.post("Authentications/LogOut", token);
   }
+  async changePassword(id, body, token) {
+    return await this.put("Authentications/ChangePassword", id, body, token);
+  }
 }

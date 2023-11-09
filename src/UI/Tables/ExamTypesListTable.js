@@ -19,7 +19,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useContext } from "react";
 import { TokenContext } from "../../Contexts/Token-context";
 
-export function ExamTypeListTable() {
+export function ExamTypeListTable({ role }) {
   const { token } = useContext(TokenContext);
 
   const navigate = useNavigate();
@@ -41,13 +41,16 @@ export function ExamTypeListTable() {
           <TableRow>
             <TableCell>Id</TableCell>
             <TableCell>Name</TableCell>
+            <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {examTypeQuery.data?.data.map((examType) => (
             <TableRow
               key={examType?.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              sx={{
+                "&:last-child td, &:last-child th": { border: 0 },
+              }}
             >
               <TableCell
                 onClick={() =>
@@ -87,6 +90,7 @@ export function ExamTypeListTable() {
                   Update
                 </UpdateButton>
                 <DeleteButton
+                  disabled={role !== "Admin" ? true : false}
                   onClick={() =>
                     navigate(`DeleteExamType/${examType.id}`, {
                       state: examType,

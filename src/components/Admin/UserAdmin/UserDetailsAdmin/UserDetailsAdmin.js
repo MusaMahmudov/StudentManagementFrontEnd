@@ -65,8 +65,20 @@ const UserDetailsAdmin = () => {
                     <PersonOutlineIcon fontSize="small" />
                   </section>
                   <section className="info-right">
+                    <h1>Email Confirmed</h1>
+                    <p>{userQuery.data?.data.emailConfirmed ? "Yes" : "No"}</p>
+                  </section>
+                </div>
+                <div className="info">
+                  <section className="info-left">
+                    <PersonOutlineIcon fontSize="small" />
+                  </section>
+                  <section className="info-right">
                     <h1>Student Name</h1>
-                    <p>{userQuery.data?.data.studentName ?? "No Student"}</p>
+                    <p>
+                      {userQuery.data?.data.student?.studentName ??
+                        "No Student"}
+                    </p>
                   </section>
                 </div>
                 <div className="info">
@@ -75,7 +87,10 @@ const UserDetailsAdmin = () => {
                   </section>
                   <section className="info-right">
                     <h1>Teacher Name</h1>
-                    <p>{userQuery.data?.data.teacherName ?? "No Teacher"}</p>
+                    <p>
+                      {userQuery.data?.data.teacher?.teacherName ??
+                        "No Teacher"}
+                    </p>
                   </section>
                 </div>
                 <div className="info">

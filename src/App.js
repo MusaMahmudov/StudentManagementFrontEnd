@@ -1,16 +1,7 @@
-import logo from "./logo.svg";
 import "./App.css";
-import Navbar from "./components/Common/Navbar/Navbar";
-import Sidebar from "./components/Sidebar/Sidebar";
 import AdminDashboard from "./components/Admin/AdminDahboard/AdminDashboard";
 import { QueryClient, QueryClientProvider, useQuery } from "react-query";
-import {
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import StudentListAdmin from "./components/Admin/StudentListAdmin/StudentListAdmin";
 import StudentDetailsAdmin from "./components/Admin/StudentDetailsAdmin/StudentDetailsAdmin";
 import UpdateStudentAdmin from "./components/Admin/StudentUpdateAdmin/StudentUpdateAdmin";
@@ -18,7 +9,6 @@ import CreateStudentAdmin from "./components/Admin/StudentCreateAdmin/StudentCre
 import DeleteStudentAdmin from "./components/Admin/StudentDeleteAdmin/StudentDeteleAdmin";
 import ErrorPage from "./components/ErrorPage/ErrorPage";
 import SignIn from "./components/LoginPage/LoginPage";
-
 import Layout from "./components/Admin/Layout/Layout";
 import { useEffect } from "react";
 import TeacherListAdmin from "./components/Admin/TeaherListAdmin/TeacherListAdmin";
@@ -56,23 +46,26 @@ import CreateExam from "./components/Admin/ExamAdmin/ExamCreateAdmin/ExamCreateA
 import ExamDetailsAdmin from "./components/Admin/ExamAdmin/ExamDetailsAdmin/ExamDetailsAdmin";
 import ExamDeleteAdmin from "./components/Admin/ExamAdmin/ExamDeleteAdmin/ExamDeleteAdmin";
 import UpdateExamAdmin from "./components/Admin/ExamAdmin/ExamUpdateAdmin/ExamUpdateAdmin";
-import { RotateLeft } from "@mui/icons-material";
 import GroupSubjectListAdmin from "./components/Admin/GroupSubjectAdmin/GroupSubjectListAdmin/GroupSubjectListAdmin";
 import DeleteGroupSubjectAdmin from "./components/Admin/GroupSubjectAdmin/GroupSubjectDeleteAdmin/GroupSubjectDeleteAdmin";
 import CreateGroupSubjectAdmin from "./components/Admin/GroupSubjectAdmin/GroupSubjectCreateAdmin/GroupSubjectCreateAdmin";
 import UpdateGroupSubjectAdmin from "./components/Admin/GroupSubjectAdmin/GroupSubjectUpdateAdmin/GroupSubjectUpdateAdmin";
 import GroupSubjectDetailsAdmin from "./components/Admin/GroupSubjectAdmin/GroupSubjectDetailsAdmin/GroupSubjectDetailsAdmin";
-import { TokenContext, TokenContextProvider } from "./Contexts/Token-context";
 import UserListAdmin from "./components/Admin/UserAdmin/UserListAdmin/UserListAdmin";
 import CreateUserAdmin from "./components/Admin/UserAdmin/UserCreateAdmin/UserCreateAdmin";
 import UserDetailsAdmin from "./components/Admin/UserAdmin/UserDetailsAdmin/UserDetailsAdmin";
 import UpdateUserAdmin from "./components/Admin/UserAdmin/UserUpdateAdmin/UserUpdateAdmin";
 import DeleteUserAdmin from "./components/Admin/UserAdmin/UserDeleteAdmin/UserDeleteAdmin";
-import { getToken } from "./utils/GetToken";
+import {
+  GetTokenFromCookie,
+  getExpireDateToken,
+  getToken,
+  removeExpireDate,
+  removeToken,
+} from "./utils/TokenServices";
 import jwtDecode from "jwt-decode";
 import { tokenRoleProperty } from "./utils/TokenProperties";
 import ErrorPageNoAccess from "./components/ErrorPageNoAccess/ErrorPageNoAccess";
-
 import LessonTypeListAdmin from "./components/Admin/LessonTypeAdmin/LessonTypeListAdmin/LessonTypeListAdmin";
 import LessonTypeDetailsAdmin from "./components/Admin/LessonTypeAdmin/LessonTypeDetailsAdmin/LessonTypeDetailsAdmin";
 import CreateLessonType from "./components/Admin/LessonTypeAdmin/LessonTypeCreateAdmin/LessonTypeCreateAdmin";
@@ -88,36 +81,69 @@ import ExamResultDetailsAdmin from "./components/Admin/ExamResultAdmin/ExamResul
 import CreateExamResult from "./components/Admin/ExamResultAdmin/ExamResultCreateAdmin/ExamResultCreateAdmin";
 import UpdateExamResultAdmin from "./components/Admin/ExamResultAdmin/ExamResultUpdateAdmin/ExamResultUpdateAdmin";
 import ExamResultDeleteAdmin from "./components/Admin/ExamResultAdmin/ExamResultDeleteAdmin/ExamResultDeleteAdmin";
-
+import { MyProfile } from "./components/MyProfile/MyProfile";
+import { ChangePassword } from "./components/ChangePassword/ChangePassword";
+import { ResetPassword } from "./components/ResetPassword/ResetPassword";
+import ForgotPassword from "./components/ForgotPassword/ForgotPassword";
+import ConfirmEmailPage from "./components/ConfirmEmailPage/ConfirmEmailPage";
+import { useCookies } from "react-cookie";
 function App() {
   const queryClient = new QueryClient();
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
   const navigate = useNavigate();
+  const [cookie, setCookie, removeCookie] = useCookies(["tokenCookie"]);
   const token = getToken();
-  const expireDate = localStorage.getItem("expireDate");
+  const expireDate = getExpireDateToken();
   const decodedToken = token ? jwtDecode(token) : null;
   const date = new Date();
   const expire = new Date(expireDate);
-
   useEffect(() => {
-    if (!token) {
+    if (location.pathname.slice(0, 13) === "/ConfirmEmail") {
+      navigate(
+        `/ConfirmEmail?token=${searchParams.get(
+          "token"
+        )}&email=${searchParams.get("email")}`
+      );
+    } else if (
+      !token &&
+      !searchParams.get("token") &&
+      !searchParams.get("email")
+    ) {
+      navigate("SignIn");
+    } else if (
+      searchParams.get("token") &&
+      searchParams.get("email") &&
+      location.pathname != "/ForgotPassword"
+    ) {
+      navigate(
+        `ResetPassword?token=${searchParams.get(
+          "token"
+        )}&email=${searchParams.get("email")}`
+      );
+    } else if (!token) {
       navigate("SignIn");
     } else if (expire < date) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("expireDate");
-      navigate("SignIn");
+      removeExpireDate();
+      removeToken();
+      navigate("/SignIn");
     } else if (
       decodedToken[tokenRoleProperty] === "Student" ||
       decodedToken[tokenRoleProperty] === "Teacher"
     ) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("expireDate");
+      removeCookie("token");
+      removeCookie("expireDate");
       navigate("SignIn");
     } else if (
       decodedToken[tokenRoleProperty] !== "Admin" &&
       decodedToken[tokenRoleProperty] !== "Moderator"
     ) {
       navigate("Error");
+    } else if (
+      decodedToken[tokenRoleProperty] === "Admin" &&
+      decodedToken[tokenRoleProperty] === "Moderator"
+    ) {
+      navigate("/AdminDashboard");
     } else if (location.pathname === "/" || location.pathname === "") {
       navigate("/AdminDashboard");
     }
@@ -136,6 +162,9 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <Routes>
           <Route path="/" element={<Layout />}>
+            <Route path="MyProfile" element={<MyProfile />}></Route>
+            <Route path="ChangePassword" element={<ChangePassword />}></Route>
+
             <Route path="/AdminDashboard" element={<AdminDashboard />}></Route>
             <Route path="Students" element={<StudentListAdmin />}></Route>
             <Route
@@ -376,10 +405,13 @@ function App() {
             ></Route>
           </Route>
           <Route path="*" element={<ErrorPage />} />
+          <Route path="/ConfirmEmail" element={<ConfirmEmailPage />} />
+
           <Route path="ErrorPage" element={<ErrorPage />} />
           <Route path="Error" element={<ErrorPageNoAccess />} />
-
           <Route path="/SignIn" element={<SignIn />}></Route>
+          <Route path="/ResetPassword" element={<ResetPassword />}></Route>
+          <Route path="/ForgotPassword" element={<ForgotPassword />}></Route>
         </Routes>
       </QueryClientProvider>
     </div>

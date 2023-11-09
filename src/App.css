@@ -13,3 +13,39 @@
   margin: 0px;
   font-size: 20px;
 }
+.successMessage {
+  color: #32de84;
+  font-weight: 800;
+}
+.successMessage h1 {
+  margin: 0px;
+  font-size: 20px;
+}
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey;
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: gray;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: gray;
+  opacity: 1;
+}
+.isLoadingMessage {
+  margin-top: 100px;
+}
+.date {
+  font-size: 15px;
+}

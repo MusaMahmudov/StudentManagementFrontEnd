@@ -12,6 +12,13 @@ class groupService extends HTTPClient {
   async getGroupById(id, token) {
     return await this.getById("Groups", id, token);
   }
+  async getGroupByIdForUpdate(id, token) {
+    return await this.getById("Groups/update", id, token);
+  }
+  async getGroupsForObjectsUpdate(token) {
+    return await this.getAll("Groups/GetGroupsForObjectsUpdate", token);
+  }
+
   async createGroup(body, token) {
     return await this.post("Groups", body, token);
   }

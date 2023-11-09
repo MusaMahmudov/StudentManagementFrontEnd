@@ -24,42 +24,66 @@ import { type } from "@testing-library/user-event/dist/type";
 import { TokenContext } from "../../../Contexts/Token-context";
 const UpdateGroupAdmin = () => {
   const { token } = useContext(TokenContext);
+  const navigate = useNavigate();
+  const { Id } = useParams();
+  const [error, setError] = useState();
+  const [studentsDefaultValue, setStudentsDefaultValue] = useState([]);
+  const { groupServices, facultyServices, studentServices } = useService();
+  const {
+    data: facultyData,
+    isError,
+    isLoading: facultyIsLoading,
+  } = useQuery([queryKeys.getFaculties], () =>
+    facultyServices.getAllFaculties(token)
+  );
+  const studentQuery = useQuery([queryKeys.getStudentsQuery], () =>
+    studentServices.getStudentForGroupUpdate(Id, token)
+  );
 
-  const { groupServices, facultyServices } = useService();
-  const { data: facultyData, isError } = useQuery(
-    [queryKeys.getFaculties],
-    () => facultyServices.getAllFaculties(token)
+  const groupQuery = useQuery([queryKeys.getGroupQuery], () =>
+    groupServices.getGroupByIdForUpdate(Id, token)
   );
   const [facultyError, setFacultyError] = useState();
   if (isError) {
     setFacultyError("Something get wrong");
   }
 
-  const navigate = useNavigate();
-  console.log(facultyData);
-  const { state: groupData } = useLocation();
-  const [facultyInputValue, setFacultyInputValue] = useState(
-    groupData?.facultyName
-  );
-  console.log(groupData);
-  const currectFacultyId = facultyData?.data.find(
-    (faculty) => faculty.name === groupData.facultyName
-  ).id;
-
-  const [inputState, dispatch] = useReducer(updateGroupReducer, {
-    name: groupData?.name,
-    year: groupData?.year,
-    studentsId: [],
-    facultyId: currectFacultyId,
-  });
+  const [inputState, dispatch] = useReducer(updateGroupReducer, {});
   const mutate = useMutation(
-    () => groupServices.updateGroup(groupData.id, inputState, token)
-    // { onSuccess: () => navigate("/Groups") }
+    () => groupServices.updateGroup(Id, inputState, token),
+    { onSuccess: () => navigate("/Groups") }
   );
-  const handleGroupUpdate = () => {
-    mutate.mutate();
-    navigate("/Groups");
+  const handleGroupUpdate = (e) => {
+    e.preventDefault();
+    mutate.mutate(Id, inputState, token);
   };
+  useEffect(() => {
+    if (
+      mutate.isError &&
+      mutate.error.response.data.message &&
+      mutate.error.response.status != "500"
+    ) {
+      setError(mutate.error.response.data.message);
+    }
+  }, [mutate]);
+  useEffect(() => {
+    dispatch({
+      type: "init",
+      payload: groupQuery.data?.data,
+    });
+
+    const students = studentQuery.data?.data.filter((student) =>
+      groupQuery.data?.data.studentsId.some(
+        (studentId) => studentId === student.id
+      )
+    );
+    console.log(students, "studentsasdads");
+  }, [groupQuery.isSuccess, studentQuery.isSuccess, facultyData]);
+  if (groupQuery.isLoading || studentQuery.isLoading || facultyIsLoading) {
+    return <h1>...Is Loading</h1>;
+  }
+  console.log(studentQuery.data?.data, "student");
+
   console.log("inputState", inputState);
   return (
     <div className="update-group">
@@ -74,6 +98,8 @@ const UpdateGroupAdmin = () => {
           </div>
           <div className="inputs">
             <Box
+              display={"flex"}
+              flexDirection={"column"}
               component="form"
               sx={{
                 "& > :not(style)": { m: 1, width: "65ch" },
@@ -86,7 +112,7 @@ const UpdateGroupAdmin = () => {
                 id="outlined-basic"
                 label="Name"
                 variant="outlined"
-                defaultValue={groupData.name}
+                defaultValue={groupQuery.data?.data.name}
                 onChange={(e) =>
                   dispatch({
                     type: "name",
@@ -99,7 +125,7 @@ const UpdateGroupAdmin = () => {
                 id="outlined-basic"
                 label="Year"
                 variant="outlined"
-                defaultValue={groupData.year}
+                defaultValue={groupQuery.data?.data.year}
                 onChange={(e) =>
                   dispatch({
                     type: "year",
@@ -114,26 +140,58 @@ const UpdateGroupAdmin = () => {
                 size="small"
                 options={facultyData?.data ?? []}
                 getOptionLabel={(option) => option.name}
-                inputValue={facultyInputValue}
-                onInputChange={(e, newValue) => {
-                  setFacultyInputValue(newValue);
-                }}
-                value={
+                defaultValue={
                   facultyData?.data.find(
-                    (item) => item.id === groupData.facultyId
+                    (item) => item.id === groupQuery.data?.data.facultyId
                   ) || null
                 }
                 sx={{ width: 300 }}
                 renderInput={(params) => (
                   <TextField {...params} label="Faculty" />
                 )}
-                onChange={(e, newValue) =>
+                onChange={(e, newValue) => {
                   dispatch({
                     type: "facultyId",
                     payload: newValue ? newValue.id : null,
-                  })
-                }
+                  });
+                }}
               />
+              {studentQuery.data && (
+                <Autocomplete
+                  multiple
+                  id="tags-outlined"
+                  options={studentQuery.data?.data ?? null}
+                  getOptionLabel={(option) => option.fullName}
+                  name="studentsId"
+                  defaultValue={[
+                    ...studentQuery.data?.data.filter((student) =>
+                      groupQuery.data?.data.studentsId.some(
+                        (studentId) => studentId === student.id
+                      )
+                    ),
+                  ]}
+                  onChange={(e, newValue) => {
+                    if (newValue) {
+                      dispatch({
+                        type: "studentsId",
+                        payload: newValue.map((student) => student.id),
+                      });
+                    } else {
+                      dispatch({
+                        type: "studentsId",
+                        payload: [],
+                      });
+                    }
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Students"
+                      placeholder="Students"
+                    />
+                  )}
+                />
+              )}
               {/* <TextField
                 size="small"
                 id="outlined-basic"
@@ -147,10 +205,12 @@ const UpdateGroupAdmin = () => {
                   })
                 }
               /> */}
-
+              <div className="errorMessage">
+                <h1>{error}</h1>
+              </div>
               <Button
                 type="submit"
-                onClick={() => handleGroupUpdate()}
+                onClick={handleGroupUpdate}
                 variant="contained"
               >
                 Update student

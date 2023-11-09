@@ -4,6 +4,7 @@
   background-color: $adminBackground;
   width: 100%;
   padding: 30px 40px;
+  margin-top: 50px;
   & .container {
     @include admin-title;
     & .profile {

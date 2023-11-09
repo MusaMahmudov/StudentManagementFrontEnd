@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { authService } from "./APIs/Services/AuthService";
 import { examResultService } from "./APIs/Services/ExamResultService";
 import { examService } from "./APIs/Services/ExamService";
@@ -13,6 +14,8 @@ import { SubjectService } from "./APIs/Services/SubjectService";
 import { TeacherRoleService } from "./APIs/Services/TeacherRoleService";
 import teacherService from "./APIs/Services/TeacherService";
 import { userService } from "./APIs/Services/UserService";
+import { useQuery } from "react-query";
+import { json } from "react-router-dom";
 const useService = () => {
   const studentServices = new studentService();
   const groupServices = new groupService();
@@ -48,3 +51,27 @@ const useService = () => {
   };
 };
 export default useService;
+
+export const useCustomQuery = (queryKey, service) => {
+  const [data, setData] = useState();
+  const {
+    data: queriedData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery(queryKey, service);
+
+  useEffect(() => {
+    const storedData = localStorage.getItem(queryKey);
+    if (storedData) {
+      setData(JSON.parse(storedData));
+    }
+  }, [queryKey]);
+  useEffect(() => {
+    if (queriedData) {
+      setData(queriedData?.data);
+      localStorage.setItem(queryKey, JSON.stringify(queriedData?.data));
+    }
+  }, [queryKey, queriedData]);
+  return { isLoading, isError, error };
+};

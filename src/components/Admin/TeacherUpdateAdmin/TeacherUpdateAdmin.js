@@ -21,7 +21,7 @@ import { TokenContext } from "../../../Contexts/Token-context";
 const UpdateTeacherAdmin = () => {
   const { teacherServices, userServices } = useService();
   const { data: userData } = useQuery([queryKeys.getUsers], () =>
-    userServices.getAllUser(token)
+    userServices.getAllUsersForStudentAndTeacherUpdate(token)
   );
   const navigate = useNavigate();
   const { token } = useContext(TokenContext);
@@ -38,8 +38,6 @@ const UpdateTeacherAdmin = () => {
     genderIsValid: true,
     addressIsValid: true,
   });
-  const [userInputValue, setUserInputValue] = useState();
-
   console.log("teacherData", teacherQuery.data?.data);
   const [error, setError] = useState();
   const mutate = useMutation(
@@ -63,7 +61,6 @@ const UpdateTeacherAdmin = () => {
     }
   }, [mutate]);
 
-  console.log(error);
   const handleTeacherUpdate = (e) => {
     e.preventDefault();
     if (
@@ -119,17 +116,14 @@ const UpdateTeacherAdmin = () => {
       payload: dayjs(date).format("YYYY-MM-DDTHH:mm:ss.SSS"),
     });
   };
-  console.log("UserInput", userInputValue);
-  useEffect(() => {
-    if (teacherQuery.isSuccess) {
-      setUserInputValue(teacherQuery.data?.data.appUserId ?? null);
 
-      dispatch({
-        type: "init",
-        payload: teacherQuery.data?.data,
-      });
-    }
-  }, [teacherQuery.isSuccess]);
+  useEffect(() => {
+    dispatch({
+      type: "init",
+      payload: teacherQuery.data?.data,
+    });
+  }, [teacherQuery.isSuccess, userData]);
+
   console.log("inputState", inputState);
   if (teacherQuery.isLoading) {
     return <h1>...isLoading</h1>;
@@ -152,6 +146,8 @@ const UpdateTeacherAdmin = () => {
           </div>
           <div className="inputs">
             <Box
+              display={"flex"}
+              flexDirection={"column"}
               component="form"
               sx={{
                 "& > :not(style)": { m: 1, width: "43ch" },
@@ -212,6 +208,7 @@ const UpdateTeacherAdmin = () => {
                 }
               />
               <Select
+                width="100%"
                 size="small"
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
@@ -238,15 +235,16 @@ const UpdateTeacherAdmin = () => {
                 size="small"
                 options={userData?.data ?? []}
                 getOptionLabel={(option) => option.userName}
+                defaultValue={
+                  userData?.data.find(
+                    (user) => user.id === teacherQuery.data?.data.appUserId
+                  ) ?? null
+                }
                 onChange={(e, newValue) => {
                   dispatch({
                     type: "appUserId",
                     payload: newValue?.id,
                   });
-                }}
-                inputValue={userInputValue}
-                onInputChange={(e, newValue) => {
-                  setUserInputValue(newValue.id);
                 }}
                 sx={{ width: 300 }}
                 renderInput={(params) => <TextField {...params} label="User" />}

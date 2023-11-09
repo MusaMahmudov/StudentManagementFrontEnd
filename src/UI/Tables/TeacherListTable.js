@@ -24,6 +24,7 @@ export function TeacherListTable({
   idSearch,
   emailSearch,
   mobileNumberSearch,
+  role,
 }) {
   const navigate = useNavigate();
   const { token } = useContext(TokenContext);
@@ -134,6 +135,7 @@ export function TeacherListTable({
                     Update
                   </UpdateButton>
                   <DeleteButton
+                    disabled={role !== "Admin" ? true : false}
                     onClick={() =>
                       navigate(`/Teachers/DeleteTeacher/${teacher.id}`, {
                         state: teacher,

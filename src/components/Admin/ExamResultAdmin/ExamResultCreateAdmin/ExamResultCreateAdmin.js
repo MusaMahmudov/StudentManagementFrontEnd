@@ -146,7 +146,9 @@ const CreateExamResult = () => {
                 size="small"
                 options={studentData?.data ?? []}
                 getOptionLabel={(option) =>
-                  `${option.fullName} - ${option.groupName}`
+                  `${option.fullName} - ${
+                    option.groupName ? option.groupName : "No Group"
+                  }`
                 }
                 onChange={(e, newValue) => {
                   setNewExamResult((prev) => ({
@@ -178,7 +180,7 @@ const CreateExamResult = () => {
                 size="small"
                 options={examData?.data ?? []}
                 getOptionLabel={(option) =>
-                  `  ${option.name} -   ${option.groupSubject.subjectName} -   ${option.groupSubject.groupName}`
+                  `  ${option.name} -   ${option.groupSubject.subjectName} - ${option.groupSubject.groupName}`
                 }
                 onChange={(e, newValue) => {
                   setNewExamResult((prev) => ({

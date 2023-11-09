@@ -18,7 +18,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useContext } from "react";
 import { TokenContext } from "../../Contexts/Token-context";
 
-export function GroupSubjectListTable() {
+export function GroupSubjectListTable({ role }) {
   const { token } = useContext(TokenContext);
   const navigate = useNavigate();
   const { groupSubjectServices } = useService();
@@ -87,6 +87,7 @@ export function GroupSubjectListTable() {
                   Update
                 </UpdateButton>
                 <DeleteButton
+                  disabled={role !== "Admin" ? true : false}
                   onClick={() =>
                     navigate(`DeleteGroupSubject/${groupSubject.id}`, {
                       state: groupSubject,

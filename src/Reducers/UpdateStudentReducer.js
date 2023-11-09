@@ -34,7 +34,7 @@ export const updateStudentReducer = (state, action) => {
 
     case "groups":
       return { ...state, groupId: action.payload };
-    case "mainGroup":
-      return { ...state, mainGroup: action.payload };
+    case "groupId":
+      return { ...state, groupId: action.payload };
   }
 };

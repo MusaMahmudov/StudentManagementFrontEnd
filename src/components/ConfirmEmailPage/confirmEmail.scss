@@ -1,0 +1,52 @@
+.confirm-email-page {
+  position: absolute;
+  left: (50%);
+  top: (50%);
+  transform: translate(-50%, -50%);
+  & .container {
+    background: #32de84;
+    border: none;
+    border-radius: 20px;
+    padding: 50px;
+    width: 300px;
+    height: 500px;
+
+    & .content {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      & .successIcon {
+        & svg {
+          font-size: 200px;
+        }
+      }
+      & .button {
+        & button {
+          padding: 10px 30px;
+          margin-right: 15px;
+          font-size: 25px;
+        }
+      }
+      & h1 {
+        color: white;
+        font-size: 2em;
+        margin: 50px 0px;
+      }
+      & h5 {
+        font-size: 30px;
+
+        margin: 0px;
+        display: flex;
+        align-items: center;
+        color: #000000;
+      }
+      & h4 {
+        margin: 0px;
+        font-size: 25px;
+        font-weight: 600;
+        margin: 10px 0px 15px 0px;
+      }
+    }
+  }
+}
