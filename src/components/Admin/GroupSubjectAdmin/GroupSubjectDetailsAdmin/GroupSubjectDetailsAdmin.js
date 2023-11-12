@@ -105,6 +105,15 @@ const GroupSubjectDetailsAdmin = () => {
                     <PersonOutlineIcon fontSize="small" />
                   </section>
                   <section className="info-right">
+                    <h1>Semester</h1>
+                    <p>{groupSubjectQuery.data?.data.semester}</p>
+                  </section>
+                </div>
+                <div className="info">
+                  <section className="info-left">
+                    <PersonOutlineIcon fontSize="small" />
+                  </section>
+                  <section className="info-right">
                     <h1>Credits</h1>
                     <p>{groupSubjectQuery.data?.data.credits}</p>
                   </section>

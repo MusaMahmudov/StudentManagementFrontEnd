@@ -6,6 +6,7 @@ import { SubjectListTable } from "../../../../UI/Tables/SubjectListTable";
 import { AdminFacultyTitle } from "../../../../UI/Common/AdminFacultyTitle";
 import { getDecodedToken } from "../../../../utils/TokenServices";
 import { tokenRoleProperty } from "../../../../utils/TokenProperties";
+import { searchTextFieldDesign } from "../../../../UI/TextFieldDesign/TextFieldDesign";
 const SubjectListAdmin = () => {
   const navigate = useNavigate();
   const decodedToken = getDecodedToken();
@@ -23,9 +24,12 @@ const SubjectListAdmin = () => {
           <TextField
             size="small"
             id="outlined-basic"
-            label="Search  by Full Name..."
+            label="Search  by Name..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => searchByFullName(event)}
           />
         </section>

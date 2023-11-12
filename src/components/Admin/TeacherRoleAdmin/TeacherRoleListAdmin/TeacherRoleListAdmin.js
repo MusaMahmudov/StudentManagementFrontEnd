@@ -7,6 +7,7 @@ import { AdminFacultyTitle } from "../../../../UI/Common/AdminFacultyTitle";
 import { TeacherRoleListTable } from "../../../../UI/Tables/TeacherRoleListTable";
 import { getDecodedToken } from "../../../../utils/TokenServices";
 import { tokenRoleProperty } from "../../../../utils/TokenProperties";
+import { searchTextFieldDesign } from "../../../../UI/TextFieldDesign/TextFieldDesign";
 const TeacherRoleListAdmin = () => {
   const navigate = useNavigate();
   const decodedToken = getDecodedToken();
@@ -24,9 +25,12 @@ const TeacherRoleListAdmin = () => {
           <TextField
             size="small"
             id="outlined-basic"
-            label="Search  by Full Name..."
+            label="Search  by Name..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => searchByFullName(event)}
           />
         </section>

@@ -27,18 +27,23 @@ const UpdateExamResultAdmin = () => {
   const [error, setError] = useState();
   const [inputState, dispatch] = useReducer(updateExamResultReducer, {});
   const { Id } = useParams();
+  const [examDefaultValue, setExamDefaultValue] = useState();
+
   const examResultQuery = useQuery([queryKeys.getExamResultById], () =>
     examResultServices.getExamResultByIdForUpdate(Id, token)
   );
-
-  const { data: studentData, isLoadingStudent } = useQuery(
-    [queryKeys.getStudentsQuery],
-    () => studentServices.getAllStudentsForCreateOrUpdateForExamResult(token)
+  console.log(examResultQuery.data?.data, "examRes");
+  const {
+    data: studentData,
+    isLoading: isLoadingStudent,
+    isSuccessStudent,
+  } = useQuery([queryKeys.getStudentsQuery], () =>
+    studentServices.getAllStudentsForCreateOrUpdateForExamResult(token)
   );
   const {
     data: examData,
     isError: isErrorExam,
-    isLoadingExam,
+    isLoading: isLoadingExam,
     isSuccess: examDataIsSuccess,
   } = useQuery([queryKeys.getExams], () =>
     examServices.getAllExamsForExamResultUpdate(token)
@@ -59,6 +64,7 @@ const UpdateExamResultAdmin = () => {
     let exam;
     if (inputState.examId) {
       exam = examData?.data.find((exam) => exam.id === inputState.examId);
+      setExamDefaultValue(exam);
       setMaxScore(exam.maxScore);
     } else {
       setMaxScore(null);
@@ -121,8 +127,12 @@ const UpdateExamResultAdmin = () => {
   }
 
   if (isLoadingExam || isLoadingStudent || examResultQuery.isLoading) {
-    return <h1>...Is Loading</h1>;
+    return <h1 className="isLoadingMessage">...Is Loading</h1>;
   }
+  if (!examDefaultValue) {
+    return <h1 className="isLoadingMessage">...Is Loading</h1>;
+  }
+
   return (
     <div className="update-group">
       <div className="container">

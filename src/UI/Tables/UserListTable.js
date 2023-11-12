@@ -101,7 +101,9 @@ export function UserListTable({ role }) {
                   Update
                 </UpdateButton>
                 <DeleteButton
-                  disabled={role !== "Admin" ? true : false}
+                  disabled={
+                    role !== "Admin" ? true : user.roles.includes("Admin")
+                  }
                   onClick={() =>
                     navigate(`DeleteUser/${user.id}`, {
                       state: user,

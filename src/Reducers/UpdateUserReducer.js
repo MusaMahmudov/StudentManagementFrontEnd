@@ -19,6 +19,8 @@ export const updateUserReducer = (state, action) => {
 
     case "password":
       return { ...state, password: action.payload };
+    case "isActive":
+      return { ...state, isActive: action.payload };
 
     case "confirmPassword":
       return { ...state, confirmPassword: action.payload };

@@ -3,12 +3,13 @@ import useService from "../../../hooks";
 import "./studentListAdmin.scss";
 import { queryKeys } from "../../../QueryKeys";
 import { StudentListTable } from "../../../UI/Tables/StudentListTable";
-import { Box, Button, Fab, TextField } from "@mui/material";
+import { Box, Button, Fab, TextField, createTheme } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { getDecodedToken } from "../../../utils/TokenServices";
 import { tokenRoleProperty } from "../../../utils/TokenProperties";
+import { searchTextFieldDesign } from "../../../UI/TextFieldDesign/TextFieldDesign";
 
 const StudentAdminPage = () => {
   const decodedToken = getDecodedToken();
@@ -36,7 +37,10 @@ const StudentAdminPage = () => {
             id="outlined-basic"
             label="Search  by Full Name..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => setFullNameSearch(event.target.value)}
           />
           <TextField
@@ -44,7 +48,10 @@ const StudentAdminPage = () => {
             id="outlined-basic"
             label="Search  by Id..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => setIdSearch(event.target.value)}
           />
           <TextField
@@ -52,7 +59,10 @@ const StudentAdminPage = () => {
             id="outlined-basic"
             label="Search  by Email..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => setEmailSearch(event.target.value)}
           />
           <TextField
@@ -60,7 +70,10 @@ const StudentAdminPage = () => {
             id="outlined-basic"
             label="Search  by Main Group..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => setMainGroupSearch(event.target.value)}
           />
         </section>

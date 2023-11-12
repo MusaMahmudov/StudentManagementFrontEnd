@@ -10,6 +10,8 @@
       display: flex;
       gap: 30px;
       margin-bottom: 20px;
+      justify-content: space-between;
+      flex-wrap: wrap;
     }
     & .students {
       background: white;
@@ -34,6 +36,7 @@
     & .title {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       & h1 {
         font-size: 22px;
         color: #2c323f;
@@ -58,4 +61,13 @@
 }
 .loading {
   background: white;
+}
+@media screen and (max-width: 970px) {
+  .student-list-admin {
+    & .container {
+      & .search-part {
+        justify-content: center !important;
+      }
+    }
+  }
 }

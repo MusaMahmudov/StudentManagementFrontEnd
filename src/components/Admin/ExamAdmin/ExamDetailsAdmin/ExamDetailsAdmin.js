@@ -118,6 +118,15 @@ const ExamDetailsAdmin = () => {
                     <PersonOutlineIcon fontSize="small" />
                   </section>
                   <section className="info-right">
+                    <h1>Date</h1>
+                    <p>{examQuery.data?.data.date.slice(0, 10)}</p>
+                  </section>
+                </div>
+                <div className="info">
+                  <section className="info-left">
+                    <PersonOutlineIcon fontSize="small" />
+                  </section>
+                  <section className="info-right">
                     <h1>Max Score</h1>
                     <p>{examQuery.data?.data.maxScore}</p>
                   </section>

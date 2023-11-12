@@ -26,7 +26,6 @@ const UpdateUserAdmin = () => {
       }
     }
   });
-
   const { Id } = useParams();
   const navigate = useNavigate();
   const { teacherServices, studentServices, userServices, roleServices } =
@@ -34,14 +33,17 @@ const UpdateUserAdmin = () => {
   const userQuery = useQuery([queryKeys.getUser], () =>
     userServices.getUserByIdForUpdate(Id, token)
   );
-  const { data: studentData } = useQuery([queryKeys.getStudentsQuery], () =>
-    studentServices.getAllStudents(token)
+  const { data: studentData, isLoading: isLoadingStudents } = useQuery(
+    [queryKeys.getStudentsQuery],
+    () => studentServices.getAllStudentsForUserUpdate(token)
   );
-  const { data: roleData } = useQuery([queryKeys.GetRoles], () =>
-    roleServices.getAllRoles(token)
+  const { data: roleData, isLoading: isLoadingRole } = useQuery(
+    [queryKeys.GetRoles],
+    () => roleServices.getAllRoles(token)
   );
-  const { data: teacherData } = useQuery([queryKeys.getTeachers], () =>
-    teacherServices.getAllTeachers(token)
+  const { data: teacherData, isLoading: isLoadingTeacher } = useQuery(
+    [queryKeys.getTeachers],
+    () => teacherServices.getAllTeachersForUserUpdate(token)
   );
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     userNameIsValid: true,
@@ -99,21 +101,9 @@ const UpdateUserAdmin = () => {
     mutate.mutate();
   };
   let [inputState, dispatch] = useReducer(updateUserReducer, {});
-  const [roleIdInputValue, setRoleIdInputValue] = useState(
-    inputState.roleId ?? null
-  );
-  const [studentIdInputValue, setStudentIdInputValue] = useState(
-    inputState.studentId ?? null
-  );
-  const [teacherIdInputValue, setTeacherIdInputValue] = useState(
-    userQuery.data?.data.teacherId?.id ?? null
-  );
   useEffect(() => {
     if (userQuery.isSuccess) {
       if (!inputState.userName) {
-        setStudentIdInputValue(userQuery.data?.data.studentId);
-        setTeacherIdInputValue(userQuery.data?.data.teacherId);
-
         dispatch({
           type: "init",
           payload: userQuery.data?.data,
@@ -121,14 +111,19 @@ const UpdateUserAdmin = () => {
       }
     }
   }, [userQuery.isSuccess]);
-  if (userQuery.isLoading) {
+  if (
+    userQuery.isLoading ||
+    isLoadingStudents ||
+    isLoadingTeacher ||
+    isLoadingRole
+  ) {
     return <h1>...isLoading</h1>;
   }
   if (userQuery.isError) {
     return <h1 className="errorMessage">Student Not found</h1>;
   }
   console.log("inputState", inputState);
-
+  console.log(userQuery.data?.data, "User data");
   return (
     <div className="update-student">
       <div className="container">
@@ -223,33 +218,66 @@ const UpdateUserAdmin = () => {
                   !enteredValueisValid.userNameIsValid && "User Name required"
                 }
               />
-
-              <Autocomplete
-                disablePortal
-                id="combo-box-demo"
+              <Select
                 size="small"
-                options={studentData?.data ?? []}
-                getOptionLabel={(option) => option.fullName}
-                inputValue={studentIdInputValue}
-                onInputChange={(e, newValue) => {
-                  setStudentIdInputValue(newValue);
-                }}
-                value={
-                  studentData?.data.find(
-                    (item) => item.id === userQuery.data?.data.studentId
-                  ) || null
-                }
-                sx={{ width: 300 }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Student" />
-                )}
-                onChange={(e, newValue) =>
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                name="isactive"
+                label="IsActive"
+                displayEmpty
+                value={inputState.isActive}
+                defaultValue={userQuery.data?.data.isActive}
+                onChange={(e) =>
                   dispatch({
-                    type: "studentId",
-                    payload: newValue ? newValue.id : null,
+                    type: "isActive",
+                    payload: e.target.value,
                   })
                 }
-              />
+                inputProps={{ "aria-label": "Without label" }}
+              >
+                <MenuItem value={false}>No</MenuItem>
+                <MenuItem value={true}>Yes</MenuItem>
+              </Select>
+              {userQuery.data?.data.studentId ? (
+                <Autocomplete
+                  disablePortal
+                  id="combo-box-demo"
+                  size="small"
+                  options={studentData?.data ?? []}
+                  getOptionLabel={(option) => option.studentName}
+                  defaultValue={studentData?.data.find(
+                    (student) => student.id === userQuery.data?.data.studentId
+                  )}
+                  sx={{ width: 300 }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Student" />
+                  )}
+                  onChange={(e, newValue) =>
+                    dispatch({
+                      type: "studentId",
+                      payload: newValue ? newValue.id : null,
+                    })
+                  }
+                />
+              ) : (
+                <Autocomplete
+                  disablePortal
+                  id="combo-box-demo"
+                  size="small"
+                  options={studentData?.data ?? []}
+                  getOptionLabel={(option) => option.studentName}
+                  sx={{ width: 300 }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Student" />
+                  )}
+                  onChange={(e, newValue) =>
+                    dispatch({
+                      type: "studentId",
+                      payload: newValue ? newValue.id : null,
+                    })
+                  }
+                />
+              )}
 
               {roleData && (
                 <Autocomplete
@@ -257,11 +285,18 @@ const UpdateUserAdmin = () => {
                   id="tags-outlined"
                   options={roleData?.data ?? null}
                   getOptionLabel={(option) => option.name}
+                  defaultValue={[
+                    ...roleData?.data.filter((role) =>
+                      userQuery.data?.data.roleId?.some(
+                        (roleId) => roleId === role.id
+                      )
+                    ),
+                  ]}
                   onChange={(e, newValue) => {
                     if (newValue) {
                       dispatch({
                         type: "roleId",
-                        payload: newValue.map((role) => role.id),
+                        payload: newValue?.map((role) => role.id),
                       });
                     } else {
                       dispatch({
@@ -276,33 +311,56 @@ const UpdateUserAdmin = () => {
                   )}
                 />
               )}
-
-              <Autocomplete
-                disablePortal
-                id="combo-box-demo"
-                size="small"
-                options={teacherData?.data ?? []}
-                getOptionLabel={(option) => option.fullName}
-                inputValue={teacherIdInputValue}
-                onInputChange={(e, newValue) => {
-                  setTeacherIdInputValue(newValue);
-                }}
-                sx={{ width: 300 }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Teacher" />
-                )}
-                onChange={(e, newValue) =>
-                  dispatch({
-                    type: "teacherId",
-                    payload: newValue ? newValue.id : null,
-                  })
-                }
-                value={
-                  teacherData?.data.find(
-                    (item) => item.id === inputState?.teacherId
-                  ) || null
-                }
-              />
+              {userQuery.data?.data.teacherId ? (
+                <Autocomplete
+                  disablePortal
+                  id="combo-box-demo"
+                  size="small"
+                  options={teacherData?.data ?? []}
+                  getOptionLabel={(option) => option.fullName}
+                  defaultValue={teacherData?.data.find(
+                    (teacher) => teacher.id === userQuery.data?.data.teacherId
+                  )}
+                  sx={{ width: 300 }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Teacher" />
+                  )}
+                  onChange={(e, newValue) =>
+                    dispatch({
+                      type: "teacherId",
+                      payload: newValue ? newValue.id : null,
+                    })
+                  }
+                  value={
+                    teacherData?.data.find(
+                      (item) => item.id === inputState?.teacherId
+                    ) || null
+                  }
+                />
+              ) : (
+                <Autocomplete
+                  disablePortal
+                  id="combo-box-demo"
+                  size="small"
+                  options={teacherData?.data ?? []}
+                  getOptionLabel={(option) => option.fullName}
+                  sx={{ width: 300 }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Teacher" />
+                  )}
+                  onChange={(e, newValue) =>
+                    dispatch({
+                      type: "teacherId",
+                      payload: newValue ? newValue.id : null,
+                    })
+                  }
+                  value={
+                    teacherData?.data.find(
+                      (item) => item.id === inputState?.teacherId
+                    ) || null
+                  }
+                />
+              )}
 
               <div className="errorMessage">
                 {error ? error.map((err) => <h1>{err}</h1>) : ""}

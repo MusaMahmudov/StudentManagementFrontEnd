@@ -208,10 +208,6 @@ const CreateUserAdmin = () => {
                 size="small"
                 options={studentData?.data ?? []}
                 getOptionLabel={(option) => option.fullName}
-                inputValue={studentInputValue}
-                onInputChange={(e, newValue) => {
-                  setStudentInputValue(newValue);
-                }}
                 name="sutndetId"
                 sx={{ width: 300 }}
                 renderInput={(params) => (
@@ -220,7 +216,7 @@ const CreateUserAdmin = () => {
                 onChange={(e, newValue) => {
                   setNewUser((prev) => ({
                     ...prev,
-                    studentId: newValue.id,
+                    studentId: newValue?.id,
                   }));
                 }}
               />
@@ -237,10 +233,6 @@ const CreateUserAdmin = () => {
                     teacherId: newValue?.id,
                   }));
                 }}
-                inputValue={teacherInputValue}
-                onInputChange={(e, newValue) => {
-                  setTeacherInputValue(newValue);
-                }}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
                   <TextField {...params} label="Teacher" />
@@ -256,7 +248,7 @@ const CreateUserAdmin = () => {
                     if (newValue) {
                       setNewUser((prev) => ({
                         ...prev,
-                        roleId: newValue.map((role) => role.id),
+                        roleId: newValue?.map((role) => role.id),
                       }));
                     } else {
                       setNewUser((prev) => ({

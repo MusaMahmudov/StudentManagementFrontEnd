@@ -306,9 +306,7 @@ const CreateStudentAdmin = () => {
                 name="email"
                 onChange={handleStudent}
                 error={enteredValueisValid.email ? "" : "error"}
-                helperText={
-                  !enteredValueisValid.email && "Type Of Payment required"
-                }
+                helperText={!enteredValueisValid.email && "Email required"}
               />
               <Select
                 size="small"

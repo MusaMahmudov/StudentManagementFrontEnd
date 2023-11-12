@@ -27,19 +27,30 @@ const Navbar = ({ onToggleSidebar }) => {
   useEffect(() => {
     if (token) {
       const decodedToken = jwtDecode(token);
-      setUserInformation({
-        userName: decodedToken[tokenUserNameProperty],
-        role: decodedToken[tokenRoleProperty],
-      });
+      if (!Array.isArray(decodedToken[tokenRoleProperty])) {
+        setUserInformation({
+          userName: decodedToken[tokenUserNameProperty],
+          role: decodedToken[tokenRoleProperty],
+        });
+      } else {
+        setUserInformation({
+          userName: decodedToken[tokenUserNameProperty],
+          role: decodedToken[tokenRoleProperty].join("-"),
+        });
+      }
     }
   }, []);
 
   const handleLogout = () => {
     if (token) {
-      localStorage.clear();
       removeExpireDate();
       removeToken();
-      navigate("/SignIn");
+      localStorage.clear();
+      if (window.location.pathname !== "/SignIn") {
+        navigate("/SignIn");
+      }
+
+      return;
     }
   };
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -82,7 +93,7 @@ const Navbar = ({ onToggleSidebar }) => {
                 variant="contained"
                 onClick={handleClick}
               >
-                <span>
+                <span className="user-icon">
                   <PersonIcon sx={{ fontSize: 35, marginTop: 1 }} />
                 </span>
                 <span>
@@ -111,12 +122,12 @@ const Navbar = ({ onToggleSidebar }) => {
                     zIndex: "9999",
                   }}
                 >
-                  <Button
+                  {/* <Button
                     sx={{ padding: "10px 30px" }}
                     onClick={() => navigate("MyProfile")}
                   >
                     My Profile
-                  </Button>
+                  </Button> */}
                   <Button
                     sx={{ padding: "10px 10px", fontSize: "13px" }}
                     onClick={() => navigate("ChangePassword")}

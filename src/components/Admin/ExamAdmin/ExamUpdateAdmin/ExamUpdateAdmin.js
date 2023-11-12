@@ -93,7 +93,6 @@ const UpdateExamAdmin = () => {
     mutate.mutate();
   };
   useEffect(() => {
-    console.log("succsse");
     if (examQuery.isSuccess) {
       dispatch({
         type: "init",

@@ -4,6 +4,12 @@ export class ApexChart extends React.Component {
   constructor(props) {
     super(props);
 
+    {
+      Array.from({ length: 11 }, (_, index) => {
+        const year = new Date().getFullYear() - index;
+      });
+    }
+
     this.state = {
       series: [
         {
@@ -36,17 +42,10 @@ export class ApexChart extends React.Component {
           },
         },
         xaxis: {
-          categories: [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-          ],
+          categories: Array.from({ length: 9 }, (_, index) => {
+            const year = new Date().getFullYear() - index;
+            return year;
+          }).reverse(),
         },
       },
     };

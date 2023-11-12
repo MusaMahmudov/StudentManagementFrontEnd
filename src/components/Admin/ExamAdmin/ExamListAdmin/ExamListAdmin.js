@@ -7,6 +7,7 @@ import { ExamListTable } from "../../../../UI/Tables/ExamListTable";
 import { getDecodedToken, getToken } from "../../../../utils/TokenServices";
 import ErrorPage from "../../../ErrorPage/ErrorPage";
 import { tokenRoleProperty } from "../../../../utils/TokenProperties";
+import { searchTextFieldDesign } from "../../../../UI/TextFieldDesign/TextFieldDesign";
 const ExamListAdmin = () => {
   const navigate = useNavigate();
   const decodedToken = getDecodedToken();
@@ -21,9 +22,12 @@ const ExamListAdmin = () => {
           <TextField
             size="small"
             id="outlined-basic"
-            label="Search  by Full Name..."
+            label="Search  by Name..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => searchByFullName(event)}
           />
         </section>

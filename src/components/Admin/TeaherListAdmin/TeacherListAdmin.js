@@ -12,6 +12,7 @@ import useService from "../../../hooks";
 import { useQuery } from "react-query";
 import { getDecodedToken } from "../../../utils/TokenServices";
 import { tokenRoleProperty } from "../../../utils/TokenProperties";
+import { searchTextFieldDesign } from "../../../UI/TextFieldDesign/TextFieldDesign";
 
 const TeacherListAdmin = () => {
   const navigate = useNavigate();
@@ -35,7 +36,10 @@ const TeacherListAdmin = () => {
             id="outlined-basic"
             label="Search  by Full Name..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => setFullNameSearch(event.target.value)}
           />
           <TextField
@@ -43,7 +47,10 @@ const TeacherListAdmin = () => {
             id="outlined-basic"
             label="Search  by Id..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => setIdSearch(event.target.value)}
           />
           <TextField
@@ -51,7 +58,10 @@ const TeacherListAdmin = () => {
             id="outlined-basic"
             label="Search  by Email..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => setEmailSearch(event.target.value)}
           />
           <TextField
@@ -59,7 +69,10 @@ const TeacherListAdmin = () => {
             id="outlined-basic"
             label="Search  by Mobile Number..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => setMobileNumberSearch(event.target.value)}
           />
         </section>

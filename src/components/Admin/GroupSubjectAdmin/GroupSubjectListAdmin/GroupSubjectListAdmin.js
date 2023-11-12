@@ -7,6 +7,7 @@ import { GroupListTable } from "../../../../UI/Tables/GroupListTable";
 import { GroupSubjectListTable } from "../../../../UI/Tables/GroupSubjectListTable";
 import { getDecodedToken } from "../../../../utils/TokenServices";
 import { tokenRoleProperty } from "../../../../utils/TokenProperties";
+import { searchTextFieldDesign } from "../../../../UI/TextFieldDesign/TextFieldDesign";
 const GroupSubjectListAdmin = () => {
   const navigate = useNavigate();
   const decodedToken = getDecodedToken();
@@ -25,7 +26,10 @@ const GroupSubjectListAdmin = () => {
             id="outlined-basic"
             label="Search  by Full Name..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => searchByFullName(event)}
           />
         </section>
@@ -41,6 +45,7 @@ const GroupSubjectListAdmin = () => {
                   color="primary"
                   aria-label="add"
                   disabled={role !== "Admin" ? true : false}
+                  sx={{ zIndex: 100 }}
                 >
                   <AddIcon />
                 </Fab>

@@ -56,6 +56,15 @@ const UserDetailsAdmin = () => {
                     <PersonOutlineIcon fontSize="small" />
                   </section>
                   <section className="info-right">
+                    <h1>Is Active</h1>
+                    <p>{userQuery.data?.data.isActive ? "Yea" : "No"}</p>
+                  </section>
+                </div>
+                <div className="info">
+                  <section className="info-left">
+                    <PersonOutlineIcon fontSize="small" />
+                  </section>
+                  <section className="info-right">
                     <h1>Email</h1>
                     <p>{userQuery.data?.data.email}</p>
                   </section>

@@ -7,6 +7,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { ThemeProvider } from "styled-components";
 import { useEffect, useState } from "react";
@@ -39,7 +41,10 @@ export const ResetPassword = () => {
 
   const mutate = useMutation(() => userServices.resetPassword(inputState), {
     onSuccess: () => {
-      return setResult("Password changed successefully"), navigate("/SignIn");
+      return (
+        setResult("Password changed successefully"),
+        navigate("/ResetPasswordSuccessPage")
+      );
     },
   });
 

@@ -13,6 +13,9 @@ class teacherService extends HTTPClient {
     return await this.getById("Teachers", id, token);
   }
   async getTeachersForGroupSubject(token) {
+    return await this.getAll("Teachers/GetAllTeachersForUser", token);
+  }
+  async getAllTeachersForUserUpdate(token) {
     return await this.getAll("Teachers/GroupSubjectCreate", token);
   }
   async getTeacherByIdForUpdate(id, token) {

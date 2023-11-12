@@ -11,6 +11,7 @@ import { TokenContext } from "../../../../Contexts/Token-context";
 import jwtDecode from "jwt-decode";
 import { tokenRoleProperty } from "../../../../utils/TokenProperties";
 import { getDecodedToken } from "../../../../utils/TokenServices";
+import { searchTextFieldDesign } from "../../../../UI/TextFieldDesign/TextFieldDesign";
 
 const UserListAdmin = () => {
   const navigate = useNavigate();
@@ -34,9 +35,23 @@ const UserListAdmin = () => {
           <TextField
             size="small"
             id="outlined-basic"
-            label="Search  by Full Name..."
+            label="Search  by User Name..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
+            onChange={(event) => searchByFullName(event)}
+          />
+          <TextField
+            size="small"
+            id="outlined-basic"
+            label="Search  by Role..."
+            variant="outlined"
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => searchByFullName(event)}
           />
         </section>

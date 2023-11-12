@@ -1,7 +1,13 @@
 import "./App.css";
 import AdminDashboard from "./components/Admin/AdminDahboard/AdminDashboard";
 import { QueryClient, QueryClientProvider, useQuery } from "react-query";
-import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import StudentListAdmin from "./components/Admin/StudentListAdmin/StudentListAdmin";
 import StudentDetailsAdmin from "./components/Admin/StudentDetailsAdmin/StudentDetailsAdmin";
 import UpdateStudentAdmin from "./components/Admin/StudentUpdateAdmin/StudentUpdateAdmin";
@@ -87,6 +93,7 @@ import { ResetPassword } from "./components/ResetPassword/ResetPassword";
 import ForgotPassword from "./components/ForgotPassword/ForgotPassword";
 import ConfirmEmailPage from "./components/ConfirmEmailPage/ConfirmEmailPage";
 import { useCookies } from "react-cookie";
+import ResetPasswordSuccessPage from "./components/ResetPasswordSuccessPage/ResetPasswordSuccessPage";
 function App() {
   const queryClient = new QueryClient();
   const location = useLocation();
@@ -99,18 +106,9 @@ function App() {
   const date = new Date();
   const expire = new Date(expireDate);
   useEffect(() => {
-    if (location.pathname.slice(0, 13) === "/ConfirmEmail") {
-      navigate(
-        `/ConfirmEmail?token=${searchParams.get(
-          "token"
-        )}&email=${searchParams.get("email")}`
-      );
-    } else if (
-      !token &&
-      !searchParams.get("token") &&
-      !searchParams.get("email")
-    ) {
-      navigate("SignIn");
+    if (!token && !searchParams.get("token") && !searchParams.get("email")) {
+      navigate("/SignIn");
+      return;
     } else if (
       searchParams.get("token") &&
       searchParams.get("email") &&
@@ -121,41 +119,47 @@ function App() {
           "token"
         )}&email=${searchParams.get("email")}`
       );
+      return;
     } else if (!token) {
       navigate("SignIn");
+      return;
     } else if (expire < date) {
       removeExpireDate();
       removeToken();
       navigate("/SignIn");
+      if (window.location.pathname !== "/SignIn") {
+        navigate("/SignIn");
+      }
+
+      return;
     } else if (
       decodedToken[tokenRoleProperty] === "Student" ||
       decodedToken[tokenRoleProperty] === "Teacher"
     ) {
-      removeCookie("token");
-      removeCookie("expireDate");
-      navigate("SignIn");
+      removeToken("token");
+      removeExpireDate("expireDate");
+      navigate("/SignIn");
+      if (window.location.pathname !== "/SignIn") {
+        navigate("/SignIn");
+      }
+      return;
     } else if (
       decodedToken[tokenRoleProperty] !== "Admin" &&
       decodedToken[tokenRoleProperty] !== "Moderator"
     ) {
       navigate("Error");
+      return;
     } else if (
       decodedToken[tokenRoleProperty] === "Admin" &&
       decodedToken[tokenRoleProperty] === "Moderator"
     ) {
       navigate("/AdminDashboard");
+      return;
     } else if (location.pathname === "/" || location.pathname === "") {
       navigate("/AdminDashboard");
+      return;
     }
   }, []);
-  // useEffect(() => {
-  //   if (location.pathname === "/" || location.pathname === "") {
-  //     navigate("/AdminDashboard");
-  //   }
-  // }, []);
-  if (window.onoffline) {
-    return <h1>onoffline</h1>;
-  }
 
   return (
     <div className="App">
@@ -409,6 +413,11 @@ function App() {
 
           <Route path="ErrorPage" element={<ErrorPage />} />
           <Route path="Error" element={<ErrorPageNoAccess />} />
+          <Route
+            path="/ResetPasswordSuccessPage"
+            element={<ResetPasswordSuccessPage />}
+          />
+
           <Route path="/SignIn" element={<SignIn />}></Route>
           <Route path="/ResetPassword" element={<ResetPassword />}></Route>
           <Route path="/ForgotPassword" element={<ForgotPassword />}></Route>

@@ -6,6 +6,7 @@ import { FacultyListTable } from "../../../../UI/Tables/FacultyListTable";
 import { SubjectHourListTable } from "../../../../UI/Tables/SubjectHourListTable";
 import { getDecodedToken } from "../../../../utils/TokenServices";
 import { tokenRoleProperty } from "../../../../utils/TokenProperties";
+import { searchTextFieldDesign } from "../../../../UI/TextFieldDesign/TextFieldDesign";
 const SubjectHourListAdmin = () => {
   const navigate = useNavigate();
   const decodedToken = getDecodedToken();
@@ -22,9 +23,22 @@ const SubjectHourListAdmin = () => {
           <TextField
             size="small"
             id="outlined-basic"
-            label="Search  by Full Name..."
+            label="Search  by Group Name..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
+          />
+          <TextField
+            size="small"
+            id="outlined-basic"
+            label="Search  by Subject Name..."
+            variant="outlined"
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
           />
         </section>
         <section className="students">
@@ -46,7 +60,7 @@ const SubjectHourListAdmin = () => {
               </div>
             </div>
             <div className="students-list-info">
-              <SubjectHourListTable />
+              <SubjectHourListTable role={role} />
             </div>
           </div>
         </section>

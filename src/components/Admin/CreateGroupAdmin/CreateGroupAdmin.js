@@ -73,7 +73,12 @@ const CreateGroupAdmin = () => {
       setEnteredValueIsValid((prev) => ({ ...prev, nameIsValid: true }));
     }
 
-    if (newGroup.year?.trim() === "" || newGroup.year === null) {
+    if (
+      newGroup.year?.trim() === "" ||
+      newGroup.year === null ||
+      newGroup.year > 10 ||
+      newGroup.year < 1
+    ) {
       setEnteredValueIsValid((prev) => ({ ...prev, yearIsValid: false }));
       formValid = false;
     } else {
@@ -137,7 +142,8 @@ const CreateGroupAdmin = () => {
                 onChange={handleGroup}
                 error={enteredValueisValid.yearIsValid ? "" : "error"}
                 helperText={
-                  !enteredValueisValid.yearIsValid && "Year  required"
+                  !enteredValueisValid.yearIsValid &&
+                  "Year must be between 1 and 10"
                 }
               />
               <Autocomplete

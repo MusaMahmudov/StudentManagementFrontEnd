@@ -8,10 +8,13 @@ import { AdminGroupTitle } from "../../../../UI/Common/AdminGroupTitle";
 import { updateGroupSubjectReducer } from "../../../../Reducers/UpdateGroupSubjectReducer";
 import { TokenContext } from "../../../../Contexts/Token-context";
 import AddIcon from "@mui/icons-material/Add";
+import { prefix } from "@fortawesome/free-brands-svg-icons";
 
 const UpdateGroupSubjectAdmin = () => {
   const { token } = useContext(TokenContext);
+  const navigate = useNavigate();
   const { Id } = useParams();
+  const [teacherRoleError, setTeacherRoleError] = useState();
   const {
     groupSubjectServices,
     teacherServices,
@@ -22,34 +25,33 @@ const UpdateGroupSubjectAdmin = () => {
   const groupSubjectQuery = useQuery([queryKeys.getGroupSubjects], () =>
     groupSubjectServices.getGroupSubjectByIdForUpdate(Id)
   );
-
   const teacherQuery = useQuery([queryKeys.getTeachers], () =>
     teacherServices.getTeachersForGroupSubject(token)
   );
   const teacherRoleQuery = useQuery([queryKeys.getTeacherRoles], () =>
     teacherRoleServices.getAllTeacherRoles(token)
   );
-  const { data: groupData } = useQuery([queryKeys.getGroupsQuery], () =>
-    groupServices.getAllGroups(token)
+  const { data: groupData, isLoading: isLoadingGroup } = useQuery(
+    [queryKeys.getGroupsQuery],
+    () => groupServices.getAllGroups(token)
   );
-  const { data: subjectData } = useQuery([queryKeys.getSubjects], () =>
-    subjectServices.getAllSubjects(token)
+  const { data: subjectData, isLoading: isLoadingSubject } = useQuery(
+    [queryKeys.getSubjects],
+    () => subjectServices.getAllSubjects(token)
   );
   const [teachers, setTeachers] = useState([]);
-  const [teacherError, setTeacherError] = useState();
-  if (teacherQuery.isError) {
-    setTeacherError("Something get wrong");
-  }
   const handleAddTeacher = () => {
-    setEnteredValueIsValid((prev) => ({
-      ...prev,
-      teacherRoleIsValid: [...prev.teacherRoleIsValid, true],
-    }));
-    const newTeacher = {
+    setEnteredValueIsValid((prev) => {
+      return {
+        ...prev,
+        teacherRoleIsValid: [...prev.teacherRoleIsValid, true],
+      };
+    });
+    const newTeacherRole = {
       teacherId: "",
       roleId: "",
     };
-    setTeachers((prev) => [...prev, newTeacher]);
+    setTeachers((prev) => [...prev, newTeacherRole]);
   };
   const handleRemoveTeacher = () => {
     if (
@@ -60,36 +62,24 @@ const UpdateGroupSubjectAdmin = () => {
         ...prev,
         teacherRoleIsValid: [...prev.teacherRoleIsValid.slice(0, -1)],
       }));
-
       setTeachers((prev) => [...prev.slice(0, -1)]);
       teacherRoleQuery.refetch();
       teacherQuery.refetch();
     }
   };
-
   const handleTeacherChange = (index, event, newValue, id) => {
     const updatedTeachers = [...teachers];
-    if (newValue?.fullName) {
-      updatedTeachers[index]["teacherId"] = newValue.id;
+    console.log(newValue, "NEW");
+    if (newValue?.teacherName) {
+      updatedTeachers[index][id] = newValue.id;
     } else if (newValue?.name) {
-      updatedTeachers[index]["roleId"] = newValue.id;
+      updatedTeachers[index][id] = newValue.id;
     } else if (!newValue) {
       updatedTeachers[index][id] = "";
     }
     setTeachers(updatedTeachers);
   };
 
-  const navigate = useNavigate();
-  console.log(teacherQuery.data?.data);
-
-  const [subjectInputValue, setSubjectInputValue] = useState(
-    groupSubjectQuery.data?.data.subject
-  );
-  console.log(groupSubjectQuery.data);
-  const [groupInputValue, setGroupInputValue] = useState(
-    groupSubjectQuery.data?.data.group
-  );
-  let formValid = true;
   const [error, setErrors] = useState();
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     groupIdIsValid: true,
@@ -111,13 +101,25 @@ const UpdateGroupSubjectAdmin = () => {
   useEffect(() => {
     inputState.teacherRole = teachers;
   }, [teachers]);
+
+  useEffect(() => {
+    if (inputState.teacherRole.length > 0) {
+      for (let index = 0; index < inputState.teacherRole.length; index++) {
+        setEnteredValueIsValid((prev) => ({
+          ...prev,
+          teacherRoleIsValid: [...prev.teacherRoleIsValid, true],
+        }));
+      }
+    }
+    setTeachers(inputState.teacherRole);
+  }, [inputState.teacherRole]);
+  console.log(inputState);
   useEffect(() => {
     dispatch({
       type: "init",
       payload: groupSubjectQuery.data?.data,
     });
   }, [groupSubjectQuery.isSuccess]);
-
   useEffect(() => {
     if (mutate.isError && mutate.error.response.data.message) {
       setErrors(mutate.error.response.data.message);
@@ -125,6 +127,7 @@ const UpdateGroupSubjectAdmin = () => {
   }, [mutate]);
   const handleGroupSubjectUpdate = (e) => {
     e.preventDefault();
+    setTeacherRoleError("");
     if (inputState.groupId === "" || inputState.groupId === null) {
       setEnteredValueIsValid((prev) => ({ ...prev, groupIdIsValid: false }));
     } else {
@@ -135,7 +138,6 @@ const UpdateGroupSubjectAdmin = () => {
     } else {
       setEnteredValueIsValid((prev) => ({ ...prev, subjectIdIsValid: true }));
     }
-
     if (
       inputState.credits < 1 ||
       inputState.credits > 50 ||
@@ -145,7 +147,6 @@ const UpdateGroupSubjectAdmin = () => {
     } else {
       setEnteredValueIsValid((prev) => ({ ...prev, creditsIsValid: true }));
     }
-
     if (
       inputState.hours < 1 ||
       inputState.hours > 200 ||
@@ -178,19 +179,27 @@ const UpdateGroupSubjectAdmin = () => {
     } else {
       setEnteredValueIsValid((prev) => ({ ...prev, YearIsValid: true }));
     }
-
-    // for (let prop in enteredValueisValid) {
-    //   if (!enteredValueisValid[prop]) {
-    //     formValid = false;
-    //     break;
-    //   }
-    // }
+    if (inputState.teacherRole.length > 0) {
+      inputState.teacherRole.map((teacherRole, index) => {
+        if (!teacherRole.teacherId || !teacherRole.roleId) {
+          setTeacherRoleError("Teacher and Role required together");
+        }
+      });
+    }
     mutate.mutate();
   };
-  if (groupSubjectQuery.isLoading) {
-    return <h1>... Is Loading</h1>;
+  if (
+    groupSubjectQuery.isLoading ||
+    isLoadingGroup ||
+    isLoadingSubject ||
+    teacherQuery.isLoading ||
+    teacherRoleQuery.isLoading
+  ) {
+    return <h1 className="isLoadingMessage">... Is Loading</h1>;
   }
-  console.log("inputState", inputState);
+  if (!inputState.groupId || !inputState.subjectId) {
+    return <h1 className="isLoadingMessage">... Is Loading</h1>;
+  }
   return (
     <div className="update-group">
       <div className="container">
@@ -315,10 +324,6 @@ const UpdateGroupSubjectAdmin = () => {
                 disablePortal
                 id="combo-box-subject"
                 size="small"
-                defaultValue={subjectInputValue}
-                onInputChange={(e, newValue) => {
-                  setSubjectInputValue(newValue);
-                }}
                 options={subjectData?.data ?? []}
                 getOptionLabel={(option) => option.name}
                 onChange={(e, newValue) => {
@@ -327,6 +332,9 @@ const UpdateGroupSubjectAdmin = () => {
                     payload: newValue?.id,
                   });
                 }}
+                defaultValue={subjectData?.data.find(
+                  (subject) => subject.id === inputState.subjectId
+                )}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
                   <TextField {...params} label="Subject" />
@@ -336,10 +344,9 @@ const UpdateGroupSubjectAdmin = () => {
                 disablePortal
                 id="combo-box-group"
                 size="small"
-                defaultValue={groupInputValue}
-                onInputChange={(e, newValue) => {
-                  setGroupInputValue(newValue);
-                }}
+                defaultValue={groupData?.data.find(
+                  (group) => group.id == inputState.groupId
+                )}
                 options={groupData?.data ?? []}
                 getOptionLabel={(option) => option.name}
                 onChange={(e, newValue) => {
@@ -348,16 +355,12 @@ const UpdateGroupSubjectAdmin = () => {
                     payload: newValue?.id,
                   });
                 }}
-                // inputValue={groupInputValue}
-                // onInputChange={(e, newValue) => {
-                //   setGroupInputValue(newValue);
-                // }}
                 sx={{ width: 300 }}
                 renderInput={(params) => (
                   <TextField {...params} label="Group" />
                 )}
               />
-              {inputState.teacherRole?.map((teacher, index) => (
+              {teachers?.map((teacherRole, index) => (
                 <div key={index}>
                   <h1>Teacher {index + 1}</h1>
                   <Autocomplete
@@ -365,7 +368,10 @@ const UpdateGroupSubjectAdmin = () => {
                     label={`Teacher ${index + 1}`}
                     id="teacherId"
                     options={teacherQuery.data?.data ?? []}
-                    getOptionLabel={(option) => option.fullName}
+                    getOptionLabel={(option) => option.teacherName}
+                    defaultValue={teacherQuery.data?.data.find(
+                      (teacher) => teacher.id === teacherRole.teacherId
+                    )}
                     onChange={(e, newValue) =>
                       handleTeacherChange(index, e, newValue, "teacherId")
                     }
@@ -387,6 +393,9 @@ const UpdateGroupSubjectAdmin = () => {
                     sx={{ marginBottom: 2, marginTop: 2 }}
                     options={teacherRoleQuery.data?.data ?? []}
                     getOptionLabel={(option) => option.name}
+                    defaultValue={teacherRoleQuery.data?.data.find(
+                      (teacherR) => teacherR.id === teacherRole.roleId
+                    )}
                     onChange={(e, newValue) =>
                       handleTeacherChange(index, e, newValue, "roleId")
                     }
@@ -404,6 +413,8 @@ const UpdateGroupSubjectAdmin = () => {
                   />
                 </div>
               ))}
+              <h1 className="errorMessage">{teacherRoleError}</h1>
+
               <Box display={"flex"} justifyContent={"space-between"}>
                 <Button
                   color="primary"
@@ -425,7 +436,7 @@ const UpdateGroupSubjectAdmin = () => {
                 )}
               </Box>
               <div className="errorMessage">
-                <p>{error}</p>
+                <p className="errorMessage">{error}</p>
               </div>
               <Button
                 type="submit"

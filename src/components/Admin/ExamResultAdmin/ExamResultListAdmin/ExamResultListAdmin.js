@@ -8,6 +8,7 @@ import { useState } from "react";
 import { ExamResultListTable } from "../../../../UI/Tables/ExamResultTable";
 import { getDecodedToken } from "../../../../utils/TokenServices";
 import { tokenRoleProperty } from "../../../../utils/TokenProperties";
+import { searchTextFieldDesign } from "../../../../UI/TextFieldDesign/TextFieldDesign";
 
 const ExamResultListAdmin = () => {
   const navigate = useNavigate();
@@ -35,7 +36,10 @@ const ExamResultListAdmin = () => {
             id="outlined-basic"
             label="Search  by Group Name..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => setGroupNameSearch(event.target.value)}
           />
           <TextField
@@ -43,7 +47,10 @@ const ExamResultListAdmin = () => {
             id="outlined-basic"
             label="Search  by Subject Name..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => setSubjectNameSearch(event.target.value)}
           />
           <TextField
@@ -51,7 +58,10 @@ const ExamResultListAdmin = () => {
             id="outlined-basic"
             label="Search  by Exam Type..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => setExamTypeSearch(event.target.value)}
           />
           <TextField
@@ -59,7 +69,10 @@ const ExamResultListAdmin = () => {
             id="outlined-basic"
             label="Search  by Student's Full Name..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => setStudentFullNameSearch(event.target.value)}
           />
         </section>

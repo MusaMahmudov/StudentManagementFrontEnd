@@ -7,6 +7,7 @@ import { AdminGroupTitle } from "../../../UI/Common/AdminGroupTitle";
 import { GroupListTable } from "../../../UI/Tables/GroupListTable";
 import { getDecodedToken } from "../../../utils/TokenServices";
 import { tokenRoleProperty } from "../../../utils/TokenProperties";
+import { searchTextFieldDesign } from "../../../UI/TextFieldDesign/TextFieldDesign";
 const GroupListAdmin = () => {
   const navigate = useNavigate();
   const decodedToken = getDecodedToken();
@@ -20,9 +21,23 @@ const GroupListAdmin = () => {
           <TextField
             size="small"
             id="outlined-basic"
-            label="Search  by Full Name..."
+            label="Search  by Group Name..."
             variant="outlined"
-            sx={{ background: "white" }}
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
+            onChange={(event) => searchByFullName(event)}
+          />
+          <TextField
+            size="small"
+            id="outlined-basic"
+            label="Search  by Faculty..."
+            variant="outlined"
+            sx={{
+              background: "white",
+              width: searchTextFieldDesign.textField.width,
+            }}
             onChange={(event) => searchByFullName(event)}
           />
         </section>

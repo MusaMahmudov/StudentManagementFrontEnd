@@ -85,18 +85,41 @@ export default function SignIn() {
       setToken(res.data?.token), setExpireDate(res.data?._expireDate)
     ),
   });
-  if (mutate.isSuccess) {
-    const decodedToken = jwtDecode(token);
-    if (decodedToken[tokenRoleProperty] === "Admin") {
-      tokenCookie.set("tokenAdmin", token);
-      tokenCookie.set("expireDateAdmin", expireDate);
-      navigate("/AdminDashboard");
-    } else if (decodedToken[tokenRoleProperty] === "Moderator") {
-      tokenCookie.set("tokenModerator", token);
-      tokenCookie.set("expireDateModerator", expireDate);
-      navigate("/AdminDashboard");
+  useEffect(() => {
+    if (mutate.isSuccess) {
+      const decodedToken = jwtDecode(token);
+      if (!Array.isArray(decodedToken[tokenRoleProperty])) {
+        if (
+          decodedToken[tokenRoleProperty] === "Student" ||
+          decodedToken[tokenRoleProperty] === "Teacher"
+        ) {
+          handleClick();
+        } else if (decodedToken[tokenRoleProperty] === "Admin") {
+          tokenCookie.set("tokenAdmin", token);
+          tokenCookie.set("expireDateAdmin", expireDate);
+          navigate("/AdminDashboard");
+        } else if (decodedToken[tokenRoleProperty] === "Moderator") {
+          tokenCookie.set("tokenModerator", token);
+          tokenCookie.set("expireDateModerator", expireDate);
+          navigate("/AdminDashboard");
+        }
+      } else {
+        if (decodedToken[tokenRoleProperty].includes("Admin")) {
+          tokenCookie.set("tokenAdmin", token);
+          tokenCookie.set("expireDateAdmin", expireDate);
+          navigate("/AdminDashboard");
+        } else if (decodedToken[tokenRoleProperty].includes("Moderator")) {
+          tokenCookie.set("tokenModerator", token);
+          tokenCookie.set("expireDateModerator", expireDate);
+          navigate("/AdminDashboard");
+        } else if (
+          !decodedToken[tokenRoleProperty].includes("Moderator" || "Admin")
+        ) {
+          handleClick();
+        }
+      }
     }
-  }
+  }, [mutate]);
 
   const handleSubmit = (event) => {
     event.preventDefault();

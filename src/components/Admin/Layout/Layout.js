@@ -22,10 +22,12 @@ const Layout = () => {
 
   const handleToggleSidebar = () => {
     setIsOpen((prev) => !prev);
-    localStorage.setItem("sidebarToggle", !isOpen);
+    localStorage.setItem("sidebarToggle", isOpen);
   };
+  console.log(window.innerWidth, "width");
+
   const contentWrapperStyle = (isOpen) => ({
-    marginLeft: isOpen ? 210 : 0,
+    marginLeft: isOpen && window.innerWidth > 600 ? 210 : 0,
     transition: "margin 0.1s",
   });
   return (

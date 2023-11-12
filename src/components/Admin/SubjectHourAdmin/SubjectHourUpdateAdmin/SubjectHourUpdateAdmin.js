@@ -18,27 +18,24 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimeField } from "@mui/x-date-pickers/TimeField";
-
 const UpdateSubjectHourAdmin = () => {
   const navigate = useNavigate();
   const { token } = useContext(TokenContext);
-
   const { subjectHourServices, lessonTypesServices, groupSubjectServices } =
     useService();
-  const { data: lessonTypeData } = useQuery([queryKeys.GetLessonTypes], () =>
-    lessonTypesServices.getAllLessonTypes(token)
+  const { data: lessonTypeData, isLoading: isLoadingLessonType } = useQuery(
+    [queryKeys.GetLessonTypes],
+    () => lessonTypesServices.getAllLessonTypes(token)
   );
-  console.log("less", lessonTypeData);
 
   const { Id } = useParams();
   const subjectHourQuery = useQuery([queryKeys.GetSubjectHour], () =>
     subjectHourServices.getSubjectHourByIdForUpdate(Id, token)
   );
-  console.log("less2", subjectHourQuery);
 
-  const { data: groupSubjectData } = useQuery(
+  const { data: groupSubjectData, isLoading: isLoadingGroupSubject } = useQuery(
     [queryKeys.getGroupSubjects],
-    () => groupSubjectServices.getAllGroupSubjects(token)
+    () => groupSubjectServices.getAllGroupSubjectsForExamForUpdate(token)
   );
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     dayOfTheWeekIsValid: true,
@@ -58,29 +55,13 @@ const UpdateSubjectHourAdmin = () => {
   const handleStartTime = (newValue) => {
     dispatch({
       type: "startTime",
-      payload: `${
-        newValue?.$d.getHours() >= 10
-          ? `${newValue?.$d.getHours()}`
-          : `0${newValue?.$d.getHours()}`
-      }:${
-        newValue?.$d?.getMinutes() >= 10
-          ? `${newValue?.$d?.getMinutes()}`
-          : `0${newValue?.$d?.getMinutes()}`
-      }:00`,
+      payload: dayjs(newValue).format("HH:mm:ss"),
     });
   };
   const handleEndTime = (newValue) => {
     dispatch({
       type: "endTime",
-      payload: `${
-        newValue?.$d.getHours() >= 10
-          ? `${newValue?.$d.getHours()}`
-          : `0${newValue?.$d.getHours()}`
-      }:${
-        newValue?.$d?.getMinutes() >= 10
-          ? `${newValue?.$d?.getMinutes()}`
-          : `0${newValue?.$d?.getMinutes()}`
-      }:00`,
+      payload: dayjs(newValue).format("HH:mm:ss"),
     });
   };
   const mutate = useMutation(
@@ -169,7 +150,11 @@ const UpdateSubjectHourAdmin = () => {
       }
     }
   }, [subjectHourQuery.isSuccess]);
-  if (subjectHourQuery.isLoading) {
+  if (
+    subjectHourQuery.isLoading ||
+    isLoadingLessonType ||
+    isLoadingGroupSubject
+  ) {
     return <h1>...isLoading</h1>;
   }
   if (subjectHourQuery.isError) {
@@ -177,8 +162,7 @@ const UpdateSubjectHourAdmin = () => {
   }
 
   console.log("inputState", inputState);
-  console.log("groupSubject", groupSubjectData);
-  console.log(lessonTypeData);
+  console.log(groupSubjectData?.data, "groupSubject");
 
   return (
     <div className="update-student">
@@ -281,12 +265,13 @@ const UpdateSubjectHourAdmin = () => {
                   id="tags-outlined"
                   options={groupSubjectData?.data ?? null}
                   getOptionLabel={(option) =>
-                    `${option.subject.name} - ${option.group.name}`
+                    `${option.subjectName} - ${option.groupName}`
                   }
-                  inputValue={groupSubjectInputValue}
-                  onInputChange={(e, newValue) => {
-                    setGroupSubjectInputValue(newValue);
-                  }}
+                  defaultValue={groupSubjectData?.data.find(
+                    (groupSubject) =>
+                      groupSubject.id ===
+                      subjectHourQuery.data?.data.groupSubjectId
+                  )}
                   onChange={(e, newValue) => {
                     if (newValue) {
                       dispatch({

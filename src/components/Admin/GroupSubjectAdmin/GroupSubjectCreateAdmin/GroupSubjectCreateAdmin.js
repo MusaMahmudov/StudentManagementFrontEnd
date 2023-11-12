@@ -1,4 +1,12 @@
-import { Autocomplete, Box, Button, Fab, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Fab,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import { Query, useMutation, useQuery } from "react-query";
 import useService from "../../../../hooks";
@@ -38,6 +46,7 @@ const CreateGroupSubjectAdmin = () => {
       const decodedToken = jwtDecode(token);
       if (decodedToken[tokenRoleProperty] !== "Admin") {
         navigate("Error");
+        return;
       }
     }
   }, []);
@@ -49,6 +58,7 @@ const CreateGroupSubjectAdmin = () => {
     credits: null,
     hours: null,
     totalWeeks: null,
+    semester: "Payiz",
   });
   const [enteredValueisValid, setEnteredValueIsValid] = useState({
     groupIdIsValid: true,
@@ -62,6 +72,8 @@ const CreateGroupSubjectAdmin = () => {
   });
   let formValid = true;
   const handleAddTeacher = () => {
+    console.log("before", enteredValueisValid.teacherRoleIsValid);
+
     setEnteredValueIsValid((prev) => ({
       ...prev,
       teacherRoleIsValid: [...prev.teacherRoleIsValid, true],
@@ -70,8 +82,12 @@ const CreateGroupSubjectAdmin = () => {
       teacherId: "",
       roleId: "",
     };
+    console.log("after", enteredValueisValid.teacherRoleIsValid);
+
     setTeachers((prev) => [...prev, newTeacher]);
   };
+  console.log("always", enteredValueisValid.teacherRoleIsValid);
+
   const handleRemoveTeacher = () => {
     if (
       enteredValueisValid.teacherRoleIsValid.length > 0 &&
@@ -90,7 +106,7 @@ const CreateGroupSubjectAdmin = () => {
 
   const handleTeacherChange = (index, event, newValue, id) => {
     const updatedTeachers = [...teachers];
-    if (newValue?.fullName) {
+    if (newValue?.teacherName) {
       updatedTeachers[index]["teacherId"] = newValue.id;
     } else if (newValue?.name) {
       updatedTeachers[index]["roleId"] = newValue.id;
@@ -190,27 +206,21 @@ const CreateGroupSubjectAdmin = () => {
       setEnteredValueIsValid((prev) => ({ ...prev, YearIsValid: true }));
     }
     if (newGroupSubject.teacherRole.length > 0) {
-      newGroupSubject.teacherRole.map((teacherRole, index) => {
-        if (!teacherRole.teacherId || !teacherRole.roleId) {
-          setEnteredValueIsValid((prev) => ({
-            ...prev,
-            teacherRoleIsValid: { ...prev.teacherRoleIsValid, [index]: false },
-          }));
-        } else {
-          setEnteredValueIsValid((prev) => ({
-            ...prev,
-            teacherRoleIsValid: {
-              ...prev.teacherRoleIsValid,
-              [index]: true,
-            },
-          }));
-        }
+      newGroupSubject.teacherRole.forEach((teacherRole, index) => {
+        setEnteredValueIsValid((prev) => ({
+          ...prev,
+          teacherRoleIsValid: [
+            ...prev.teacherRoleIsValid.slice(0, index),
+            !teacherRole.teacherId || !teacherRole.roleId,
+            ...prev.teacherRoleIsValid.slice(index + 1),
+          ],
+        }));
       });
     }
 
     mutate.mutate(newGroupSubject);
   };
-  console.log(teachers, "checkTeachers");
+  console.log(newGroupSubject, "newGroupSubject");
 
   return (
     <div className="update-student">
@@ -275,18 +285,7 @@ const CreateGroupSubjectAdmin = () => {
                   "Total weeks be between 1 and 50"
                 }
               />
-              <TextField
-                size="small"
-                id="outlined-basic"
-                label="Semester"
-                variant="outlined"
-                name="semester"
-                onChange={handleGroupSubject}
-                error={enteredValueisValid.semesterIsValid ? "" : "error"}
-                helperText={
-                  !enteredValueisValid.semesterIsValid && "Semester required"
-                }
-              />
+
               <TextField
                 type="number"
                 size="small"
@@ -301,6 +300,39 @@ const CreateGroupSubjectAdmin = () => {
                   `Year must be between 2010 and ${new Date().getFullYear()}`
                 }
               />
+              {/* <TextField
+                size="small"
+                id="outlined-basic"
+                label="Semester"
+                variant="outlined"
+                name="semester"
+                onChange={handleGroupSubject}
+                error={enteredValueisValid.semesterIsValid ? "" : "error"}
+                helperText={
+                  !enteredValueisValid.semesterIsValid && "Semester required"
+                }
+              /> */}
+              <Select
+                size="small"
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                name="semester"
+                value={newGroupSubject?.semester}
+                defaultValue={"Payiz"}
+                label="Semester"
+                displayEmpty
+                onChange={(e, newValue) => {
+                  setNewGroupSubject((prev) => ({
+                    ...prev,
+                    semester: e.target.value,
+                  }));
+                }}
+                inputProps={{ "aria-label": "Without label" }}
+              >
+                <MenuItem value={"Payiz"}>Payiz</MenuItem>
+                <MenuItem value={"Yaz"}>Yaz</MenuItem>
+                <MenuItem value={"Yay"}>Yay</MenuItem>
+              </Select>
               <Autocomplete
                 disablePortal
                 id="combo-box-subject"
@@ -351,7 +383,7 @@ const CreateGroupSubjectAdmin = () => {
                     label={`Teacher ${index + 1}`}
                     id="teacherId"
                     options={teacherQuery.data?.data ?? []}
-                    getOptionLabel={(option) => option.fullName}
+                    getOptionLabel={(option) => option.teacherName}
                     onChange={(e, newValue) =>
                       handleTeacherChange(index, e, newValue, "teacherId")
                     }

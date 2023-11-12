@@ -1,6 +1,5 @@
-import { Cookie } from "@mui/icons-material";
 import jwtDecode from "jwt-decode";
-import { Cookies, useCookies } from "react-cookie";
+import { Cookies } from "react-cookie";
 
 export const getToken = () => {
   const cookies = new Cookies();

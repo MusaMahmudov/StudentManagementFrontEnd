@@ -18,26 +18,6 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { decodedToken } = useContext(TokenContext);
 
-  // if (token) {
-  //   const decodedToken = jwtDecode(token);
-  //   if (
-  //     decodedToken[
-  //       "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-  //     ] !== "Admin"
-  //   ) {
-  //     navigate("ErrorPage");
-  //   }
-  // }
-  // const token = useContext(TokenContext);
-  // if (token) {
-  //   const decodedToken = jwtDecode(token);
-  //   if (decodedToken[tokenRoleProperty] !== "Admin") {
-  //     navigate("ErrorPage");
-  //   }
-  // } else {
-  //   navigate("ErrorPage");
-  // }
-
   const { studentServices, groupServices, teacherServices, facultyServices } =
     useService();
   const { token } = useContext(TokenContext);

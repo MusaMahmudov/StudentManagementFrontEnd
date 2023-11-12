@@ -20,6 +20,9 @@ export const updateGroupSubjectReducer = (state, action) => {
     case "year":
       return { ...state, year: action.payload };
     case "teacherRole":
-      return { ...state, teacherRole: action.payload };
+      return {
+        ...state,
+        teacherRole: [...state.teacherRole, ...action.payload],
+      };
   }
 };

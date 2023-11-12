@@ -1,5 +1,7 @@
 .main-container {
   & #sidebar {
+    position: relative;
+    z-index: 99999999 !important;
     max-width: 240px;
     width: 200px;
     overflow-y: auto;
