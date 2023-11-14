@@ -77,6 +77,8 @@ export const ChangePassword = () => {
   }, [mutate.isError]);
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError("");
+
     if (
       inputState.password !== inputState.confirmPassword &&
       !error.includes("Passwords do not match")

@@ -15,7 +15,6 @@ import { TeacherRoleService } from "./APIs/Services/TeacherRoleService";
 import teacherService from "./APIs/Services/TeacherService";
 import { userService } from "./APIs/Services/UserService";
 import { useQuery } from "react-query";
-import { json } from "react-router-dom";
 const useService = () => {
   const studentServices = new studentService();
   const groupServices = new groupService();

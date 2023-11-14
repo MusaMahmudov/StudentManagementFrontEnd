@@ -24,7 +24,6 @@ const CreateGroupAdmin = () => {
     [queryKeys.getStudentsQuery],
     () => studentServices.getAllStudents(token)
   );
-  console.log("students", studentData);
   const [newGroup, setNewGroup] = useState({
     name: "",
     year: "",
@@ -98,7 +97,6 @@ const CreateGroupAdmin = () => {
       mutate.mutate(newGroup);
     }
   };
-  console.log(newGroup);
   if (isLoadingStudents) {
     return <h1>... Is Loading</h1>;
   }

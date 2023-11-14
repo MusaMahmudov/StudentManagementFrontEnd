@@ -11,9 +11,6 @@ import {
   getDecodedToken,
   getToken,
 } from "../../../utils/TokenServices";
-import jwtDecode from "jwt-decode";
-import SignIn from "../../LoginPage/LoginPage";
-import ErrorPage from "../../ErrorPage/ErrorPage";
 
 const Layout = () => {
   const token = getToken();
@@ -24,7 +21,6 @@ const Layout = () => {
     setIsOpen((prev) => !prev);
     localStorage.setItem("sidebarToggle", isOpen);
   };
-  console.log(window.innerWidth, "width");
 
   const contentWrapperStyle = (isOpen) => ({
     marginLeft: isOpen && window.innerWidth > 600 ? 210 : 0,
