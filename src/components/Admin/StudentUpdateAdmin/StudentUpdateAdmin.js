@@ -27,7 +27,6 @@ const UpdateStudentAdmin = () => {
   const { data: userData } = useQuery([queryKeys.getUsers], () =>
     userServices.getAllUsersForStudentAndTeacherUpdate(token)
   );
-  console.log(userData?.data, "userdAte");
   const { Id } = useParams();
   const studentQuery = useQuery([queryKeys.getStudentByIdQuery], () =>
     studentServices.getStudentByIdForUpdate(Id, token)
@@ -46,11 +45,6 @@ const UpdateStudentAdmin = () => {
     emailIsValid: true,
     date0fBirthIsValid: true,
   });
-  console.log(groupData);
-  console.log("studentDATA", studentQuery.data?.data);
-  // const [newBirthday, setNewBirthday] = useState(
-  //   studentQuery.data?.data.date0fBirth
-  // );
 
   const mutate = useMutation(
     () => studentServices.updateStudent(Id, inputState, token),
@@ -206,12 +200,6 @@ const UpdateStudentAdmin = () => {
   };
   let [inputState, dispatch] = useReducer(updateStudentReducer, {});
 
-  // const [mainGroupInputValue, setMainGroupInputValue] = useState(
-  //   studentQuery.data?.data.mainGroup ?? null
-  // );
-  // const [userInputValue, setUserInputValue] = useState(
-  //   studentQuery.data?.data.appUser?.id ?? null
-  // );
   useEffect(() => {
     if (studentQuery.isSuccess) {
       if (!inputState.fullName) {
@@ -444,35 +432,6 @@ const UpdateStudentAdmin = () => {
                 }
                 renderInput={(params) => <TextField {...params} label="User" />}
               />
-              {/* {groupData && (
-                <Autocomplete
-                  multiple
-                  id="tags-outlined"
-                  options={groupData?.data ?? null}
-                  getOptionLabel={(option) => option.name}
-                  onChange={(e, newValue) => {
-                    if (newValue) {
-                      dispatch({
-                        type: "groups",
-                        payload: newValue.map((group) => group.id),
-                      });
-                    } else {
-                      dispatch({
-                        type: "groups",
-                        payload: [],
-                      });
-                    }
-                  }}
-                  filterSelectedOptions
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Groups"
-                      placeholder="Groups"
-                    />
-                  )}
-                />
-              )} */}
 
               <Autocomplete
                 disablePortal

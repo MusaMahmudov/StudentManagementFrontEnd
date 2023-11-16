@@ -169,6 +169,8 @@ const CreateTeacherAdmin = () => {
               sx={{
                 "& > :not(style)": { m: 1, width: "43ch" },
               }}
+              display={"flex"}
+              flexDirection={"column"}
               noValidate
               autoComplete="off"
             >

@@ -35,7 +35,6 @@ const CreateStudentAdmin = () => {
   const [newStudent, setNewStudent] = useState({
     dateOfBirth: null,
     mainGroup: null,
-    // groupId: [],
     appUserId: null,
     fullName: "",
     yearOfGraduation: "",
