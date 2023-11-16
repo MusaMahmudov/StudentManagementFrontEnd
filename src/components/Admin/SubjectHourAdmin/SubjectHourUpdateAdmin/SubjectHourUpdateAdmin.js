@@ -127,11 +127,6 @@ const UpdateSubjectHourAdmin = () => {
       mutate.error.response.status != "500"
     ) {
       setError(mutate.error.response.data.message);
-    } else if (
-      mutate.isError &&
-      mutate.error.response.data.errors?.DateOfBirth
-    ) {
-      setError(mutate.error.response?.data.errors.DateOfBirth[0]);
     }
   }, [mutate]);
 

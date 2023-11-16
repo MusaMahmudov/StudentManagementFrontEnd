@@ -20,10 +20,12 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimeField } from "@mui/x-date-pickers/TimeField";
+import dayjs from "dayjs";
 
 const CreateSubjectHourAdmin = () => {
   const { subjectHourServices, groupSubjectServices, lessonTypesServices } =
     useService();
+  const [error, setError] = useState();
   const navigate = useNavigate();
   const { token } = useContext(TokenContext);
   useEffect(() => {
@@ -67,29 +69,13 @@ const CreateSubjectHourAdmin = () => {
   const handleStartTime = (newValue) => {
     setNewSubjectHour((prev) => ({
       ...prev,
-      startTime: `${
-        newValue?.$d.getHours() >= 10
-          ? `${newValue?.$d.getHours()}`
-          : `0${newValue?.$d.getHours()}`
-      }:${
-        newValue?.$d?.getMinutes() >= 10
-          ? `${newValue?.$d?.getMinutes()}`
-          : `0${newValue?.$d?.getMinutes()}`
-      }:00`,
+      startTime: dayjs(newValue).format("HH:mm:ss"),
     }));
   };
   const handleEndTime = (newValue) => {
     setNewSubjectHour((prev) => ({
       ...prev,
-      endTime: `${
-        newValue?.$d.getHours() >= 10
-          ? `${newValue?.$d.getHours()}`
-          : `0${newValue?.$d.getHours()}`
-      }:${
-        newValue?.$d?.getMinutes() >= 10
-          ? `${newValue?.$d?.getMinutes()}`
-          : `0${newValue?.$d?.getMinutes()}`
-      }:00`,
+      endTime: dayjs(newValue).format("HH:mm:ss"),
     }));
   };
   const mutate = useMutation(
@@ -98,6 +84,15 @@ const CreateSubjectHourAdmin = () => {
       onSuccess: () => navigate("/SubjectHours"),
     }
   );
+  useEffect(() => {
+    if (
+      mutate.isError &&
+      mutate.error.response.data.message &&
+      mutate.error.response.status != "500"
+    ) {
+      setError(mutate.error.response.data.message);
+    }
+  }, [mutate]);
   const [lessonTypeInputValue, setLessonTypeInputValue] = useState();
   const [groupSubjectInputValue, setGroupSubjectInputValue] = useState();
   const handleNewSubjectHour = (e) => {
@@ -271,23 +266,7 @@ const CreateSubjectHourAdmin = () => {
                   <TextField {...params} label="Group Subject" />
                 )}
               />
-              {/* <LocalizationProvider size="small" dateAdapter={AdapterDayjs}>
-                <TimePicker
-                  size="small"
-                  label="Start Time"
-                  name="startTime"
-                  value={newSubjectHour.startTime}
-                  onChange={(newValue) => console.log(newValue)}
-                  //   onInputChange={(e, newValue) => {
-                  //     handleStartTime(newValue);
-                  //   }}
-                  viewRenderers={{
-                    hours: renderTimeViewClock,
-                    minutes: renderTimeViewClock,
-                    seconds: renderTimeViewClock,
-                  }}
-                />
-              </LocalizationProvider> */}
+
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={["TimeField", "TimeField"]}>
                   <TimeField
@@ -302,7 +281,9 @@ const CreateSubjectHourAdmin = () => {
                   />
                 </DemoContainer>
               </LocalizationProvider>
-
+              <div className="errorMessage">
+                <h1>{error}</h1>
+              </div>
               <Button
                 type="submit"
                 onClick={handleNewSubjectHour}
